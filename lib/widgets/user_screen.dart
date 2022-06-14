@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../variables/globals.dart' as globals;
 import '../models/user.dart';
 import 'package:http/http.dart' as http;
 import '../variables/env.sample.dart';
