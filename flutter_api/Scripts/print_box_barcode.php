@@ -54,15 +54,19 @@ for ($i=$start;$i<=$stop;$i++) {
 
 $pdf->Output('output.pdf','f');
 
+if (is_dir('barcodes')) {
 $files = glob('./barcodes/*');
-foreach($files as $file){
-    if(is_file($file)){
-        unlink($file);
+    foreach($files as $file) {
+        if(is_file($file)){
+            unlink($file);
+        }
     }
 }
 
 if(is_dir('barcodes')){
     rmdir('barcodes');
 }
+
+readfile('output.pdf');
 
 ?>

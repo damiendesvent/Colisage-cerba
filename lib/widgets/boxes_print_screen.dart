@@ -33,6 +33,7 @@ class _BoxesPrintState extends State<BoxesPrint> {
   late final List boxTypesAcronymeList;
   late String boxType;
   String quantity = '';
+  int maxDatatable = 0;
 
   getBoxTypeList() async {
     String phpUriBoxTypes = Env.urlPrefix + 'Box_types/list_box_type.php';
@@ -48,7 +49,7 @@ class _BoxesPrintState extends State<BoxesPrint> {
     }
   }
 
-  Future<int> getBoxMax() async {
+  void getBoxMax() async {
     String phpUriBoxMax = Env.urlPrefix + 'Boxes/max_box.php';
     http.Response res = await http.post(Uri.parse(phpUriBoxMax), body: {
       "acronyme": boxTypesAcronymeList[boxTypesLibelleList.indexOf(boxType)]
@@ -57,28 +58,60 @@ class _BoxesPrintState extends State<BoxesPrint> {
       List items = json.decode(res.body);
       String item = items[0]['MAX(`CODE BOITE`)'] ?? '';
       item = item == '' ? '0' : item.substring(4);
-      return int.parse(item);
-    } else {
-      return 0;
+      setState(() {
+        maxDatatable = int.parse(item);
+      });
     }
   }
 
-  barcodesPrint() async {
+  barcodesPrint() {
     String phpUriBarcodes = Env.urlPrefix + 'Scripts/print_box_barcode.php';
     setState(() {
       quantity = _boxQuantityController.text;
     });
-    final maxDatatable = await getBoxMax();
-    await http.post(Uri.parse(phpUriBarcodes), body: {
-      'start': (1 + maxDatatable).toString(),
-      'stop': (int.parse(quantity) + maxDatatable).toString(),
-      'acronyme': boxTypesAcronymeList[boxTypesLibelleList.indexOf(boxType)],
-      'libelle': boxType
-    });
-    http.Response pdfRes =
-        await http.get(Uri.parse(Env.urlPrefix + 'Scripts/output.pdf'));
-    await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => pdfRes.bodyBytes);
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: const Text(
+                'Confirmation',
+                textAlign: TextAlign.center,
+              ),
+              content: Text(
+                'Êtes-vous sûr de vouloir imprimer \nles boites ' +
+                    boxType +
+                    ' n° ' +
+                    (maxDatatable + 1).toString() +
+                    ' à ' +
+                    (maxDatatable + int.parse(quantity)).toString() +
+                    ' ?',
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () async {
+                      http.Response pdfRes =
+                          await http.post(Uri.parse(phpUriBarcodes), body: {
+                        'start': (1 + maxDatatable).toString(),
+                        'stop': (int.parse(quantity) + maxDatatable).toString(),
+                        'acronyme': boxTypesAcronymeList[
+                            boxTypesLibelleList.indexOf(boxType)],
+                        'libelle': boxType
+                      });
+                      await Printing.layoutPdf(
+                          onLayout: (PdfPageFormat format) async =>
+                              pdfRes.bodyBytes);
+                      Navigator.of(context).pop();
+                      getBoxMax();
+                    },
+                    child: const Text('Oui')),
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Non')),
+              ],
+              elevation: 16,
+            ));
   }
 
   @override
@@ -117,6 +150,7 @@ class _BoxesPrintState extends State<BoxesPrint> {
                             setState(() {
                               boxType = newValue.toString();
                             });
+                            getBoxMax();
                           },
                         )),
                     Padding(
