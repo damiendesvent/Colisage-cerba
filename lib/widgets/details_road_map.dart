@@ -52,12 +52,26 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
   String? onCallStatus;
   bool onCallValue = false;
   late Iterable<Site> sites;
+  bool showDeleteDetailRoadMap = false;
 
   Future getDetailsRoadMapList() async {
     String phpUriDetailsRoadMapList =
         Env.urlPrefix + 'Road_map_details/list_road_map_detail.php';
-    http.Response res = await http.post(Uri.parse(phpUriDetailsRoadMapList),
-        body: {'codeTournee': globals.detailedRoadMap.code.toString()});
+    http.Response res =
+        await http.post(Uri.parse(phpUriDetailsRoadMapList), body: {
+      'codeTournee': globals.detailedRoadMap.code.toString(),
+      "limit": numberDisplayedList.last.toString(),
+      "order": searchFieldList[_currentSortColumn].toUpperCase(),
+      "isAscending": _isAscending.toString(),
+      'delete': showDeleteDetailRoadMap ? 'true' : 'false'
+    });
+    print({
+      'codeTournee': globals.detailedRoadMap.code.toString(),
+      "limit": numberDisplayedList.last.toString(),
+      "order": searchFieldList[_currentSortColumn].toUpperCase(),
+      "isAscending": _isAscending.toString(),
+      'delete': showDeleteDetailRoadMap ? 'true' : 'false'
+    });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       setState(() {
@@ -129,36 +143,14 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
     }
   }
 
-  sorting(String field, {bool isNumber = false}) {
-    if (isNumber) {
-      return ((columnIndex, _) {
-        setState(() {
-          _currentSortColumn = columnIndex;
-          if (_isAscending) {
-            roadmaps.sort((roadmapA, roadmapB) => int.parse(roadmapB[field])
-                .compareTo(int.parse(roadmapA[field])));
-          } else {
-            roadmaps.sort((roadmapA, roadmapB) => int.parse(roadmapA[field])
-                .compareTo(int.parse(roadmapB[field])));
-          }
-          _isAscending = !_isAscending;
-        });
+  sorting(String field) {
+    return ((columnIndex, _) {
+      setState(() {
+        _currentSortColumn = columnIndex;
+        _isAscending = !_isAscending;
+        searchDetailRoadMap();
       });
-    } else {
-      return ((columnIndex, _) {
-        setState(() {
-          _currentSortColumn = columnIndex;
-          if (_isAscending) {
-            roadmaps.sort((roadmapA, roadmapB) =>
-                roadmapB[field].compareTo(roadmapA[field]));
-          } else {
-            roadmaps.sort((roadmapA, roadmapB) =>
-                roadmapA[field].compareTo(roadmapB[field]));
-          }
-          _isAscending = !_isAscending;
-        });
-      });
-    }
+    });
   }
 
   void onUpdateRoadMap(RoadMap myRoadMap) async {
@@ -272,6 +264,73 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                             getDetailsRoadMapList();
                           },
                         ),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    },
+                    child: const Text('Oui')),
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Non')),
+              ],
+              elevation: 16,
+            ));
+  }
+
+  void onRestore(Map<dynamic, dynamic> roadMapDetail) {
+    String phpUriRoadMapDetailDelete =
+        Env.urlPrefix + 'Road_map_details/delete_road_map_detail.php';
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: const Text(
+                'Confirmation',
+                textAlign: TextAlign.center,
+              ),
+              content: Text(
+                'Êtes-vous sûr de vouloir restaurer \nl\'étape n°' +
+                    roadMapDetail['CODE AVANCEMENT'] +
+                    ' : ' +
+                    roadMapDetail['LIBELLE SITE'] +
+                    ' ?',
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      http.post(Uri.parse(phpUriRoadMapDetailDelete), body: {
+                        "searchCode":
+                            roadMapDetail['CODE TOURNEE + AVANCEMENT'],
+                        "cancel": 'true'
+                      });
+                      getDetailsRoadMapList();
+                      final snackBar = SnackBar(
+                        backgroundColor: Colors.green[800],
+                        duration: const Duration(seconds: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        content: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.check_circle_outline,
+                                color: Colors.white,
+                              ),
+                              Text(
+                                ' L\'étape n° ' +
+                                    roadMapDetail['CODE AVANCEMENT'] +
+                                    ' : ' +
+                                    roadMapDetail['LIBELLE SITE'] +
+                                    ' a bien été restaurée.',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 16),
+                              )
+                            ]),
                       );
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
@@ -639,9 +698,43 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
     }
   }
 
+  advancedResearch() {
+    if (isAdvancedResearch) {
+      return [
+        DropdownButtonHideUnderline(
+            child: DropdownButton(
+                value: advancedSearchField,
+                style: const TextStyle(fontSize: 14),
+                items: searchFieldList.map((searchFieldList) {
+                  return DropdownMenuItem(
+                      value: searchFieldList,
+                      child: Text(searchFieldList.toString()));
+                }).toList(),
+                onChanged: (String? newAdvancedSearchField) {
+                  setState(() {
+                    advancedSearchField = newAdvancedSearchField!;
+                  });
+                })),
+        Expanded(
+            child: TextFormField(
+          controller: _advancedSearchTextController,
+          decoration:
+              const InputDecoration(hintText: 'Deuxième champ de recherche'),
+          onFieldSubmitted: (e) {
+            searchDetailRoadMap();
+          },
+        )),
+        const Spacer(),
+      ];
+    } else {
+      return [const Spacer()];
+    }
+  }
+
   void getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
-    http.Response res = await http.get(Uri.parse(phpUriSiteList));
+    http.Response res = await http.post(Uri.parse(phpUriSiteList),
+        body: {"limit": '10000', "delete": 'false'});
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       setState(() {
@@ -649,6 +742,40 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
           (e) => Site.fromSnapshot(e),
         );
       });
+    }
+  }
+
+  Future searchDetailRoadMap() async {
+    String phpUriDetailRoadMapSearch =
+        Env.urlPrefix + 'Road_map_details/search_road_map_detail.php';
+    http.Response res =
+        await http.post(Uri.parse(phpUriDetailRoadMapSearch), body: {
+      "codeTournee": globals.detailedRoadMap.code.toString(),
+      "field": searchField.toUpperCase(),
+      "advancedField": advancedSearchField.toUpperCase(),
+      "searchText": _searchTextController.text,
+      "advancedSearchText":
+          isAdvancedResearch ? _advancedSearchTextController.text : '',
+      "limit": numberDisplayedList.last.toString(),
+      "order": searchFieldList[_currentSortColumn].toUpperCase(),
+      "isAscending": _isAscending.toString(),
+      "delete": showDeleteDetailRoadMap ? 'true' : 'false'
+    });
+    print({
+      "codeTournee": globals.detailedRoadMap.code.toString(),
+      "field": searchField.toUpperCase(),
+      "advancedField": advancedSearchField.toUpperCase(),
+      "searchText": _searchTextController.text,
+      "advancedSearchText":
+          isAdvancedResearch ? _advancedSearchTextController.text : '',
+      "limit": numberDisplayedList.last.toString(),
+      "order": searchFieldList[_currentSortColumn].toUpperCase(),
+      "isAscending": _isAscending.toString(),
+      "delete": showDeleteDetailRoadMap ? 'true' : 'false'
+    });
+    if (res.body.isNotEmpty) {
+      List itemsSearch = json.decode(res.body);
+      _streamController.add(itemsSearch);
     }
   }
 
@@ -745,18 +872,31 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                  onPressed: () {
-                    setState(() {
-                      editingDetailRoadMap =
-                          roadMapDetail['CODE TOURNEE + AVANCEMENT'];
-                    });
-                  },
-                  icon: const Icon(Icons.edit)),
-              IconButton(
+                onPressed: () {
+                  setState(() {
+                    editingDetailRoadMap =
+                        roadMapDetail['CODE TOURNEE + AVANCEMENT'];
+                  });
+                },
+                icon: const Icon(Icons.edit),
+                tooltip: 'Editer',
+              ),
+              if (!showDeleteDetailRoadMap)
+                IconButton(
                   onPressed: () {
                     onDelete(roadMapDetail);
                   },
-                  icon: const Icon(Icons.delete_forever))
+                  icon: const Icon(Icons.delete_forever),
+                  tooltip: 'Supprimer',
+                ),
+              if (showDeleteDetailRoadMap)
+                IconButton(
+                  onPressed: () {
+                    onRestore(roadMapDetail);
+                  },
+                  icon: const Icon(Icons.settings_backup_restore),
+                  tooltip: 'Restaurer',
+                )
             ],
           ))
       ];
@@ -770,6 +910,21 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
     super.initState();
   }
 
+  bool isAdvancedResearch = false;
+  static const searchFieldList = [
+    'Code avancement',
+    'Libellé site',
+    'Heure arrivée',
+    'Commentaire',
+    'Passage sur appel',
+  ];
+  String searchField = searchFieldList.first;
+  String advancedSearchField = searchFieldList[1];
+  final _searchTextController = TextEditingController();
+  final _advancedSearchTextController = TextEditingController();
+  static const numberDisplayedList = [10, 25, 50, 100];
+  int numberDisplayed = 25;
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List>(
@@ -781,7 +936,84 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                   headerRoadMap(editing),
+                  const SizedBox(height: 50),
+                  AppBar(
+                      elevation: 8,
+                      toolbarHeight: isAdvancedResearch ? 100 : 55,
+                      backgroundColor: Colors.grey[300],
+                      flexibleSpace: Column(children: [
+                        Row(mainAxisSize: MainAxisSize.min, children: [
+                          DropdownButtonHideUnderline(
+                              child: DropdownButton(
+                                  value: searchField,
+                                  style: const TextStyle(fontSize: 14),
+                                  items: searchFieldList.map((searchFieldList) {
+                                    return DropdownMenuItem(
+                                        value: searchFieldList,
+                                        child:
+                                            Text(searchFieldList.toString()));
+                                  }).toList(),
+                                  onChanged: (String? newsearchField) {
+                                    setState(() {
+                                      searchField = newsearchField!;
+                                    });
+                                  })),
+                          Expanded(
+                              child: TextFormField(
+                            controller: _searchTextController,
+                            decoration:
+                                const InputDecoration(hintText: 'Recherche'),
+                            onFieldSubmitted: (e) {
+                              searchDetailRoadMap();
+                            },
+                          )),
+                          IconButton(
+                              onPressed: () {
+                                searchDetailRoadMap();
+                              },
+                              icon: const Icon(Icons.search_outlined),
+                              tooltip: 'Rechercher'),
+                          if (!isAdvancedResearch)
+                            IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isAdvancedResearch = true;
+                                  });
+                                },
+                                icon: const Icon(Icons.manage_search_outlined),
+                                tooltip: 'Recherche avancée'),
+                          if (isAdvancedResearch)
+                            IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isAdvancedResearch = false;
+                                  });
+                                },
+                                icon: const Icon(Icons.search_off_outlined),
+                                tooltip: 'Recherche simple'),
+                          const Spacer(),
+                          const Text('Nombre de lignes affichées : '),
+                          DropdownButton(
+                              value: numberDisplayed,
+                              items: numberDisplayedList
+                                  .map((numberDisplayedList) {
+                                return DropdownMenuItem(
+                                    value: numberDisplayedList,
+                                    child:
+                                        Text(numberDisplayedList.toString()));
+                              }).toList(),
+                              onChanged: (int? newNumberDisplayed) {
+                                setState(() {
+                                  numberDisplayed = newNumberDisplayed!;
+                                });
+                              })
+                        ]),
+                        Row(
+                          children: advancedResearch(),
+                        )
+                      ])),
                   DataTable(
+                    headingRowHeight: 70,
                     sortColumnIndex: _currentSortColumn,
                     sortAscending: _isAscending,
                     headingTextStyle: const TextStyle(
@@ -790,7 +1022,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                       DataColumn(
                           label: const Text('Code avancement',
                               textAlign: TextAlign.center),
-                          onSort: sorting('CODE AVANCEMENT', isNumber: true)),
+                          onSort: sorting('CODE AVANCEMENT')),
                       DataColumn(
                           label:
                               const Text('Site', textAlign: TextAlign.center),
@@ -809,11 +1041,25 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                           onSort: sorting('PASSAGE SUR APPEL')),
                       if (globals.user.roadMapEditing)
                         DataColumn(
-                            label: ElevatedButton(
-                                onPressed: () {
-                                  showAddPageDetailRoadMap();
-                                },
-                                child: const Text('Ajouter une étape')))
+                            label: Column(children: [
+                          ElevatedButton(
+                              onPressed: () {
+                                showAddPageDetailRoadMap();
+                              },
+                              child: const Text('Ajouter une étape')),
+                          const Spacer(),
+                          Row(children: [
+                            const Text('Etapes supprimées :'),
+                            Switch(
+                                value: showDeleteDetailRoadMap,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    showDeleteDetailRoadMap = newValue;
+                                  });
+                                  getDetailsRoadMapList();
+                                })
+                          ])
+                        ]))
                     ],
                     rows: [
                       for (Map roadMapDetail in snapshot.data)
@@ -841,3 +1087,78 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
         });
   }
 }
+
+/*AppBar(
+                    elevation: 8,
+                    toolbarHeight: isAdvancedResearch ? 100 : 55,
+                    backgroundColor: Colors.grey[300],
+                    flexibleSpace: FlexibleSpaceBar(
+                        background: Column(children: [
+                      Row(mainAxisSize: MainAxisSize.min, children: [
+                        DropdownButtonHideUnderline(
+                            child: DropdownButton(
+                                value: searchField,
+                                style: const TextStyle(fontSize: 14),
+                                items: searchFieldList.map((searchFieldList) {
+                                  return DropdownMenuItem(
+                                      value: searchFieldList,
+                                      child: Text(searchFieldList.toString()));
+                                }).toList(),
+                                onChanged: (String? newsearchField) {
+                                  setState(() {
+                                    searchField = newsearchField!;
+                                  });
+                                })),
+                        Expanded(
+                            child: TextFormField(
+                          controller: _searchTextController,
+                          decoration:
+                              const InputDecoration(hintText: 'Recherche'),
+                          onFieldSubmitted: (e) {
+                            searchDetailRoadMap();
+                          },
+                        )),
+                        IconButton(
+                            onPressed: () {
+                              searchDetailRoadMap();
+                            },
+                            icon: const Icon(Icons.search_outlined),
+                            tooltip: 'Rechercher'),
+                        if (!isAdvancedResearch)
+                          IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  isAdvancedResearch = true;
+                                });
+                              },
+                              icon: const Icon(Icons.manage_search_outlined),
+                              tooltip: 'Recherche avancée'),
+                        if (isAdvancedResearch)
+                          IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  isAdvancedResearch = false;
+                                });
+                              },
+                              icon: const Icon(Icons.search_off_outlined),
+                              tooltip: 'Recherche simple'),
+                        const Spacer(),
+                        const Text('Nombre de lignes affichées : '),
+                        DropdownButton(
+                            value: numberDisplayed,
+                            items:
+                                numberDisplayedList.map((numberDisplayedList) {
+                              return DropdownMenuItem(
+                                  value: numberDisplayedList,
+                                  child: Text(numberDisplayedList.toString()));
+                            }).toList(),
+                            onChanged: (int? newNumberDisplayed) {
+                              setState(() {
+                                numberDisplayed = newNumberDisplayed!;
+                              });
+                            })
+                      ]),
+                      Row(
+                        children: advancedResearch(),
+                      )
+                    ]))),*/

@@ -12,15 +12,11 @@ $roadMapEditing = $_POST['roadMapEditing'] == 'true' ? 1 : 0;
 $boxEditing = $_POST['boxEditing'] == 'true' ? 1 : 0;
 $userEditing = $_POST['userEditing'] == 'true' ? 1 : 0;
 $sqlExecute = $_POST['sqlExecute'] == 'true' ? 1 : 0;
-$password = $_POST['password'];
-
-$changePassword = $password == '' ? '' : '", MOT DE PASSE = aes_encrypt("'.$password.'", "%C*F-JaNdRgUkGn2r5u8x/B?D(G+KbPe")';
 
 $sqlQuery = 'UPDATE utilisateurs SET `CODE UTILISATEUR` = "'.$code.
                         '", NOM = "'.$lastname.
                         '", PRENOM = "'.$firstname.
                         '", FONCTION = "'.$function.
-                        $changePassword.
                         '", `EDITION SITE` = "'.$siteEditing.
                         '", `EDITION BOITE` = "'.$boxEditing.
                         '", `EDITION UTILISATEUR` = "'.$userEditing.

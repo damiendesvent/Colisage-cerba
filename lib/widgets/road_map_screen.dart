@@ -32,23 +32,29 @@ class RoadMapList extends StatefulWidget {
 class _RoadMapListState extends State<RoadMapList> {
   final StreamController<List> _streamController = StreamController<List>();
   final _searchTextController = TextEditingController();
+  final _advancedSearchTextController = TextEditingController();
   bool showDetailsRoadMap = false;
-  String searchText = '';
-  static const numberDisplayedList = [10, 25, 50, 100, 1000];
+  static const numberDisplayedList = [10, 25, 50, 100];
   int numberDisplayed = 25;
   static const searchFieldList = [
-    'CODE TOURNEE',
-    'LIBELLE TOURNEE',
-    'TEL CHAUFFEUR',
-    'COMMENTAIRE',
-    'ORDRE AFFICHAGE PDA'
+    'Code tournée',
+    'Libellé tournée',
+    'Tel chauffeur',
+    'Commentaire',
+    'Ordre affichage PDA'
   ];
-  String searchField = 'CODE TOURNEE';
+  String searchField = searchFieldList[1];
+  String advancedSearchField = searchFieldList[0];
   bool isEditing = false;
+  bool showDeleteRoadMap = false;
+  bool isAdvancedResearch = false;
 
   Future getRoadMapList() async {
     String phpUriRoadMapList = Env.urlPrefix + 'Road_maps/list_road_map.php';
-    http.Response res = await http.get(Uri.parse(phpUriRoadMapList));
+    http.Response res = await http.post(Uri.parse(phpUriRoadMapList), body: {
+      "limit": numberDisplayedList.last.toString(),
+      "delete": showDeleteRoadMap ? 'true' : 'false'
+    });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       _streamController.add(items);
@@ -65,14 +71,51 @@ class _RoadMapListState extends State<RoadMapList> {
   Future searchRoadMap() async {
     String phpUriRoadMapSearch =
         Env.urlPrefix + 'Road_maps/search_road_map.php';
-    setState(() {
-      searchText = _searchTextController.text;
+    http.Response res = await http.post(Uri.parse(phpUriRoadMapSearch), body: {
+      "field": searchField.toUpperCase(),
+      "advancedField": advancedSearchField.toUpperCase(),
+      "searchText": _searchTextController.text,
+      "advancedSearchText":
+          isAdvancedResearch ? _advancedSearchTextController.text : '',
+      "limit": numberDisplayedList.last.toString(),
+      "delete": showDeleteRoadMap ? 'true' : 'false'
     });
-    http.Response res = await http.post(Uri.parse(phpUriRoadMapSearch),
-        body: {"field": searchField, "searchText": searchText});
     if (res.body.isNotEmpty) {
       List itemsSearch = json.decode(res.body);
       _streamController.add(itemsSearch);
+    }
+  }
+
+  advancedResearch() {
+    if (isAdvancedResearch) {
+      return [
+        DropdownButtonHideUnderline(
+            child: DropdownButton(
+                value: advancedSearchField,
+                style: const TextStyle(fontSize: 14),
+                items: searchFieldList.map((searchFieldList) {
+                  return DropdownMenuItem(
+                      value: searchFieldList,
+                      child: Text(searchFieldList.toString()));
+                }).toList(),
+                onChanged: (String? newAdvancedSearchField) {
+                  setState(() {
+                    advancedSearchField = newAdvancedSearchField!;
+                  });
+                })),
+        Expanded(
+            child: TextFormField(
+          controller: _advancedSearchTextController,
+          decoration:
+              const InputDecoration(hintText: 'Deuxième champ de recherche'),
+          onFieldSubmitted: (e) {
+            searchRoadMap();
+          },
+        )),
+        const Spacer(),
+      ];
+    } else {
+      return [const Spacer()];
     }
   }
 
@@ -90,18 +133,97 @@ class _RoadMapListState extends State<RoadMapList> {
                   });
                 },
               ),
-              PopupMenuItem<Menu>(
-                value: Menu.itemDelete,
-                child: Row(children: const [
-                  Icon(Icons.delete_forever),
-                  Text('Supprimer')
-                ]),
-                onTap: () {
-                  Future.delayed(const Duration(seconds: 0),
-                      () => onDelete(RoadMap.fromSnapshot(roadMap)));
-                },
-              ),
+              if (!showDeleteRoadMap)
+                PopupMenuItem<Menu>(
+                  value: Menu.itemDelete,
+                  child: Row(children: const [
+                    Icon(Icons.delete_forever),
+                    Text('Supprimer')
+                  ]),
+                  onTap: () {
+                    Future.delayed(const Duration(seconds: 0),
+                        () => onDelete(RoadMap.fromSnapshot(roadMap)));
+                  },
+                ),
+              if (showDeleteRoadMap)
+                PopupMenuItem<Menu>(
+                  value: Menu.itemDelete,
+                  child: Row(children: const [
+                    Icon(Icons.settings_backup_restore),
+                    Text('Restaurer')
+                  ]),
+                  onTap: () {
+                    Future.delayed(const Duration(seconds: 0),
+                        () => onRestore(RoadMap.fromSnapshot(roadMap)));
+                  },
+                ),
             ]);
+  }
+
+  void onRestore(RoadMap roadMap) {
+    String phpUriRoadMapDelete =
+        Env.urlPrefix + 'Road_maps/delete_road_map.php';
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: const Text(
+                'Confirmation',
+                textAlign: TextAlign.center,
+              ),
+              content: Text(
+                'Êtes-vous sûr de vouloir restaurer \nla feuille de route n°' +
+                    roadMap.code.toString() +
+                    ' : ' +
+                    roadMap.libelle +
+                    ' ?',
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      http.post(Uri.parse(phpUriRoadMapDelete), body: {
+                        "searchCode": roadMap.code.toString(),
+                        "cancel": 'true'
+                      });
+                      getRoadMapList();
+                      final snackBar = SnackBar(
+                        backgroundColor: Colors.green[800],
+                        duration: const Duration(seconds: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        content: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.check_circle_outline,
+                                color: Colors.white,
+                              ),
+                              Text(
+                                ' Le feuille de route n° ' +
+                                    roadMap.code.toString() +
+                                    ' : ' +
+                                    roadMap.libelle +
+                                    ' a bien été restauré.',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 16),
+                              )
+                            ]),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    },
+                    child: const Text('Oui')),
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Non')),
+              ],
+              elevation: 16,
+            ));
   }
 
   void onDelete(RoadMap roadMap) {
@@ -426,60 +548,97 @@ class _RoadMapListState extends State<RoadMapList> {
               SliverAppBar(
                 elevation: 8,
                 forceElevated: true,
-                expandedHeight: 50,
+                expandedHeight: isAdvancedResearch ? 100 : 55,
                 floating: true,
                 backgroundColor: Colors.grey[300],
                 flexibleSpace: FlexibleSpaceBar(
-                    background: Row(mainAxisSize: MainAxisSize.min, children: [
-                  DropdownButtonHideUnderline(
-                      child: DropdownButton(
-                          value: searchField,
-                          style: const TextStyle(fontSize: 14),
-                          items: searchFieldList.map((searchFieldList) {
-                            return DropdownMenuItem(
-                                value: searchFieldList,
-                                child: Text(searchFieldList.toString()));
-                          }).toList(),
-                          onChanged: (String? newsearchField) {
-                            setState(() {
-                              searchField = newsearchField!;
-                            });
-                          })),
-                  Expanded(
-                      child: TextFormField(
-                    controller: _searchTextController,
-                    decoration: const InputDecoration(hintText: 'Recherche'),
-                    onFieldSubmitted: (e) {
-                      searchRoadMap();
-                    },
-                  )),
-                  IconButton(
-                      onPressed: () {
+                    background: Column(children: [
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    DropdownButtonHideUnderline(
+                        child: DropdownButton(
+                            value: searchField,
+                            style: const TextStyle(fontSize: 14),
+                            items: searchFieldList.map((searchFieldList) {
+                              return DropdownMenuItem(
+                                  value: searchFieldList,
+                                  child: Text(searchFieldList.toString()));
+                            }).toList(),
+                            onChanged: (String? newsearchField) {
+                              setState(() {
+                                searchField = newsearchField!;
+                              });
+                              searchRoadMap();
+                            })),
+                    Expanded(
+                        child: TextFormField(
+                      controller: _searchTextController,
+                      decoration: const InputDecoration(hintText: 'Recherche'),
+                      onFieldSubmitted: (e) {
                         searchRoadMap();
                       },
-                      icon: const Icon(Icons.search_outlined),
-                      tooltip: 'Rechercher'),
-                  const Spacer(),
-                  if (globals.user.roadMapEditing)
-                    ElevatedButton(
+                    )),
+                    IconButton(
                         onPressed: () {
-                          showAddPageRoadMap();
+                          searchRoadMap();
                         },
-                        child: const Text('Ajouter une feuille de route')),
-                  const Spacer(),
-                  const Text('Nombre de lignes affichées : '),
-                  DropdownButton(
-                      value: numberDisplayed,
-                      items: numberDisplayedList.map((numberDisplayedList) {
-                        return DropdownMenuItem(
-                            value: numberDisplayedList,
-                            child: Text(numberDisplayedList.toString()));
-                      }).toList(),
-                      onChanged: (int? newNumberDisplayed) {
-                        setState(() {
-                          numberDisplayed = newNumberDisplayed!;
-                        });
-                      })
+                        icon: const Icon(Icons.search_outlined),
+                        tooltip: 'Rechercher'),
+                    if (!isAdvancedResearch)
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isAdvancedResearch = true;
+                            });
+                          },
+                          icon: const Icon(Icons.manage_search_outlined),
+                          tooltip: 'Recherche avancée'),
+                    if (isAdvancedResearch)
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isAdvancedResearch = false;
+                              _advancedSearchTextController.text = '';
+                            });
+                            searchRoadMap();
+                          },
+                          icon: const Icon(Icons.search_off_outlined),
+                          tooltip: 'Recherche simple'),
+                    const Spacer(),
+                    if (globals.user.roadMapEditing)
+                      ElevatedButton(
+                          onPressed: () {
+                            showAddPageRoadMap();
+                          },
+                          child: const Text('Ajouter une feuille de route')),
+                    if (globals.user.roadMapEditing)
+                      const Text('  Feuilles de route supprimées :'),
+                    if (globals.user.roadMapEditing)
+                      Switch(
+                          value: showDeleteRoadMap,
+                          onChanged: (newValue) {
+                            setState(() {
+                              showDeleteRoadMap = newValue;
+                            });
+                            getRoadMapList();
+                          }),
+                    const Spacer(),
+                    const Text('Nombre de lignes affichées : '),
+                    DropdownButton(
+                        value: numberDisplayed,
+                        items: numberDisplayedList.map((numberDisplayedList) {
+                          return DropdownMenuItem(
+                              value: numberDisplayedList,
+                              child: Text(numberDisplayedList.toString()));
+                        }).toList(),
+                        onChanged: (int? newNumberDisplayed) {
+                          setState(() {
+                            numberDisplayed = newNumberDisplayed!;
+                          });
+                        })
+                  ]),
+                  Row(
+                    children: advancedResearch(),
+                  )
                 ])),
               ),
               SliverList(
@@ -494,11 +653,18 @@ class _RoadMapListState extends State<RoadMapList> {
                           : null,
                       isThreeLine: true,
                       title: Text(roadMap['CODE TOURNEE']),
-                      subtitle: Text(roadMap['LIBELLE TOURNEE'] +
+                      subtitle: Text(searchField +
+                          ' : ' +
+                          roadMap[
+                              searchField.replaceAll('é', 'e').toUpperCase()] +
                           '\n' +
-                          (searchField == 'CODE TOURNEE'
-                              ? ''
-                              : searchField + ' : ' + roadMap[searchField])),
+                          (isAdvancedResearch
+                              ? advancedSearchField +
+                                  ' : ' +
+                                  roadMap[advancedSearchField
+                                      .replaceAll('é', 'e')
+                                      .toUpperCase()]
+                              : '')),
                       onTap: () {
                         setState(() {
                           showDetailsRoadMap = true;

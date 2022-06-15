@@ -30,21 +30,19 @@ class _TracaListState extends State<TracaList> {
   String phpUriTracaList = Env.urlPrefix + 'Tracas/list_traca.php';
   String phpUriTracaSearch = Env.urlPrefix + 'Tracas/search_traca.php';
   bool showDetailsTraca = false;
-  String searchText = '';
-  String advancedSearchText = '';
   static const numberDisplayedList = [10, 25, 50, 100];
   int numberDisplayed = 25;
   static const searchFieldList = [
-    'CODE TRACABILITE',
-    'UTILISATEUR',
-    'CODE TOURNEE',
-    'CODE SITE',
-    'BOITE',
-    'TUBE',
-    'ACTION',
-    'CODE VOITURE',
-    'DATE HEURE ENREGISTREMENT',
-    'DATE HEURE SYNCHRONISATION',
+    'Code tracabilité',
+    'Utilisateur',
+    'Code tournée',
+    'Code site',
+    'Boite',
+    'Tube',
+    'Action',
+    'Code voiture',
+    'Date Heure enregistrement',
+    'Date Heure synchronisation',
   ];
   String searchField = searchFieldList.first;
   String advancedSearchField = searchFieldList[1];
@@ -56,7 +54,7 @@ class _TracaListState extends State<TracaList> {
   Future getTracaList() async {
     http.Response res = await http.post(Uri.parse(phpUriTracaList), body: {
       "limit": numberDisplayedList.last.toString(),
-      "order": searchFieldList[_currentSortColumn],
+      "order": searchFieldList[_currentSortColumn].toUpperCase(),
       "isAscending": _isAscending.toString(),
     });
     if (res.body.isNotEmpty) {
@@ -73,17 +71,14 @@ class _TracaListState extends State<TracaList> {
   }
 
   Future searchTraca() async {
-    setState(() {
-      searchText = _searchTextController.text;
-      advancedSearchText = _advancedSearchTextController.text;
-    });
     http.Response res = await http.post(Uri.parse(phpUriTracaSearch), body: {
-      "field": searchField,
-      "advancedField": advancedSearchField,
-      "searchText": searchText,
-      "advancedSearchText": advancedSearchText,
+      "field": searchField.toUpperCase(),
+      "advancedField": advancedSearchField.toUpperCase(),
+      "searchText": _searchTextController.text,
+      "advancedSearchText":
+          isAdvancedResearch ? _advancedSearchTextController.text : '',
       "limit": numberDisplayedList.last.toString(),
-      "order": searchFieldList[_currentSortColumn],
+      "order": searchFieldList[_currentSortColumn].toUpperCase(),
       "isAscending": _isAscending.toString(),
     });
     if (res.body.isNotEmpty) {
@@ -118,6 +113,7 @@ class _TracaListState extends State<TracaList> {
                   setState(() {
                     advancedSearchField = newAdvancedSearchField!;
                   });
+                  searchTraca();
                 })),
         Expanded(
             child: TextFormField(
@@ -128,14 +124,6 @@ class _TracaListState extends State<TracaList> {
             searchTraca();
           },
         )),
-        IconButton(
-            onPressed: () {
-              setState(() {
-                isAdvancedResearch = false;
-              });
-            },
-            icon: const Icon(Icons.search_off_outlined),
-            tooltip: 'Supprimer le champ de recherche'),
         const Spacer(),
       ];
     } else {
@@ -188,14 +176,26 @@ class _TracaListState extends State<TracaList> {
                               },
                               icon: const Icon(Icons.search_outlined),
                               tooltip: 'Rechercher'),
-                          IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isAdvancedResearch = true;
-                                });
-                              },
-                              icon: const Icon(Icons.manage_search_outlined),
-                              tooltip: 'Recherche avancée'),
+                          if (!isAdvancedResearch)
+                            IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isAdvancedResearch = true;
+                                  });
+                                },
+                                icon: const Icon(Icons.manage_search_outlined),
+                                tooltip: 'Recherche avancée'),
+                          if (isAdvancedResearch)
+                            IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isAdvancedResearch = false;
+                                    _advancedSearchTextController.text = '';
+                                  });
+                                  searchTraca();
+                                },
+                                icon: const Icon(Icons.search_off_outlined),
+                                tooltip: 'Recherche simple'),
                           const Spacer(),
                           const Text('Nombre de lignes affichées : '),
                           DropdownButton(

@@ -32,28 +32,34 @@ class SiteList extends StatefulWidget {
 class _SiteListState extends State<SiteList> {
   final StreamController<List> _streamController = StreamController<List>();
   final _searchTextController = TextEditingController();
+  final _advancedSearchTextController = TextEditingController();
   bool showDetailsSite = false;
-  String searchText = '';
-  static const numberDisplayedList = [10, 25, 50, 100, 1000];
+  static const numberDisplayedList = [10, 25, 50, 100];
   int numberDisplayed = 25;
   static const searchFieldList = [
-    'CODE SITE',
-    'CORRESPONDANT',
-    'LIBELLE SITE',
-    'ADRESSE',
-    'COMPLEMENT ADRESSE',
+    'Code site',
+    'Correspondant',
+    'Libellé site',
+    'Adresse',
+    'Complément adresse',
     'CP',
-    'VILLE'
+    'Ville'
   ];
-  String searchField = 'CODE SITE';
+  String searchField = searchFieldList[2];
+  String advancedSearchField = searchFieldList[6];
   bool isEditing = false;
   bool isCollectionSite = false;
   bool isDepositSite = false;
   String? maxSite;
+  bool showDeleteSite = false;
+  bool isAdvancedResearch = false;
 
-  Future getSiteList() async {
+  Future getSiteList({bool delete = false}) async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
-    http.Response res = await http.get(Uri.parse(phpUriSiteList));
+    http.Response res = await http.post(Uri.parse(phpUriSiteList), body: {
+      "limit": numberDisplayedList.last.toString(),
+      "delete": delete ? 'true' : 'false'
+    });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       _streamController.add(items);
@@ -69,14 +75,51 @@ class _SiteListState extends State<SiteList> {
 
   Future searchSite() async {
     String phpUriSiteSearch = Env.urlPrefix + 'Sites/search_site.php';
-    setState(() {
-      searchText = _searchTextController.text;
+    http.Response res = await http.post(Uri.parse(phpUriSiteSearch), body: {
+      "field": searchField.toUpperCase(),
+      "advancedField": advancedSearchField.toUpperCase(),
+      "searchText": _searchTextController.text,
+      "advancedSearchText":
+          isAdvancedResearch ? _advancedSearchTextController.text : '',
+      "limit": numberDisplayedList.last.toString(),
+      "delete": showDeleteSite ? 'true' : 'false'
     });
-    http.Response res = await http.post(Uri.parse(phpUriSiteSearch),
-        body: {"field": searchField, "searchText": searchText});
     if (res.body.isNotEmpty) {
       List itemsSearch = json.decode(res.body);
       _streamController.add(itemsSearch);
+    }
+  }
+
+  advancedResearch() {
+    if (isAdvancedResearch) {
+      return [
+        DropdownButtonHideUnderline(
+            child: DropdownButton(
+                value: advancedSearchField,
+                style: const TextStyle(fontSize: 14),
+                items: searchFieldList.map((searchFieldList) {
+                  return DropdownMenuItem(
+                      value: searchFieldList,
+                      child: Text(searchFieldList.toString()));
+                }).toList(),
+                onChanged: (String? newAdvancedSearchField) {
+                  setState(() {
+                    advancedSearchField = newAdvancedSearchField!;
+                  });
+                })),
+        Expanded(
+            child: TextFormField(
+          controller: _advancedSearchTextController,
+          decoration:
+              const InputDecoration(hintText: 'Deuxième champ de recherche'),
+          onFieldSubmitted: (e) {
+            searchSite();
+          },
+        )),
+        const Spacer(),
+      ];
+    } else {
+      return [const Spacer()];
     }
   }
 
@@ -104,18 +147,96 @@ class _SiteListState extends State<SiteList> {
                   });
                 },
               ),
-              PopupMenuItem<Menu>(
-                value: Menu.itemDelete,
-                child: Row(children: const [
-                  Icon(Icons.delete_forever),
-                  Text('Supprimer')
-                ]),
-                onTap: () {
-                  Future.delayed(const Duration(seconds: 0),
-                      () => onDelete(Site.fromSnapshot(site)));
-                },
-              ),
+              if (!showDeleteSite)
+                PopupMenuItem<Menu>(
+                  value: Menu.itemDelete,
+                  child: Row(children: const [
+                    Icon(Icons.delete_forever),
+                    Text('Supprimer')
+                  ]),
+                  onTap: () {
+                    Future.delayed(const Duration(seconds: 0),
+                        () => onDelete(Site.fromSnapshot(site)));
+                  },
+                ),
+              if (showDeleteSite)
+                PopupMenuItem<Menu>(
+                  value: Menu.itemDelete,
+                  child: Row(children: const [
+                    Icon(Icons.settings_backup_restore),
+                    Text('Restaurer')
+                  ]),
+                  onTap: () {
+                    Future.delayed(const Duration(seconds: 0),
+                        () => onRestore(Site.fromSnapshot(site)));
+                  },
+                ),
             ]);
+  }
+
+  void onRestore(Site site) {
+    String phpUriSiteDelete = Env.urlPrefix + 'Sites/delete_site.php';
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: const Text(
+                'Confirmation',
+                textAlign: TextAlign.center,
+              ),
+              content: Text(
+                'Êtes-vous sûr de vouloir restaurer \nle site n°' +
+                    site.code.toString() +
+                    ' : ' +
+                    site.libelle +
+                    ' ?',
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      http.post(Uri.parse(phpUriSiteDelete), body: {
+                        "searchCode": site.code.toString(),
+                        "cancel": 'true'
+                      });
+                      getSiteList(delete: true);
+                      final snackBar = SnackBar(
+                        backgroundColor: Colors.green[800],
+                        duration: const Duration(seconds: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        content: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.check_circle_outline,
+                                color: Colors.white,
+                              ),
+                              Text(
+                                ' Le site n° ' +
+                                    site.code.toString() +
+                                    ' : ' +
+                                    site.libelle +
+                                    ' a bien été restauré.',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 16),
+                              )
+                            ]),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    },
+                    child: const Text('Oui')),
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Non')),
+              ],
+              elevation: 16,
+            ));
   }
 
   void onDelete(Site site) {
@@ -555,60 +676,97 @@ class _SiteListState extends State<SiteList> {
               SliverAppBar(
                 elevation: 8,
                 forceElevated: true,
-                expandedHeight: 50,
+                expandedHeight: isAdvancedResearch ? 100 : 55,
                 floating: true,
                 backgroundColor: Colors.grey[300],
                 flexibleSpace: FlexibleSpaceBar(
-                    background: Row(mainAxisSize: MainAxisSize.min, children: [
-                  DropdownButtonHideUnderline(
-                      child: DropdownButton(
-                          value: searchField,
-                          style: const TextStyle(fontSize: 14),
-                          items: searchFieldList.map((searchFieldList) {
-                            return DropdownMenuItem(
-                                value: searchFieldList,
-                                child: Text(searchFieldList));
-                          }).toList(),
-                          onChanged: (String? newsearchField) {
-                            setState(() {
-                              searchField = newsearchField!;
-                            });
-                          })),
-                  Expanded(
-                      child: TextFormField(
-                    controller: _searchTextController,
-                    decoration: const InputDecoration(hintText: 'Recherche'),
-                    onFieldSubmitted: (e) {
-                      searchSite();
-                    },
-                  )),
-                  IconButton(
-                      onPressed: () {
+                    background: Column(children: [
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    DropdownButtonHideUnderline(
+                        child: DropdownButton(
+                            value: searchField,
+                            style: const TextStyle(fontSize: 14),
+                            items: searchFieldList.map((searchFieldList) {
+                              return DropdownMenuItem(
+                                  value: searchFieldList,
+                                  child: Text(searchFieldList));
+                            }).toList(),
+                            onChanged: (String? newsearchField) {
+                              setState(() {
+                                searchField = newsearchField!;
+                              });
+                              searchSite();
+                            })),
+                    Expanded(
+                        child: TextFormField(
+                      controller: _searchTextController,
+                      decoration: const InputDecoration(hintText: 'Recherche'),
+                      onFieldSubmitted: (e) {
                         searchSite();
                       },
-                      icon: const Icon(Icons.search_outlined),
-                      tooltip: 'Rechercher'),
-                  const Spacer(),
-                  if (globals.user.siteEditing)
-                    ElevatedButton(
+                    )),
+                    IconButton(
                         onPressed: () {
-                          showAddPageSite();
+                          searchSite();
                         },
-                        child: const Text('Ajouter un site')),
-                  const Spacer(),
-                  const Text('Nombre de lignes affichées : '),
-                  DropdownButton(
-                      value: numberDisplayed,
-                      items: numberDisplayedList.map((numberDisplayedList) {
-                        return DropdownMenuItem(
-                            value: numberDisplayedList,
-                            child: Text(numberDisplayedList.toString()));
-                      }).toList(),
-                      onChanged: (int? newNumberDisplayed) {
-                        setState(() {
-                          numberDisplayed = newNumberDisplayed!;
-                        });
-                      })
+                        icon: const Icon(Icons.search_outlined),
+                        tooltip: 'Rechercher'),
+                    if (!isAdvancedResearch)
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isAdvancedResearch = true;
+                            });
+                          },
+                          icon: const Icon(Icons.manage_search_outlined),
+                          tooltip: 'Recherche avancée'),
+                    if (isAdvancedResearch)
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isAdvancedResearch = false;
+                              _advancedSearchTextController.text = '';
+                            });
+                            searchSite();
+                          },
+                          icon: const Icon(Icons.search_off_outlined),
+                          tooltip: 'Recherche simple'),
+                    const Spacer(),
+                    if (globals.user.siteEditing)
+                      ElevatedButton(
+                          onPressed: () {
+                            showAddPageSite();
+                          },
+                          child: const Text('Ajouter un site')),
+                    if (globals.user.siteEditing)
+                      const Text('  Sites supprimés :'),
+                    if (globals.user.siteEditing)
+                      Switch(
+                          value: showDeleteSite,
+                          onChanged: (newValue) {
+                            setState(() {
+                              showDeleteSite = newValue;
+                            });
+                            getSiteList(delete: showDeleteSite);
+                          }),
+                    const Spacer(),
+                    const Text('Nombre de lignes affichées : '),
+                    DropdownButton(
+                        value: numberDisplayed,
+                        items: numberDisplayedList.map((numberDisplayedList) {
+                          return DropdownMenuItem(
+                              value: numberDisplayedList,
+                              child: Text(numberDisplayedList.toString()));
+                        }).toList(),
+                        onChanged: (int? newNumberDisplayed) {
+                          setState(() {
+                            numberDisplayed = newNumberDisplayed!;
+                          });
+                        })
+                  ]),
+                  Row(
+                    children: advancedResearch(),
+                  )
                 ])),
               ),
               SliverList(
@@ -621,12 +779,18 @@ class _SiteListState extends State<SiteList> {
                       trailing:
                           globals.user.siteEditing ? popupMenu(site) : null,
                       isThreeLine: true,
-                      title: Text(site['CODE SITE']),
-                      subtitle: Text(site['LIBELLE SITE'] +
+                      title: Text(site[searchFieldList.first.toUpperCase()]),
+                      subtitle: Text(searchField +
+                          ' : ' +
+                          site[searchField.replaceAll('é', 'e').toUpperCase()] +
                           '\n' +
-                          (searchField == 'CODE SITE'
-                              ? ''
-                              : searchField + ' : ' + site[searchField])),
+                          (isAdvancedResearch
+                              ? advancedSearchField +
+                                  ' : ' +
+                                  site[advancedSearchField
+                                      .replaceAll('é', 'e')
+                                      .toUpperCase()]
+                              : '')),
                       onTap: () {
                         setState(() {
                           showDetailsSite = true;
