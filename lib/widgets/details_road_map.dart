@@ -65,13 +65,6 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
       "isAscending": _isAscending.toString(),
       'delete': showDeleteDetailRoadMap ? 'true' : 'false'
     });
-    print({
-      'codeTournee': globals.detailedRoadMap.code.toString(),
-      "limit": numberDisplayedList.last.toString(),
-      "order": searchFieldList[_currentSortColumn].toUpperCase(),
-      "isAscending": _isAscending.toString(),
-      'delete': showDeleteDetailRoadMap ? 'true' : 'false'
-    });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       setState(() {
@@ -193,7 +186,8 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
       editingDetailRoadMap = null;
       onCallStatus = null;
     });
-    getDetailsRoadMapList();
+    Future.delayed(Duration(milliseconds: globals.milisecondWait),
+        () => getDetailsRoadMapList());
     ScaffoldMessenger.of(context).showSnackBar(
         mySnackBar(const Text('Les modifications ont été enregistrées')));
   }
@@ -225,7 +219,9 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                             roadMapDetail['CODE TOURNEE + AVANCEMENT'],
                         "cancel": 'false'
                       });
-                      getDetailsRoadMapList();
+                      Future.delayed(
+                          Duration(milliseconds: globals.milisecondWait),
+                          () => getDetailsRoadMapList());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -261,7 +257,9 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                       'CODE TOURNEE + AVANCEMENT'],
                                   "cancel": 'true'
                                 });
-                            getDetailsRoadMapList();
+                            Future.delayed(
+                                Duration(milliseconds: globals.milisecondWait),
+                                () => getDetailsRoadMapList());
                           },
                         ),
                       );
@@ -305,7 +303,9 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                             roadMapDetail['CODE TOURNEE + AVANCEMENT'],
                         "cancel": 'true'
                       });
-                      getDetailsRoadMapList();
+                      Future.delayed(
+                          Duration(milliseconds: globals.milisecondWait),
+                          () => getDetailsRoadMapList());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -761,18 +761,6 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
       "isAscending": _isAscending.toString(),
       "delete": showDeleteDetailRoadMap ? 'true' : 'false'
     });
-    print({
-      "codeTournee": globals.detailedRoadMap.code.toString(),
-      "field": searchField.toUpperCase(),
-      "advancedField": advancedSearchField.toUpperCase(),
-      "searchText": _searchTextController.text,
-      "advancedSearchText":
-          isAdvancedResearch ? _advancedSearchTextController.text : '',
-      "limit": numberDisplayedList.last.toString(),
-      "order": searchFieldList[_currentSortColumn].toUpperCase(),
-      "isAscending": _isAscending.toString(),
-      "delete": showDeleteDetailRoadMap ? 'true' : 'false'
-    });
     if (res.body.isNotEmpty) {
       List itemsSearch = json.decode(res.body);
       _streamController.add(itemsSearch);
@@ -1013,7 +1001,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                         )
                       ])),
                   DataTable(
-                    headingRowHeight: 70,
+                    headingRowHeight: 80,
                     sortColumnIndex: _currentSortColumn,
                     sortAscending: _isAscending,
                     headingTextStyle: const TextStyle(
@@ -1042,11 +1030,13 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                       if (globals.user.roadMapEditing)
                         DataColumn(
                             label: Column(children: [
-                          ElevatedButton(
-                              onPressed: () {
-                                showAddPageDetailRoadMap();
-                              },
-                              child: const Text('Ajouter une étape')),
+                          Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    showAddPageDetailRoadMap();
+                                  },
+                                  child: const Text('Ajouter une étape'))),
                           const Spacer(),
                           Row(children: [
                             const Text('Etapes supprimées :'),

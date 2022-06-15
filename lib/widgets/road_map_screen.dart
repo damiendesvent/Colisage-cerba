@@ -186,7 +186,9 @@ class _RoadMapListState extends State<RoadMapList> {
                         "searchCode": roadMap.code.toString(),
                         "cancel": 'true'
                       });
-                      getRoadMapList();
+                      Future.delayed(
+                          Duration(milliseconds: globals.milisecondWait),
+                          () => getRoadMapList());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -252,7 +254,9 @@ class _RoadMapListState extends State<RoadMapList> {
                         "searchCode": roadMap.code.toString(),
                         "cancel": 'false'
                       });
-                      getRoadMapList();
+                      Future.delayed(
+                          Duration(milliseconds: globals.milisecondWait),
+                          () => getRoadMapList());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -286,7 +290,9 @@ class _RoadMapListState extends State<RoadMapList> {
                               "searchCode": roadMap.code.toString(),
                               "cancel": 'true'
                             });
-                            getRoadMapList();
+                            Future.delayed(
+                                Duration(milliseconds: globals.milisecondWait),
+                                () => getRoadMapList());
                           },
                         ),
                       );

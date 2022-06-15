@@ -54,11 +54,11 @@ class _SiteListState extends State<SiteList> {
   bool showDeleteSite = false;
   bool isAdvancedResearch = false;
 
-  Future getSiteList({bool delete = false}) async {
+  Future getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
     http.Response res = await http.post(Uri.parse(phpUriSiteList), body: {
       "limit": numberDisplayedList.last.toString(),
-      "delete": delete ? 'true' : 'false'
+      "delete": showDeleteSite ? 'true' : 'false'
     });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
@@ -199,7 +199,9 @@ class _SiteListState extends State<SiteList> {
                         "searchCode": site.code.toString(),
                         "cancel": 'true'
                       });
-                      getSiteList(delete: true);
+                      Future.delayed(
+                          Duration(milliseconds: globals.milisecondWait),
+                          () => getSiteList());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -264,7 +266,9 @@ class _SiteListState extends State<SiteList> {
                         "searchCode": site.code.toString(),
                         "cancel": 'false'
                       });
-                      getSiteList();
+                      Future.delayed(
+                          Duration(milliseconds: globals.milisecondWait),
+                          () => getSiteList());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -298,7 +302,9 @@ class _SiteListState extends State<SiteList> {
                               "searchCode": site.code.toString(),
                               "cancel": 'true'
                             });
-                            getSiteList();
+                            Future.delayed(
+                                Duration(milliseconds: globals.milisecondWait),
+                                () => getSiteList());
                           },
                         ),
                       );
@@ -747,7 +753,7 @@ class _SiteListState extends State<SiteList> {
                             setState(() {
                               showDeleteSite = newValue;
                             });
-                            getSiteList(delete: showDeleteSite);
+                            getSiteList();
                           }),
                     const Spacer(),
                     const Text('Nombre de lignes affichées : '),

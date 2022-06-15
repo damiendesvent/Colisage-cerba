@@ -6,6 +6,7 @@ import '../variables/env.sample.dart';
 import '../variables/styles.dart';
 import 'dart:async';
 import 'dart:convert';
+import '../variables/globals.dart' as globals;
 
 class UserScreen extends StatelessWidget {
   const UserScreen({Key? key}) : super(key: key);
@@ -160,7 +161,8 @@ class _UserState extends State<UserApp> {
     setState(() {
       editingUser = null;
     });
-    getUserList();
+    Future.delayed(
+        Duration(milliseconds: globals.milisecondWait), () => getUserList());
     ScaffoldMessenger.of(context).showSnackBar(
         mySnackBar(const Text('Les modifications ont été enregistrées')));
   }
@@ -192,7 +194,9 @@ class _UserState extends State<UserApp> {
                         "searchCode": user['CODE UTILISATEUR'],
                         "cancel": 'false'
                       });
-                      getUserList();
+                      Future.delayed(
+                          Duration(milliseconds: globals.milisecondWait),
+                          () => getUserList());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -228,7 +232,9 @@ class _UserState extends State<UserApp> {
                               "searchCode": user['CODE UTILISATEUR'],
                               "cancel": 'true'
                             });
-                            getUserList();
+                            Future.delayed(
+                                Duration(milliseconds: globals.milisecondWait),
+                                () => getUserList());
                           },
                         ),
                       );
@@ -272,7 +278,9 @@ class _UserState extends State<UserApp> {
                         "searchCode": user['CODE UTILISATEUR'],
                         "cancel": 'true'
                       });
-                      getUserList();
+                      Future.delayed(
+                          Duration(milliseconds: globals.milisecondWait),
+                          () => getUserList());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),

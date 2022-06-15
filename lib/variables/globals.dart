@@ -7,6 +7,8 @@ import '../models/traca.dart';
 
 bool isAuthentified = false;
 
+int milisecondWait = 10;
+
 User user = User(
     code: '',
     lastname: '',
