@@ -17,7 +17,8 @@ SnackBar mySnackBar(Text text,
     Icon icon = const Icon(
       Icons.check,
       color: Colors.white,
-    )}) {
+    ),
+    SnackBarAction? action}) {
   return SnackBar(
     width: width,
     backgroundColor: color,
@@ -27,5 +28,6 @@ SnackBar mySnackBar(Text text,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     content: Row(
         mainAxisAlignment: MainAxisAlignment.center, children: [icon, text]),
+    action: action,
   );
 }

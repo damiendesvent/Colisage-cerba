@@ -9,6 +9,3 @@ $sqlQuery = 'UPDATE utilisateurs SET `SUPPRIMEE` = '.$cancel.' where `code utili
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
 
-echo json_encode([
-    'success' => $result
-]);

@@ -498,7 +498,6 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
                                                       5),
-                                                  //FilteringTextInputFormatter.digitsOnly,
                                                   FilteringTextInputFormatter
                                                       .allow(RegExp('[0-9h]'))
                                                 ],
@@ -557,6 +556,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                   child: SizedBox(
                                       width: 105,
                                       child: ElevatedButton(
+                                        style: myButtonStyle,
                                         onPressed: () {
                                           setState(() {
                                             submited = true;
@@ -678,6 +678,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                 child: SizedBox(
                     width: 105,
                     child: ElevatedButton(
+                      style: myButtonStyle,
                       onPressed: () {
                         onUpdateRoadMap(RoadMap(
                             code: roadMap.code,
@@ -1033,6 +1034,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                           Padding(
                               padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                               child: ElevatedButton(
+                                  style: myButtonStyle,
                                   onPressed: () {
                                     showAddPageDetailRoadMap();
                                   },

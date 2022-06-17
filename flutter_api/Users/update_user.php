@@ -23,7 +23,3 @@ $sqlQuery = 'UPDATE utilisateurs SET `CODE UTILISATEUR` = "'.$code.
                         '", `EXECUTION SQL` = "'.$sqlExecute.'" where `CODE UTILISATEUR` LIKE "'.$searchCode.'"';
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
-
-echo json_encode([
-    'success' => $result
-]);

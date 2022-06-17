@@ -9,11 +9,12 @@ $start = (int) $_POST['start'];
 $stop = (int) $_POST['stop'];
 $acronyme = $_POST['acronyme'];
 $libelle = $_POST['libelle'];
+$createBoxes = $_POST['createBoxes'] == 'true';
 
-$x_padding = 68;
-$x_margin = 12;
-$y_padding = 39;
-$y_margin = 25;
+$x_padding = 66;
+$x_margin = 14;
+$y_padding = 38;
+$y_margin = 26;
 
 $pdf = new FPDF();
 $pdf->AddPage();
@@ -46,10 +47,12 @@ for ($i=$start;$i<=$stop;$i++) {
     $pdf->Image($path, $x_margin + $x_padding*$x, $y_margin + $y_padding*$y, 50);
     $x += 1;
 
-    //cette partie insert les boites créées dans la table dédiée
-    $sqlQuery = 'INSERT INTO `boite` (`code boite`, `type boite`) VALUES ("'.$text.'", "'.$acronyme.'")';
-    $stmt = $db -> prepare($sqlQuery);
-    $result = $stmt -> execute();
+    //cette partie insert les boites créées dans la table dédiée si le paramètre createBoxes vaut true
+    if ($createBoxes) {
+        $sqlQuery = 'INSERT INTO `boite` (`code boite`, `type boite`) VALUES ("'.$text.'", "'.$acronyme.'")';
+        $stmt = $db -> prepare($sqlQuery);
+        $stmt -> execute();
+    }
 }
 
 $pdf->Output('output.pdf','f');

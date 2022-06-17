@@ -612,6 +612,7 @@ class _SiteListState extends State<SiteList> {
                                   child: SizedBox(
                                       width: 105,
                                       child: ElevatedButton(
+                                        style: myButtonStyle,
                                         onPressed: () {
                                           setState(() {
                                             submited = true;
@@ -740,6 +741,7 @@ class _SiteListState extends State<SiteList> {
                     const Spacer(),
                     if (globals.user.siteEditing)
                       ElevatedButton(
+                          style: myButtonStyle,
                           onPressed: () {
                             showAddPageSite();
                           },

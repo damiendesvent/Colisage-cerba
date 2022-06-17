@@ -497,6 +497,7 @@ class _RoadMapListState extends State<RoadMapList> {
                                   child: SizedBox(
                                       width: 105,
                                       child: ElevatedButton(
+                                        style: myButtonStyle,
                                         onPressed: () {
                                           setState(() {
                                             submited = true;
@@ -612,6 +613,7 @@ class _RoadMapListState extends State<RoadMapList> {
                     const Spacer(),
                     if (globals.user.roadMapEditing)
                       ElevatedButton(
+                          style: myButtonStyle,
                           onPressed: () {
                             showAddPageRoadMap();
                           },

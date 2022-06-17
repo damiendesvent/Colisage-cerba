@@ -25,7 +25,3 @@ $sqlQuery = 'UPDATE sites SET CORRESPONDANT = "'.$correspondant.
             '" WHERE `CODE SITE` LIKE "'.$searchCode.'"';
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
-
-$result = $stmt -> fetchAll(PDO::FETCH_ASSOC);
-
-echo json_encode($result);

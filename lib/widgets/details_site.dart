@@ -266,6 +266,7 @@ class _DetailsSiteState extends State<DetailsSite> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 20, horizontal: 148),
                       child: ElevatedButton(
+                        style: myButtonStyle,
                         onPressed: () {
                           onUpdateSite();
                           setState(() {

@@ -14,6 +14,6 @@ if ($result != false){
     $result['MOT DE PASSE'] = $password;
 }
 
-
 echo json_encode($result);
+
 ?>

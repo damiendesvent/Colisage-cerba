@@ -562,6 +562,7 @@ class _UserState extends State<UserApp> {
                                 child: SizedBox(
                                     width: 105,
                                     child: ElevatedButton(
+                                      style: myButtonStyle,
                                       onPressed: () {
                                         setState(() {
                                           submited = true;
@@ -689,6 +690,7 @@ class _UserState extends State<UserApp> {
                                 child: SizedBox(
                                     width: 105,
                                     child: ElevatedButton(
+                                      style: myButtonStyle,
                                       onPressed: () {
                                         setState(() {
                                           submited = true;
@@ -1034,6 +1036,7 @@ class _UserState extends State<UserApp> {
                                     padding:
                                         const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                     child: ElevatedButton(
+                                        style: myButtonStyle,
                                         onPressed: () {
                                           showAddPageUser();
                                         },

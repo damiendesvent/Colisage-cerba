@@ -15,7 +15,3 @@ $sqlQuery = 'UPDATE `entetes feuille de route` SET `LIBELLE TOURNEE` = "'.$libel
             '" WHERE `CODE TOURNEE` LIKE "'.$searchCode.'"';          
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
-
-$result = $stmt -> fetchAll(PDO::FETCH_ASSOC);
-
-echo json_encode($result);
