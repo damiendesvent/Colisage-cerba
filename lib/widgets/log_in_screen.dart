@@ -86,6 +86,7 @@ class _LogInFormState extends State<LogInForm> {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Connexion"),
+          backgroundColor: themeColor,
           automaticallyImplyLeading: false,
           centerTitle: true,
         ),

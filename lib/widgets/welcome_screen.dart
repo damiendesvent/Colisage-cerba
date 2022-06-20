@@ -27,7 +27,7 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> {
   Timer? timer;
-
+  int minTabWidth = 1024;
   List<Widget> widgetTabs = [
     if (globals.user.userEditing) const UserScreen(),
     if (globals.user.boxEditing) const BoxesPrintScreen(),
@@ -77,10 +77,14 @@ class _WelcomeState extends State<Welcome> {
                       length: widgetTabs.length,
                       child: Scaffold(
                         appBar: AppBar(
-                          title: const Text('CerbaTraça'),
+                          title: const Text('Colisage des prélèvements'),
                           automaticallyImplyLeading: false,
-                          leading: const Icon(Icons.medication_outlined),
-                          backgroundColor: Colors.blue[600],
+                          leading: Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Image.asset(
+                                'assets/images/Image1.png',
+                              )),
+                          backgroundColor: themeColor,
                           flexibleSpace: FlexibleSpaceBar(
                             title: Text('Bonjour ' +
                                 globals.user.firstname.substring(0, 1) +
@@ -110,46 +114,58 @@ class _WelcomeState extends State<Welcome> {
                               if (globals.user.userEditing)
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    Icon(Icons.manage_accounts_rounded),
-                                    Text(" Utilisateurs")
+                                  children: [
+                                    const Icon(Icons.manage_accounts_rounded),
+                                    if (MediaQuery.of(context).size.width >
+                                        minTabWidth)
+                                      const Text(" Utilisateurs")
                                   ],
                                 ),
                               if (globals.user.boxEditing)
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    Icon(Icons.print),
-                                    Text(" Etiquettes")
+                                  children: [
+                                    const Icon(Icons.print),
+                                    if (MediaQuery.of(context).size.width >
+                                        minTabWidth)
+                                      const Text(" Etiquettes")
                                   ],
                                 ),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Icon(Icons.track_changes_outlined),
-                                  Text(" Sites")
+                                children: [
+                                  const Icon(Icons.track_changes_outlined),
+                                  if (MediaQuery.of(context).size.width >
+                                      minTabWidth)
+                                    const Text(" Sites")
                                 ],
                               ),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Icon(Icons.dock_outlined),
-                                  Text(" Traça")
+                                children: [
+                                  const Icon(Icons.dock_outlined),
+                                  if (MediaQuery.of(context).size.width >
+                                      minTabWidth)
+                                    const Text(" Traça")
                                 ],
                               ),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Icon(Icons.fact_check_outlined),
-                                  Text(" Feuilles de route")
+                                children: [
+                                  const Icon(Icons.fact_check_outlined),
+                                  if (MediaQuery.of(context).size.width >
+                                      minTabWidth)
+                                    const Text(" Feuilles de route")
                                 ],
                               ),
                               if (globals.user.sqlExecute)
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    Icon(Icons.data_usage),
-                                    Text(" Interface SQL")
+                                  children: [
+                                    const Icon(Icons.data_usage),
+                                    if (MediaQuery.of(context).size.width >
+                                        minTabWidth)
+                                      const Text(" Interface SQL")
                                   ],
                                 ),
                             ],

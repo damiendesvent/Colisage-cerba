@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CerbaTraça',
+      title: 'Colisage des prélèvements',
       initialRoute: '/',
       routes: {
         '/': (context) => const LogInScreen(),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const Color themeColor = Color.fromARGB(255, 25, 111, 187);
+
 ButtonStyle myButtonStyle = ButtonStyle(
   foregroundColor:
       MaterialStateProperty.resolveWith((Set<MaterialState> states) {
@@ -7,7 +9,7 @@ ButtonStyle myButtonStyle = ButtonStyle(
   }),
   backgroundColor:
       MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-    return states.contains(MaterialState.disabled) ? null : Colors.blue[600];
+    return states.contains(MaterialState.disabled) ? null : themeColor;
   }),
 );
 

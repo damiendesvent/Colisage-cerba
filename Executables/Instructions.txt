@@ -1,19 +1,19 @@
----Instructions pour le programme Serveur CerbaTraça---
+---Instructions pour le programme Serveur Colisage des prélèvements---
 
 Pour installer le serveur sur l'ordinateur actuel :
 	1) Extraire l'archive dans le dossier de votre choix
-	2) Lancer le raccourci "Serveur CerbaTraça"
+	2) Lancer le raccourci "Serveur Colisage des prélèvements"
 	3) Cliquer sur le boutton "Installer le serveur"
 	4) Patientez, une autorisation du pare-feu peut parfois être demandée
 	5) Lorsque l'installation est achevé, un message de confirmation s'affiche
 
-Vous pouvez maintenant démarrer ou arrêter le serveur via les boutons présents sur le logiciel "Serveur CerbaTraça".
+Vous pouvez maintenant démarrer ou arrêter le serveur via les boutons présents sur le logiciel "Serveur Colisage des prélèvements".
 
 
 
----Informations sur le programme Serveur CerbaTraça---
+---Informations sur le programme Serveur Colisage des prélèvements---
 
-Le programme "Serveur CerbaTraça" a été créé en Python avec la libraire Tkinter et a été compilé par la librairie PyInstaller.
+Le programme "Serveur Colisage des prélèvements" a été créé en Python avec la libraire Tkinter et a été compilé par la librairie PyInstaller.
 
 Le site web a été créé avec le framework Flutter version 3.0.
 
@@ -25,7 +25,7 @@ Chemins de différents éléments :
 	- Site web --> Package/dist/setup/MAMP/htdocs/ (code généré par build du projet flutter)
 	- Projet flutter du site web --> Package/dev/Site web
 	- Fichiers PHP de requêtes à la base de données --> Package/dist/setup/MAMP/htdocs/flutter_api/
-	- Fichier Python qui a créé le programme "Serveur CerbaTraça" --> Package/dev/Serveur CerbaTraça
+	- Fichier Python qui a créé le programme "Serveur Colisage des prélèvements" --> Package/dev/Serveur Colisage des prélèvements
 
  
 

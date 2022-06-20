@@ -135,7 +135,7 @@ def open_website() :
         messagebox.showerror('Serveur non démarré', 'Le serveur n\'est pas démarré,\nappuyez d\'abord sur Démarrer le serveur')
 
 
-root= tk.Tk(className='Serveur CerbaTraça')
+root= tk.Tk(className='Serveur Colisage des prélèvements')
 root.protocol('WM_DELETE_WINDOW', disable_event) # désactive la croix de fermeture Windows
 root.iconbitmap('Cerba.ico')
 canvas1 = tk.Canvas(root, width = 500, height = 400)
