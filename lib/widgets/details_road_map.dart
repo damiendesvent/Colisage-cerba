@@ -365,7 +365,8 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
     ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
       Text('L\'étape n° ' + code + ' a bien été ajouté'),
     ));
-    getDetailsRoadMapList();
+    Future.delayed(Duration(milliseconds: globals.milisecondWait),
+        () => getDetailsRoadMapList());
   }
 
   Future<bool> isDetailRoadMap(String code) async {
@@ -454,7 +455,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                             Text('Site* : ', style: textStyle)),
                                     TableCell(
                                         child: SizedBox(
-                                            height: 60,
+                                            height: 70,
                                             child: SearchField(
                                               controller: siteController,
                                               emptyWidget: Text(
@@ -554,50 +555,65 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 20),
                                   child: SizedBox(
-                                      width: 105,
-                                      child: ElevatedButton(
-                                        style: myButtonStyle,
-                                        onPressed: () {
-                                          setState(() {
-                                            submited = true;
-                                            codeExisting = true;
-                                          });
-                                          isDetailRoadMap(
-                                                  roadMap.code.toString() +
-                                                      codeController.text
-                                                          .padLeft(3, '0'))
-                                              .then((value) => setState(() {
-                                                    codeExisting = value;
-                                                    codeValueCheck = codeExisting
-                                                        ? 'Etape existante'
-                                                        : 'Veuillez entrer une valeur';
-                                                    if (codeController.text.isNotEmpty &&
-                                                        siteController
-                                                            .text.isNotEmpty &&
-                                                        timeController
-                                                                .text.length >
-                                                            4 &&
-                                                        !codeExisting) {
-                                                      onAddDetailRoadMap(
-                                                          code: codeController
-                                                              .text,
-                                                          site: siteController
-                                                              .text,
-                                                          time: timeController
-                                                              .text,
-                                                          comment:
-                                                              commentController
-                                                                  .text,
-                                                          onCallValue:
-                                                              onCallValue);
-                                                    }
-                                                  }));
-                                        },
-                                        child: Row(children: const [
-                                          Icon(Icons.check),
-                                          Text(' Valider')
-                                        ]),
-                                      )))),
+                                      width: 231,
+                                      child: Row(children: [
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Row(children: const [
+                                            Icon(Icons.clear),
+                                            Text(' Annuler')
+                                          ]),
+                                        ),
+                                        const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10)),
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
+                                            setState(() {
+                                              submited = true;
+                                              codeExisting = true;
+                                            });
+                                            isDetailRoadMap(
+                                                    roadMap.code.toString() +
+                                                        codeController.text
+                                                            .padLeft(3, '0'))
+                                                .then((value) => setState(() {
+                                                      codeExisting = value;
+                                                      codeValueCheck = codeExisting
+                                                          ? 'Etape existante'
+                                                          : 'Veuillez entrer une valeur';
+                                                      if (codeController.text.isNotEmpty &&
+                                                          siteController.text
+                                                              .isNotEmpty &&
+                                                          timeController
+                                                                  .text.length >
+                                                              4 &&
+                                                          !codeExisting) {
+                                                        onAddDetailRoadMap(
+                                                            code: codeController
+                                                                .text,
+                                                            site: siteController
+                                                                .text,
+                                                            time: timeController
+                                                                .text,
+                                                            comment:
+                                                                commentController
+                                                                    .text,
+                                                            onCallValue:
+                                                                onCallValue);
+                                                      }
+                                                    }));
+                                          },
+                                          child: Row(children: const [
+                                            Icon(Icons.check),
+                                            Text(' Valider')
+                                          ]),
+                                        )
+                                      ])))),
                           const Spacer(),
                         ],
                       ))

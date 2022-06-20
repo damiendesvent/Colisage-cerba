@@ -27,6 +27,17 @@ class BoxesPrint extends StatefulWidget {
   _BoxesPrintState createState() => _BoxesPrintState();
 }
 
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
+
 class _BoxesPrintState extends State<BoxesPrint> {
   final _boxQuantityController = TextEditingController();
   final StreamController<List> _streamController = StreamController<List>();
@@ -672,11 +683,24 @@ class _BoxesPrintState extends State<BoxesPrint> {
         Duration(milliseconds: globals.milisecondWait), () => getBoxMax());
   }
 
+  Future<bool> isBoxType(String code) async {
+    String phpUriCountUser = Env.urlPrefix + 'Box_types/count_box_type.php';
+    http.Response res =
+        await http.post(Uri.parse(phpUriCountUser), body: {"code": code});
+    if (res.body.isNotEmpty && res.body != '{"COUNT(*)":"0"}') {
+      print('true');
+      return true;
+    }
+    return false;
+  }
+
   void showAddPageBoxType() {
     const TextStyle textStyle = TextStyle(fontSize: 16);
     TextEditingController codeController = TextEditingController();
     TextEditingController libelleController = TextEditingController();
     bool submited = false;
+    String codeValueCheck = 'Veuillez entrer une valeur';
+    bool codeExisting = true;
 
     showDialog(
         context: context,
@@ -715,13 +739,15 @@ class _BoxesPrintState extends State<BoxesPrint> {
                                           controller: codeController,
                                           inputFormatters: [
                                             LengthLimitingTextInputFormatter(5),
+                                            UpperCaseTextFormatter()
                                           ],
                                           decoration: InputDecoration(
-                                            errorText: codeController
-                                                        .text.isEmpty &&
-                                                    submited
-                                                ? 'Veuillez entrer une valeur'
-                                                : null,
+                                            errorText:
+                                                (codeController.text.isEmpty ||
+                                                            codeExisting) &&
+                                                        submited
+                                                    ? codeValueCheck
+                                                    : null,
                                           ))))
                             ]),
                             TableRow(children: [
@@ -752,25 +778,54 @@ class _BoxesPrintState extends State<BoxesPrint> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 20),
                                 child: SizedBox(
-                                    width: 105,
-                                    child: ElevatedButton(
-                                      style: myButtonStyle,
-                                      onPressed: () {
-                                        setState(() {
-                                          submited = true;
-                                        });
-                                        if (codeController.text.isNotEmpty &&
-                                            libelleController.text.isNotEmpty) {
-                                          onAddBoxType(
-                                              code: codeController.text,
-                                              libelle: libelleController.text);
-                                        }
-                                      },
-                                      child: Row(children: const [
-                                        Icon(Icons.check),
-                                        Text(' Valider')
-                                      ]),
-                                    )))),
+                                    width: 231,
+                                    child: Row(children: [
+                                      ElevatedButton(
+                                        style: myButtonStyle,
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Row(children: const [
+                                          Icon(Icons.clear),
+                                          Text(' Annuler')
+                                        ]),
+                                      ),
+                                      const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10)),
+                                      ElevatedButton(
+                                        style: myButtonStyle,
+                                        onPressed: () {
+                                          setState(() {
+                                            submited = true;
+                                            codeExisting = true;
+                                          });
+                                          isBoxType(codeController.text)
+                                              .then((value) => setState(() {
+                                                    codeExisting = value;
+                                                    codeValueCheck = codeExisting
+                                                        ? 'Etape existante'
+                                                        : 'Veuillez entrer une valeur';
+                                                    if (!codeExisting &&
+                                                        codeController
+                                                            .text.isNotEmpty &&
+                                                        libelleController
+                                                            .text.isNotEmpty) {
+                                                      onAddBoxType(
+                                                          code: codeController
+                                                              .text,
+                                                          libelle:
+                                                              libelleController
+                                                                  .text);
+                                                    }
+                                                  }));
+                                        },
+                                        child: Row(children: const [
+                                          Icon(Icons.check),
+                                          Text(' Valider')
+                                        ]),
+                                      )
+                                    ])))),
                         const Spacer(),
                       ]))
                 ]));

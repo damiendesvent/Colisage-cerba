@@ -24,6 +24,17 @@ class UserApp extends StatefulWidget {
   _UserState createState() => _UserState();
 }
 
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
+
 class _UserState extends State<UserApp> {
   TextStyle textStyle = const TextStyle(fontSize: 16);
   final StreamController<List> _streamController = StreamController<List>();
@@ -340,19 +351,19 @@ class _UserState extends State<UserApp> {
     ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
       Text('L\'utilisateur ' + user.code + ' a bien été ajouté'),
     ));
-    getUserList();
+    Future.delayed(
+        Duration(milliseconds: globals.milisecondWait), () => getUserList());
   }
 
-  /*Future<bool> isDetailRoadMap(String code) async {
-    String phpUriDetailsDetailRoadMap =
-        Env.urlPrefix + 'Road_map_details/details_road_map_detail.php';
-    http.Response res = await http.post(Uri.parse(phpUriDetailsDetailRoadMap),
-        body: {"searchCode": code});
-    if (res.body.isNotEmpty && res.body != '[]') {
+  Future<bool> isUser(String code) async {
+    String phpUriCountUser = Env.urlPrefix + 'Users/count_user.php';
+    http.Response res =
+        await http.post(Uri.parse(phpUriCountUser), body: {"code": code});
+    if (res.body.isNotEmpty && res.body != '{"COUNT(*)":"0"}') {
       return true;
     }
     return false;
-  }*/
+  }
 
   void showAddPageUser() {
     const TextStyle textStyle = TextStyle(fontSize: 16);
@@ -360,11 +371,14 @@ class _UserState extends State<UserApp> {
       TableCell(child: SizedBox(height: 12)),
       TableCell(child: SizedBox(height: 12))
     ]);
+    TextEditingController codeController = TextEditingController();
     TextEditingController firstnameController = TextEditingController();
     TextEditingController lastnameController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
     TextEditingController functionController = TextEditingController();
     bool submited = false;
+    String codeValueCheck = 'Veuillez entrer une valeur';
+    bool codeExisting = true;
 
     showDialog(
         context: context,
@@ -392,6 +406,29 @@ class _UserState extends State<UserApp> {
                               TableCellVerticalAlignment.middle,
                           defaultColumnWidth: const FractionColumnWidth(0.4),
                           children: [
+                            TableRow(children: [
+                              const TableCell(
+                                child: Text('Code* : ', style: textStyle),
+                              ),
+                              TableCell(
+                                  child: SizedBox(
+                                      height: 60,
+                                      child: TextField(
+                                          controller: codeController,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(
+                                                10),
+                                            UpperCaseTextFormatter(),
+                                          ],
+                                          decoration: InputDecoration(
+                                            errorText:
+                                                (codeController.text.isEmpty ||
+                                                            codeExisting) &&
+                                                        submited
+                                                    ? codeValueCheck
+                                                    : null,
+                                          ))))
+                            ]),
                             TableRow(children: [
                               const TableCell(
                                 child: Text('Prénom* : ', style: textStyle),
@@ -560,45 +597,78 @@ class _UserState extends State<UserApp> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 20),
                                 child: SizedBox(
-                                    width: 105,
-                                    child: ElevatedButton(
-                                      style: myButtonStyle,
-                                      onPressed: () {
-                                        setState(() {
-                                          submited = true;
-                                        });
-                                        if (firstnameController
-                                                .text.isNotEmpty &&
-                                            lastnameController
-                                                .text.isNotEmpty &&
-                                            passwordController.text.length >
-                                                3 &&
-                                            functionController
-                                                .text.isNotEmpty) {
-                                          onAddUser(User(
-                                              code: (lastnameController.text
-                                                          .substring(0, 3) +
-                                                      firstnameController.text
-                                                          .substring(0, 1))
-                                                  .toUpperCase(),
-                                              firstname:
-                                                  firstnameController.text,
-                                              lastname: lastnameController.text,
-                                              function: functionController.text,
-                                              password: passwordController.text,
-                                              siteEditing: editingSiteValue,
-                                              roadMapEditing:
-                                                  editingRoadMapValue,
-                                              boxEditing: editingBoxValue,
-                                              userEditing: editingUserValue,
-                                              sqlExecute: executeSqlValue));
-                                        }
-                                      },
-                                      child: Row(children: const [
-                                        Icon(Icons.check),
-                                        Text(' Valider')
-                                      ]),
-                                    )))),
+                                    width: 231,
+                                    child: Row(children: [
+                                      ElevatedButton(
+                                        style: myButtonStyle,
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Row(children: const [
+                                          Icon(Icons.clear),
+                                          Text(' Annuler')
+                                        ]),
+                                      ),
+                                      const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10)),
+                                      ElevatedButton(
+                                        style: myButtonStyle,
+                                        onPressed: () {
+                                          setState(() {
+                                            submited = true;
+                                            codeExisting = true;
+                                          });
+                                          isUser(codeController.text)
+                                              .then((value) => setState(() {
+                                                    codeExisting = value;
+                                                    codeValueCheck = codeExisting
+                                                        ? 'Etape existante'
+                                                        : 'Veuillez entrer une valeur';
+                                                    if (!codeExisting &&
+                                                        codeController
+                                                            .text.isNotEmpty &&
+                                                        firstnameController
+                                                            .text.isNotEmpty &&
+                                                        lastnameController
+                                                            .text.isNotEmpty &&
+                                                        passwordController
+                                                                .text.length >
+                                                            3 &&
+                                                        functionController
+                                                            .text.isNotEmpty) {
+                                                      onAddUser(User(
+                                                          code: codeController
+                                                              .text,
+                                                          firstname:
+                                                              firstnameController
+                                                                  .text,
+                                                          lastname: lastnameController
+                                                              .text,
+                                                          function: functionController
+                                                              .text,
+                                                          password:
+                                                              passwordController
+                                                                  .text,
+                                                          siteEditing:
+                                                              editingSiteValue,
+                                                          roadMapEditing:
+                                                              editingRoadMapValue,
+                                                          boxEditing:
+                                                              editingBoxValue,
+                                                          userEditing:
+                                                              editingUserValue,
+                                                          sqlExecute:
+                                                              executeSqlValue));
+                                                    }
+                                                  }));
+                                        },
+                                        child: Row(children: const [
+                                          Icon(Icons.check),
+                                          Text(' Valider')
+                                        ]),
+                                      )
+                                    ])))),
                         const Spacer(),
                       ]))
                 ]));
@@ -1044,7 +1114,7 @@ class _UserState extends State<UserApp> {
                                             'Ajouter un utilisateur'))),
                                 const Spacer(),
                                 Row(children: [
-                                  const Text('Utilisateur supprimées :'),
+                                  const Text('Utilisateurs supprimées :'),
                                   Switch(
                                       value: showDeleteUser,
                                       onChanged: (newValue) {

@@ -27,7 +27,7 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> {
   Timer? timer;
-  int minTabWidth = 1024;
+  int minTabWidth = 1060;
   List<Widget> widgetTabs = [
     if (globals.user.userEditing) const UserScreen(),
     if (globals.user.boxEditing) const BoxesPrintScreen(),
@@ -82,7 +82,7 @@ class _WelcomeState extends State<Welcome> {
                           leading: Padding(
                               padding: const EdgeInsets.all(5),
                               child: Image.asset(
-                                'assets/images/Image1.png',
+                                'assets/images/cerballiance_logo.png',
                               )),
                           backgroundColor: themeColor,
                           flexibleSpace: FlexibleSpaceBar(
@@ -104,12 +104,14 @@ class _WelcomeState extends State<Welcome> {
                                 icon: const Icon(Icons.exit_to_app_outlined))
                           ],
                           bottom: TabBar(
-                            indicatorColor: Colors.amber,
-                            labelStyle: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 17),
-                            unselectedLabelStyle: const TextStyle(
-                                fontWeight: FontWeight.normal, fontSize: 15),
-                            indicatorWeight: 4,
+                            indicator: BoxDecoration(
+                                color: Colors.white,
+                                border:
+                                    Border.all(color: Colors.amber, width: 1),
+                                borderRadius: BorderRadius.circular(8)),
+                            labelColor: themeColor,
+                            unselectedLabelColor: Colors.white,
+                            labelStyle: const TextStyle(fontSize: 16),
                             tabs: <Widget>[
                               if (globals.user.userEditing)
                                 Row(

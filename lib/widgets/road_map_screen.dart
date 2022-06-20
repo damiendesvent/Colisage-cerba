@@ -324,7 +324,8 @@ class _RoadMapListState extends State<RoadMapList> {
           roadMap.code.toString() +
           ' a bien été ajouté'),
     ));
-    getRoadMapList();
+    Future.delayed(
+        Duration(milliseconds: globals.milisecondWait), () => getRoadMapList());
   }
 
   Future<bool> isRoadMap(String code) async {
@@ -495,46 +496,61 @@ class _RoadMapListState extends State<RoadMapList> {
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 20),
                                   child: SizedBox(
-                                      width: 105,
-                                      child: ElevatedButton(
-                                        style: myButtonStyle,
-                                        onPressed: () {
-                                          setState(() {
-                                            submited = true;
-                                            codeExisting = true;
-                                          });
-                                          isRoadMap(codeController.text).then(
-                                            (value) => setState(() {
-                                              codeExisting = value;
-                                              codeValueCheck = codeExisting
-                                                  ? 'Feuille de route existante'
-                                                  : 'Veuillez entrer une valeur';
-                                              if (codeController
-                                                      .text.isNotEmpty &&
-                                                  libelleController
-                                                      .text.isNotEmpty &&
-                                                  pdaController
-                                                      .text.isNotEmpty &&
-                                                  !codeExisting) {
-                                                onAddRoadMap(RoadMap(
-                                                    code: int.parse(
-                                                        codeController.text),
-                                                    libelle:
-                                                        libelleController.text,
-                                                    tel: telController.text,
-                                                    sortingNumer: int.parse(
-                                                        pdaController.text),
-                                                    comment: commentController
-                                                        .text));
-                                              }
-                                            }),
-                                          );
-                                        },
-                                        child: Row(children: const [
-                                          Icon(Icons.check),
-                                          Text(' Valider')
-                                        ]),
-                                      )))),
+                                      width: 231,
+                                      child: Row(children: [
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Row(children: const [
+                                            Icon(Icons.clear),
+                                            Text(' Annuler')
+                                          ]),
+                                        ),
+                                        const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10)),
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
+                                            setState(() {
+                                              submited = true;
+                                              codeExisting = true;
+                                            });
+                                            isRoadMap(codeController.text).then(
+                                              (value) => setState(() {
+                                                codeExisting = value;
+                                                codeValueCheck = codeExisting
+                                                    ? 'Feuille de route existante'
+                                                    : 'Veuillez entrer une valeur';
+                                                if (codeController
+                                                        .text.isNotEmpty &&
+                                                    libelleController
+                                                        .text.isNotEmpty &&
+                                                    pdaController
+                                                        .text.isNotEmpty &&
+                                                    !codeExisting) {
+                                                  onAddRoadMap(RoadMap(
+                                                      code: int.parse(
+                                                          codeController.text),
+                                                      libelle: libelleController
+                                                          .text,
+                                                      tel: telController.text,
+                                                      sortingNumer: int.parse(
+                                                          pdaController.text),
+                                                      comment: commentController
+                                                          .text));
+                                                }
+                                              }),
+                                            );
+                                          },
+                                          child: Row(children: const [
+                                            Icon(Icons.check),
+                                            Text(' Valider')
+                                          ]),
+                                        )
+                                      ])))),
                           const Spacer(),
                         ],
                       ))
@@ -702,7 +718,7 @@ class _RoadMapListState extends State<RoadMapList> {
                               isEditing = false;
                             });
                           },
-                          icon: const Icon(Icons.clear_outlined),
+                          icon: const Icon(Icons.clear, size: 30),
                           tooltip: 'Retour'),
                     )
                   ],

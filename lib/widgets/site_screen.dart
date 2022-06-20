@@ -335,12 +335,14 @@ class _SiteListState extends State<SiteList> {
       "depositSite": site.depositSite ? '1' : '0',
       "comment": site.comment
     });
-    getMaxSite();
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
       Text('Le site n° ' + site.code.toString() + ' a bien été ajouté'),
     ));
-    getSiteList();
+    Future.delayed(
+        Duration(milliseconds: globals.milisecondWait), () => getMaxSite());
+    Future.delayed(
+        Duration(milliseconds: globals.milisecondWait), () => getSiteList());
   }
 
   void showAddPageSite() {
@@ -610,59 +612,78 @@ class _SiteListState extends State<SiteList> {
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 20),
                                   child: SizedBox(
-                                      width: 105,
-                                      child: ElevatedButton(
-                                        style: myButtonStyle,
-                                        onPressed: () {
-                                          setState(() {
-                                            submited = true;
-                                          });
-                                          if (codeController.text.isNotEmpty &&
-                                              libelleController
-                                                  .text.isNotEmpty &&
-                                              adressController
-                                                  .text.isNotEmpty &&
-                                              cityController.text.isNotEmpty &&
-                                              (int.parse(maxSite!) <
-                                                  int.parse(
-                                                      codeController.text))) {
-                                            onAddSite(Site(
-                                                code: int.parse(
-                                                    codeController.text),
-                                                libelle: libelleController.text,
-                                                correspondant:
-                                                    correspondantController
-                                                        .text,
-                                                adress: adressController.text,
-                                                cpltAdress: cpltController.text,
-                                                cp: int.parse(
-                                                    cpController.text),
-                                                city: cityController.text,
-                                                collectionSite:
-                                                    isCollectionSite,
-                                                depositSite: isDepositSite,
-                                                comment:
-                                                    commentController.text));
-                                          } else {
-                                            int code = codeController.text == ''
-                                                ? 0
-                                                : int.parse(
-                                                    codeController.text);
+                                      width: 231,
+                                      child: Row(children: [
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Row(children: const [
+                                            Icon(Icons.clear),
+                                            Text(' Annuler')
+                                          ]),
+                                        ),
+                                        const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10)),
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
                                             setState(() {
-                                              codeValueCheck = int.parse(
-                                                              maxSite!) <
-                                                          code ||
-                                                      code == 0
-                                                  ? 'Veuillez entrer une valeur'
-                                                  : 'Code site existant';
+                                              submited = true;
                                             });
-                                          }
-                                        },
-                                        child: Row(children: const [
-                                          Icon(Icons.check),
-                                          Text(' Valider')
-                                        ]),
-                                      )))),
+                                            if (codeController.text.isNotEmpty &&
+                                                libelleController
+                                                    .text.isNotEmpty &&
+                                                adressController
+                                                    .text.isNotEmpty &&
+                                                cityController
+                                                    .text.isNotEmpty &&
+                                                (int.parse(maxSite!) <
+                                                    int.parse(
+                                                        codeController.text))) {
+                                              onAddSite(Site(
+                                                  code: int.parse(
+                                                      codeController.text),
+                                                  libelle:
+                                                      libelleController.text,
+                                                  correspondant:
+                                                      correspondantController
+                                                          .text,
+                                                  adress: adressController.text,
+                                                  cpltAdress:
+                                                      cpltController.text,
+                                                  cp: int.parse(
+                                                      cpController.text),
+                                                  city: cityController.text,
+                                                  collectionSite:
+                                                      isCollectionSite,
+                                                  depositSite: isDepositSite,
+                                                  comment:
+                                                      commentController.text));
+                                            } else {
+                                              int code =
+                                                  codeController.text == ''
+                                                      ? 0
+                                                      : int.parse(
+                                                          codeController.text);
+                                              setState(() {
+                                                codeValueCheck = int.parse(
+                                                                maxSite!) <
+                                                            code ||
+                                                        code == 0
+                                                    ? 'Veuillez entrer une valeur'
+                                                    : 'Code site existant';
+                                              });
+                                            }
+                                          },
+                                          child: Row(children: const [
+                                            Icon(Icons.check),
+                                            Text(' Valider')
+                                          ]),
+                                        )
+                                      ])))),
                           const Spacer(),
                         ],
                       ))
