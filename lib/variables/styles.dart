@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 const Color themeColor = Color.fromARGB(255, 25, 111, 187);
 
+const Color myBarrierColor = Colors.black26;
+
 ButtonStyle myButtonStyle = ButtonStyle(
   foregroundColor:
       MaterialStateProperty.resolveWith((Set<MaterialState> states) {

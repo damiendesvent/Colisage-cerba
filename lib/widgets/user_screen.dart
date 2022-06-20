@@ -381,6 +381,7 @@ class _UserState extends State<UserApp> {
     bool codeExisting = true;
 
     showDialog(
+        barrierColor: myBarrierColor,
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
@@ -683,6 +684,7 @@ class _UserState extends State<UserApp> {
     bool submited = false;
 
     showDialog(
+        barrierColor: myBarrierColor,
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {

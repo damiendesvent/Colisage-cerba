@@ -351,6 +351,7 @@ class _RoadMapListState extends State<RoadMapList> {
     bool codeExisting = true;
 
     showDialog(
+        barrierColor: myBarrierColor,
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {

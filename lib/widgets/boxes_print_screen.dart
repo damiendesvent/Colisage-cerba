@@ -569,6 +569,7 @@ class _BoxesPrintState extends State<BoxesPrint> {
     TextEditingController minBoxController = TextEditingController();
     TextEditingController maxBoxController = TextEditingController();
     showDialog(
+        barrierColor: myBarrierColor,
         context: context,
         builder: (_) => StatefulBuilder(
             builder: (context, setState) => AlertDialog(
@@ -703,6 +704,7 @@ class _BoxesPrintState extends State<BoxesPrint> {
     bool codeExisting = true;
 
     showDialog(
+        barrierColor: myBarrierColor,
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {

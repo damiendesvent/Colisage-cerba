@@ -4,7 +4,6 @@ import 'package:flutter_application_1/variables/styles.dart';
 import '../variables/globals.dart' as globals;
 import '../variables/env.sample.dart';
 import '../models/site.dart';
-import 'details_site.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
@@ -33,7 +32,6 @@ class _SiteListState extends State<SiteList> {
   final StreamController<List> _streamController = StreamController<List>();
   final _searchTextController = TextEditingController();
   final _advancedSearchTextController = TextEditingController();
-  bool showDetailsSite = false;
   static const numberDisplayedList = [10, 25, 50, 100];
   int numberDisplayed = 25;
   static const searchFieldList = [
@@ -47,7 +45,6 @@ class _SiteListState extends State<SiteList> {
   ];
   String searchField = searchFieldList[2];
   String advancedSearchField = searchFieldList[6];
-  bool isEditing = false;
   bool isCollectionSite = false;
   bool isDepositSite = false;
   String? maxSite;
@@ -140,11 +137,8 @@ class _SiteListState extends State<SiteList> {
                 value: Menu.itemEdit,
                 child: Row(children: const [Icon(Icons.edit), Text('Editer')]),
                 onTap: () {
-                  setState(() {
-                    globals.detailedSite = Site.fromSnapshot(site);
-                    isEditing = true;
-                    showDetailsSite = true;
-                  });
+                  Future.delayed(const Duration(seconds: 0),
+                      () => showEditPageSite(Site.fromSnapshot(site)));
                 },
               ),
               if (!showDeleteSite)
@@ -239,6 +233,492 @@ class _SiteListState extends State<SiteList> {
               ],
               elevation: 16,
             ));
+  }
+
+  void showDetailSite(Site site) {
+    const TextStyle textStyle = TextStyle(fontSize: 18);
+    showDialog(
+        barrierColor: myBarrierColor,
+        context: context,
+        builder: (_) => Dialog(
+            insetPadding:
+                const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
+            elevation: 8,
+            child: Stack(alignment: Alignment.center, children: [
+              SizedBox(
+                  height: 700,
+                  width: 700,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Text(
+                            'Détails du site n° ' + site.code.toString(),
+                            style: TextStyle(
+                                fontSize: 18, color: Colors.grey.shade700),
+                          )),
+                      const Spacer(),
+                      Table(
+                          defaultColumnWidth: const FractionColumnWidth(0.4),
+                          children: [
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Code site : ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16))),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: Text(site.code.toString(),
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16)))),
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child:
+                                        Text('Libellé : ', style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: Text(site.libelle,
+                                            style: textStyle)))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Correspondant : ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: Text(site.correspondant,
+                                            style: textStyle)))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child:
+                                        Text('Adresse : ', style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: Text(site.adress,
+                                            style: textStyle)))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Complément d\'adresse : ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: Text(site.cpltAdress,
+                                            style: textStyle)))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Code Postal : ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: Text(site.cp.toString(),
+                                            style: textStyle)))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Ville : ', style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child:
+                                            Text(site.city, style: textStyle)))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Site de prélèvement : ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 40,
+                                        child: Text(
+                                            site.collectionSite ? 'Oui' : 'Non',
+                                            style: textStyle)))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Site de dépôt :            ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 40,
+                                        child: Text(
+                                            site.depositSite ? 'Oui' : 'Non',
+                                            style: textStyle)))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Commentaire : ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: Text(site.comment,
+                                            style: textStyle)))
+                              ],
+                            ),
+                          ]),
+                      const Spacer()
+                    ],
+                  ))
+            ])));
+  }
+
+  void showEditPageSite(Site site) {
+    const TextStyle textStyle = TextStyle(fontSize: 18);
+    late TextEditingController libelleController =
+        TextEditingController(text: site.libelle);
+    late TextEditingController correspondantController =
+        TextEditingController(text: site.correspondant);
+    late TextEditingController adressController =
+        TextEditingController(text: site.adress);
+    late TextEditingController cpltAdressController =
+        TextEditingController(text: site.cpltAdress);
+    late TextEditingController cpController =
+        TextEditingController(text: site.cp.toString());
+    late TextEditingController cityController =
+        TextEditingController(text: site.city);
+    late TextEditingController commentController =
+        TextEditingController(text: site.comment);
+    List<String> yesNoList = ['Non', 'Oui'];
+    late String collectionSiteValue = site.collectionSite ? 'Oui' : 'Non';
+    late String depositSiteValue = site.depositSite ? 'Oui' : 'Non';
+
+    bool submited = false;
+    showDialog(
+        barrierColor: myBarrierColor,
+        context: context,
+        builder: (_) => Dialog(
+            insetPadding:
+                const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
+            elevation: 8,
+            child: Stack(alignment: Alignment.center, children: [
+              SizedBox(
+                  height: 700,
+                  width: 700,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Text(
+                            'Edition du site n° ' + site.code.toString(),
+                            style: TextStyle(
+                                fontSize: 18, color: Colors.grey.shade700),
+                          )),
+                      const Spacer(),
+                      Table(
+                          defaultVerticalAlignment:
+                              TableCellVerticalAlignment.middle,
+                          defaultColumnWidth: const FractionColumnWidth(0.4),
+                          children: [
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Code site : ',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16))),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: Text(site.code.toString(),
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold))))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child:
+                                        Text('Libellé* : ', style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: TextField(
+                                          controller: libelleController,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(35)
+                                          ],
+                                          decoration: InputDecoration(
+                                              errorText: libelleController
+                                                          .text.isEmpty &&
+                                                      submited
+                                                  ? 'Veuillez entrer une valeur'
+                                                  : null),
+                                        )))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Correspondant : ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: TextField(
+                                          controller: correspondantController,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(20)
+                                          ],
+                                        )))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child:
+                                        Text('Adresse* : ', style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: TextField(
+                                          controller: adressController,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(35)
+                                          ],
+                                          decoration: InputDecoration(
+                                              errorText: adressController
+                                                          .text.isEmpty &&
+                                                      submited
+                                                  ? 'Veuillez entrer une valeur'
+                                                  : null),
+                                        )))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Complément d\'adresse : ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: TextField(
+                                          controller: cpltAdressController,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(35)
+                                          ],
+                                        )))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Code Postal* : ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: TextField(
+                                          controller: cpController,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(6),
+                                            FilteringTextInputFormatter
+                                                .digitsOnly
+                                          ],
+                                          decoration: InputDecoration(
+                                              errorText: cpController
+                                                          .text.isEmpty &&
+                                                      submited
+                                                  ? 'Veuillez entrer une valeur'
+                                                  : null),
+                                        )))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Ville* : ', style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: TextField(
+                                          controller: cityController,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(35)
+                                          ],
+                                          decoration: InputDecoration(
+                                              errorText: cityController
+                                                          .text.isEmpty &&
+                                                      submited
+                                                  ? 'Veuillez entrer une valeur'
+                                                  : null),
+                                        )))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Site de prélèvement : ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 40,
+                                        width: 100,
+                                        child: DropdownButton(
+                                          items: yesNoList.map((yesNo) {
+                                            return DropdownMenuItem(
+                                                value: yesNo,
+                                                child: Text(yesNo.toString()));
+                                          }).toList(),
+                                          value: collectionSiteValue,
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              collectionSiteValue = newValue!;
+                                            });
+                                          },
+                                        )))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Site de dépôt :            ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 40,
+                                        width: 100,
+                                        child: DropdownButton(
+                                          items: yesNoList.map((yesNo) {
+                                            return DropdownMenuItem(
+                                                value: yesNo,
+                                                child: Text(yesNo.toString()));
+                                          }).toList(),
+                                          value: depositSiteValue,
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              depositSiteValue = newValue!;
+                                            });
+                                          },
+                                        )))
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Commentaire : ',
+                                        style: textStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: TextField(
+                                          controller: commentController,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(
+                                                254)
+                                          ],
+                                        )))
+                              ],
+                            ),
+                          ]),
+                      Center(
+                          child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: SizedBox(
+                                  width: 231,
+                                  child: Row(children: [
+                                    ElevatedButton(
+                                      style: myButtonStyle,
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Row(children: const [
+                                        Icon(Icons.clear),
+                                        Text(' Annuler')
+                                      ]),
+                                    ),
+                                    const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10)),
+                                    ElevatedButton(
+                                      style: myButtonStyle,
+                                      onPressed: () {
+                                        setState(() {
+                                          submited = true;
+                                        });
+                                        if (libelleController.text.isNotEmpty &&
+                                            adressController.text.isNotEmpty &&
+                                            cityController.text.isNotEmpty) {
+                                          onUpdateSite(Site(
+                                              code: site.code,
+                                              libelle: libelleController.text,
+                                              correspondant:
+                                                  correspondantController.text,
+                                              adress: adressController.text,
+                                              cpltAdress:
+                                                  cpltAdressController.text,
+                                              cp: int.parse(cpController.text),
+                                              city: cityController.text,
+                                              collectionSite: isCollectionSite,
+                                              depositSite: isDepositSite,
+                                              comment: commentController.text));
+                                        }
+                                      },
+                                      child: Row(children: const [
+                                        Icon(Icons.check),
+                                        Text(' Valider')
+                                      ]),
+                                    )
+                                  ])))),
+                      const Spacer()
+                    ],
+                  ))
+            ])));
+  }
+
+  void onUpdateSite(Site site) {
+    String phpUriSiteUpdate = Env.urlPrefix + 'Sites/update_site.php';
+    http.post(Uri.parse(phpUriSiteUpdate), body: {
+      "searchCode": site.code.toString(),
+      "correspondant": site.correspondant,
+      "libelle": site.libelle,
+      "adress": site.adress,
+      "cpltAdress": site.cpltAdress,
+      "cp": site.cp.toString(),
+      "city": site.city,
+      "collectionSite": site.collectionSite ? 'Oui' : 'Non',
+      "depositSite": site.depositSite ? 'Oui' : 'Non',
+      "comment": site.comment
+    });
+    Future.delayed(
+        Duration(milliseconds: globals.milisecondWait), () => getSiteList());
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+        mySnackBar(const Text('Les modifications ont été enregistrées')));
   }
 
   void onDelete(Site site) {
@@ -359,6 +839,7 @@ class _SiteListState extends State<SiteList> {
     String codeValueCheck = 'Veuillez entrer une valeur';
 
     showDialog(
+        barrierColor: myBarrierColor,
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
@@ -640,6 +1121,7 @@ class _SiteListState extends State<SiteList> {
                                                     .text.isNotEmpty &&
                                                 cityController
                                                     .text.isNotEmpty &&
+                                                cpController.text.isNotEmpty &&
                                                 (int.parse(maxSite!) <
                                                     int.parse(
                                                         codeController.text))) {
@@ -698,178 +1180,133 @@ class _SiteListState extends State<SiteList> {
       stream: _streamController.stream,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
-          if (!showDetailsSite) {
-            return CustomScrollView(slivers: [
-              //barre de recherche dynamique
-              SliverAppBar(
-                elevation: 8,
-                forceElevated: true,
-                expandedHeight: isAdvancedResearch ? 100 : 55,
-                floating: true,
-                backgroundColor: Colors.grey[300],
-                flexibleSpace: FlexibleSpaceBar(
-                    background: Column(children: [
-                  Row(mainAxisSize: MainAxisSize.min, children: [
-                    DropdownButtonHideUnderline(
-                        child: DropdownButton(
-                            value: searchField,
-                            style: const TextStyle(fontSize: 14),
-                            items: searchFieldList.map((searchFieldList) {
-                              return DropdownMenuItem(
-                                  value: searchFieldList,
-                                  child: Text(searchFieldList));
-                            }).toList(),
-                            onChanged: (String? newsearchField) {
-                              setState(() {
-                                searchField = newsearchField!;
-                              });
-                              searchSite();
-                            })),
-                    Expanded(
-                        child: TextFormField(
-                      controller: _searchTextController,
-                      decoration: const InputDecoration(hintText: 'Recherche'),
-                      onFieldSubmitted: (e) {
-                        searchSite();
-                      },
-                    )),
-                    IconButton(
-                        onPressed: () {
-                          searchSite();
-                        },
-                        icon: const Icon(Icons.search_outlined),
-                        tooltip: 'Rechercher'),
-                    if (!isAdvancedResearch)
-                      IconButton(
-                          onPressed: () {
+          return CustomScrollView(slivers: [
+            //barre de recherche dynamique
+            SliverAppBar(
+              elevation: 8,
+              forceElevated: true,
+              expandedHeight: isAdvancedResearch ? 100 : 55,
+              floating: true,
+              backgroundColor: Colors.grey[300],
+              flexibleSpace: FlexibleSpaceBar(
+                  background: Column(children: [
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  DropdownButtonHideUnderline(
+                      child: DropdownButton(
+                          value: searchField,
+                          style: const TextStyle(fontSize: 14),
+                          items: searchFieldList.map((searchFieldList) {
+                            return DropdownMenuItem(
+                                value: searchFieldList,
+                                child: Text(searchFieldList));
+                          }).toList(),
+                          onChanged: (String? newsearchField) {
                             setState(() {
-                              isAdvancedResearch = true;
-                            });
-                          },
-                          icon: const Icon(Icons.manage_search_outlined),
-                          tooltip: 'Recherche avancée'),
-                    if (isAdvancedResearch)
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              isAdvancedResearch = false;
-                              _advancedSearchTextController.text = '';
+                              searchField = newsearchField!;
                             });
                             searchSite();
-                          },
-                          icon: const Icon(Icons.search_off_outlined),
-                          tooltip: 'Recherche simple'),
-                    const Spacer(),
-                    if (globals.user.siteEditing)
-                      ElevatedButton(
-                          style: myButtonStyle,
-                          onPressed: () {
-                            showAddPageSite();
-                          },
-                          child: const Text('Ajouter un site')),
-                    if (globals.user.siteEditing)
-                      const Text('  Sites supprimés :'),
-                    if (globals.user.siteEditing)
-                      Switch(
-                          value: showDeleteSite,
-                          onChanged: (newValue) {
-                            setState(() {
-                              showDeleteSite = newValue;
-                            });
-                            getSiteList();
-                          }),
-                    const Spacer(),
-                    const Text('Nombre de lignes affichées : '),
-                    DropdownButton(
-                        value: numberDisplayed,
-                        items: numberDisplayedList.map((numberDisplayedList) {
-                          return DropdownMenuItem(
-                              value: numberDisplayedList,
-                              child: Text(numberDisplayedList.toString()));
-                        }).toList(),
-                        onChanged: (int? newNumberDisplayed) {
-                          setState(() {
-                            numberDisplayed = newNumberDisplayed!;
-                          });
-                        })
-                  ]),
-                  Row(
-                    children: advancedResearch(),
-                  )
-                ])),
-              ),
-              SliverList(
-                  delegate: SliverChildListDelegate([
-                for (Map site in snapshot.data
-                    .take(numberDisplayed)) //affiche la liste des sites
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.location_on_outlined),
-                      trailing:
-                          globals.user.siteEditing ? popupMenu(site) : null,
-                      isThreeLine: true,
-                      title: Text(site[searchFieldList.first.toUpperCase()]),
-                      subtitle: Text(searchField +
-                          ' : ' +
-                          site[searchField.replaceAll('é', 'e').toUpperCase()] +
-                          '\n' +
-                          (isAdvancedResearch
-                              ? advancedSearchField +
-                                  ' : ' +
-                                  site[advancedSearchField
-                                      .replaceAll('é', 'e')
-                                      .toUpperCase()]
-                              : '')),
-                      onTap: () {
-                        setState(() {
-                          showDetailsSite = true;
-                          globals.detailedSite = Site.fromSnapshot(site);
-                        });
+                          })),
+                  Expanded(
+                      child: TextFormField(
+                    controller: _searchTextController,
+                    decoration: const InputDecoration(hintText: 'Recherche'),
+                    onFieldSubmitted: (e) {
+                      searchSite();
+                    },
+                  )),
+                  IconButton(
+                      onPressed: () {
+                        searchSite();
                       },
-                    ),
-                  )
-              ]))
-            ]);
-          } else {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    const Spacer(),
-                    const Spacer(),
-                    Flexible(
-                      flex: 1,
-                      child: IconButton(
-                          onPressed: () {
-                            getSiteList();
-                            setState(() {
-                              showDetailsSite = false;
-                              isEditing = false;
-                            });
-                          },
-                          icon: const Icon(Icons.clear_outlined),
-                          tooltip: 'Retour'),
-                    )
-                  ],
-                ),
-                Row(children: [
+                      icon: const Icon(Icons.search_outlined),
+                      tooltip: 'Rechercher'),
+                  if (!isAdvancedResearch)
+                    IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isAdvancedResearch = true;
+                          });
+                        },
+                        icon: const Icon(Icons.manage_search_outlined),
+                        tooltip: 'Recherche avancée'),
+                  if (isAdvancedResearch)
+                    IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isAdvancedResearch = false;
+                            _advancedSearchTextController.text = '';
+                          });
+                          searchSite();
+                        },
+                        icon: const Icon(Icons.search_off_outlined),
+                        tooltip: 'Recherche simple'),
                   const Spacer(),
-                  DetailsSiteScreen(
-                    site: globals.detailedSite,
-                    editing: isEditing,
-                  ),
+                  if (globals.user.siteEditing)
+                    ElevatedButton(
+                        style: myButtonStyle,
+                        onPressed: () {
+                          showAddPageSite();
+                        },
+                        child: const Text('Ajouter un site')),
+                  if (globals.user.siteEditing)
+                    const Text('  Sites supprimés :'),
+                  if (globals.user.siteEditing)
+                    Switch(
+                        value: showDeleteSite,
+                        onChanged: (newValue) {
+                          setState(() {
+                            showDeleteSite = newValue;
+                          });
+                          getSiteList();
+                        }),
                   const Spacer(),
+                  const Text('Nombre de lignes affichées : '),
+                  DropdownButton(
+                      value: numberDisplayed,
+                      items: numberDisplayedList.map((numberDisplayedList) {
+                        return DropdownMenuItem(
+                            value: numberDisplayedList,
+                            child: Text(numberDisplayedList.toString()));
+                      }).toList(),
+                      onChanged: (int? newNumberDisplayed) {
+                        setState(() {
+                          numberDisplayed = newNumberDisplayed!;
+                        });
+                      })
                 ]),
                 Row(
-                  children: const [
-                    Spacer(),
-                  ],
+                  children: advancedResearch(),
                 )
-              ],
-            );
-          }
+              ])),
+            ),
+            SliverList(
+                delegate: SliverChildListDelegate([
+              for (Map site in snapshot.data
+                  .take(numberDisplayed)) //affiche la liste des sites
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.location_on_outlined),
+                    trailing: globals.user.siteEditing ? popupMenu(site) : null,
+                    isThreeLine: true,
+                    title: Text(site[searchFieldList.first.toUpperCase()]),
+                    subtitle: Text(searchField +
+                        ' : ' +
+                        site[searchField.replaceAll('é', 'e').toUpperCase()] +
+                        '\n' +
+                        (isAdvancedResearch
+                            ? advancedSearchField +
+                                ' : ' +
+                                site[advancedSearchField
+                                    .replaceAll('é', 'e')
+                                    .toUpperCase()]
+                            : '')),
+                    onTap: () {
+                      showDetailSite(Site.fromSnapshot(site));
+                    },
+                  ),
+                )
+            ]))
+          ]);
         }
         return const Center(child: CircularProgressIndicator());
       },

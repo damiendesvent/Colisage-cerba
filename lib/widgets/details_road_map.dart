@@ -83,6 +83,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
       List items = json.decode(res.body);
       Site site = Site.fromList(items);
       showDialog(
+          barrierColor: myBarrierColor,
           context: context,
           builder: (_) => Dialog(
               insetPadding:
@@ -391,6 +392,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
     bool codeExisting = true;
 
     showDialog(
+        barrierColor: myBarrierColor,
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
