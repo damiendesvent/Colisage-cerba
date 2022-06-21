@@ -3,6 +3,7 @@ import 'package:flutter_application_1/variables/styles.dart';
 import '../variables/globals.dart' as globals;
 import 'site_screen.dart';
 import 'user_screen.dart';
+import 'tube_screen.dart';
 import 'traca_screen.dart';
 import 'road_map_screen.dart';
 import 'boxes_print_screen.dart';
@@ -27,16 +28,17 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
   Timer? timer;
-  int minTabWidth = 1060;
+  int minTabWidth = 1130;
   List<Widget> widgetTabs = [
     if (globals.user.userEditing) const UserScreen(),
     if (globals.user.boxEditing) const BoxesPrintScreen(),
     const SiteScreen(),
+    const TubeScreen(),
     const TracaScreen(),
     const RoadMapScreen(),
     if (globals.user.sqlExecute) const SqlScreen()
   ];
-  int _widgetIndex = 1;
+  int _widgetIndex = 3;
   late TabController _tabController;
 
   void initializeTimer() {
@@ -99,21 +101,27 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                         backgroundColor: themeColor,
                         flexibleSpace: FlexibleSpaceBar(
                           title: Text('Bonjour ' +
-                              globals.user.firstname.substring(0, 1) +
-                              globals.user.firstname
-                                  .substring(1)
-                                  .toLowerCase()), //permet d'afficher le prénom avec seulement la premièr lettre en majuscule
+                              globals.user.firstname +
+                              ' ' +
+                              globals.user.lastname),
                           centerTitle: true,
                           titlePadding: const EdgeInsets.fromLTRB(0, 0, 0,
                               70), //choisit la position de la zone de texte
                         ),
                         actions: <Widget>[
-                          IconButton(
-                              tooltip: 'Se déconnecter',
-                              onPressed: () {
-                                logOut(context);
-                              },
-                              icon: const Icon(Icons.exit_to_app_outlined)),
+                          Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 5),
+                              child: IconButton(
+                                  tooltip: 'Se déconnecter',
+                                  onPressed: () {
+                                    logOut(context);
+                                  },
+                                  icon: const Icon(
+                                    Icons.exit_to_app,
+                                    size: 30,
+                                    color: Colors.red,
+                                  ))),
                         ],
                         bottom: TabBar(
                           controller: _tabController,
@@ -152,6 +160,15 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                                 if (MediaQuery.of(context).size.width >
                                     minTabWidth)
                                   const Text(" Sites")
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.science),
+                                if (MediaQuery.of(context).size.width >
+                                    minTabWidth)
+                                  const Text(" Gestion tubes")
                               ],
                             ),
                             Row(

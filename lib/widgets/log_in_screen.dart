@@ -104,6 +104,7 @@ class _LogInFormState extends State<LogInForm> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextFormField(
+                    autofocus: true,
                     controller: _codeTextController,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
