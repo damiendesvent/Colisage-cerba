@@ -101,7 +101,7 @@ class _WelcomeState extends State<Welcome> {
                                 onPressed: () {
                                   logOut(context);
                                 },
-                                icon: const Icon(Icons.exit_to_app_outlined))
+                                icon: const Icon(Icons.exit_to_app_outlined)),
                           ],
                           bottom: TabBar(
                             indicator: BoxDecoration(

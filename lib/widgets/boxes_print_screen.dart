@@ -38,7 +38,11 @@ class UpperCaseTextFormatter extends TextInputFormatter {
   }
 }
 
-class _BoxesPrintState extends State<BoxesPrint> {
+class _BoxesPrintState extends State<BoxesPrint>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   final _boxQuantityController = TextEditingController();
   final StreamController<List> _streamController = StreamController<List>();
   List boxTypesLibelleList = [];
@@ -689,7 +693,6 @@ class _BoxesPrintState extends State<BoxesPrint> {
     http.Response res =
         await http.post(Uri.parse(phpUriCountUser), body: {"code": code});
     if (res.body.isNotEmpty && res.body != '{"COUNT(*)":"0"}') {
-      print('true');
       return true;
     }
     return false;
@@ -853,6 +856,7 @@ class _BoxesPrintState extends State<BoxesPrint> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return StreamBuilder<List>(
         stream: _streamController.stream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {

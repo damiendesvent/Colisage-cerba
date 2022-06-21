@@ -999,6 +999,12 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                 icon: const Icon(Icons.search_off_outlined),
                                 tooltip: 'Recherche simple'),
                           const Spacer(),
+                          IconButton(
+                            onPressed: initState,
+                            icon: const Icon(Icons.sync),
+                            tooltip: 'Actualiser l\'onglet',
+                          ),
+                          const Spacer(),
                           const Text('Nombre de lignes affichées : '),
                           DropdownButton(
                               value: numberDisplayed,

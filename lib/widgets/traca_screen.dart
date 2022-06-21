@@ -23,7 +23,11 @@ class TracaList extends StatefulWidget {
   _TracaListState createState() => _TracaListState();
 }
 
-class _TracaListState extends State<TracaList> {
+class _TracaListState extends State<TracaList>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   final StreamController<List> _streamController = StreamController<List>();
   final _searchTextController = TextEditingController();
   final _advancedSearchTextController = TextEditingController();
@@ -354,6 +358,7 @@ class _TracaListState extends State<TracaList> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return StreamBuilder<List>(
         stream: _streamController.stream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -415,6 +420,12 @@ class _TracaListState extends State<TracaList> {
                               },
                               icon: const Icon(Icons.search_off_outlined),
                               tooltip: 'Recherche simple'),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: initState,
+                          icon: const Icon(Icons.sync),
+                          tooltip: 'Actualiser l\'onglet',
+                        ),
                         const Spacer(),
                         const Text('Nombre de lignes affichées : '),
                         DropdownButton(

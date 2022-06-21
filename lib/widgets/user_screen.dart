@@ -35,7 +35,10 @@ class UpperCaseTextFormatter extends TextInputFormatter {
   }
 }
 
-class _UserState extends State<UserApp> {
+class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   TextStyle textStyle = const TextStyle(fontSize: 16);
   final StreamController<List> _streamController = StreamController<List>();
   int i = 0;
@@ -972,6 +975,7 @@ class _UserState extends State<UserApp> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return StreamBuilder<List>(
         stream: _streamController.stream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -1031,6 +1035,12 @@ class _UserState extends State<UserApp> {
                               },
                               icon: const Icon(Icons.search_off_outlined),
                               tooltip: 'Recherche simple'),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: initState,
+                          icon: const Icon(Icons.sync),
+                          tooltip: 'Actualiser l\'onglet',
+                        ),
                         const Spacer(),
                         const Text('Nombre de lignes affichées : '),
                         DropdownButton(

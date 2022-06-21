@@ -29,7 +29,11 @@ class RoadMapList extends StatefulWidget {
   _RoadMapListState createState() => _RoadMapListState();
 }
 
-class _RoadMapListState extends State<RoadMapList> {
+class _RoadMapListState extends State<RoadMapList>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   final StreamController<List> _streamController = StreamController<List>();
   final _searchTextController = TextEditingController();
   final _advancedSearchTextController = TextEditingController();
@@ -562,6 +566,7 @@ class _RoadMapListState extends State<RoadMapList> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return StreamBuilder<List>(
       stream: _streamController.stream,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -646,6 +651,12 @@ class _RoadMapListState extends State<RoadMapList> {
                             });
                             getRoadMapList();
                           }),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: initState,
+                      icon: const Icon(Icons.sync),
+                      tooltip: 'Actualiser l\'onglet',
+                    ),
                     const Spacer(),
                     const Text('Nombre de lignes affichées : '),
                     DropdownButton(
