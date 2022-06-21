@@ -25,7 +25,7 @@ class Welcome extends StatefulWidget {
   _WelcomeState createState() => _WelcomeState();
 }
 
-class _WelcomeState extends State<Welcome> {
+class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
   Timer? timer;
   int minTabWidth = 1060;
   List<Widget> widgetTabs = [
@@ -36,6 +36,8 @@ class _WelcomeState extends State<Welcome> {
     const RoadMapScreen(),
     if (globals.user.sqlExecute) const SqlScreen()
   ];
+  int _widgetIndex = 1;
+  late TabController _tabController;
 
   void initializeTimer() {
     timer?.cancel();
@@ -59,8 +61,21 @@ class _WelcomeState extends State<Welcome> {
 
   @override
   void initState() {
+    _tabController = TabController(
+        length: widgetTabs.length, vsync: this, initialIndex: _widgetIndex);
+    _tabController.addListener(() {
+      setState(() {
+        _widgetIndex = _tabController.index;
+      });
+    });
     super.initState();
     initializeTimer();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -72,110 +87,107 @@ class _WelcomeState extends State<Welcome> {
         child: Scaffold(
           body: Center(
               child: (globals.isAuthentified)
-                  ? DefaultTabController(
-                      initialIndex: 1,
-                      length: widgetTabs.length,
-                      child: Scaffold(
-                        appBar: AppBar(
-                          title: const Text('Colisage des prélèvements'),
-                          automaticallyImplyLeading: false,
-                          leading: Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: Image.asset(
-                                'assets/images/cerballiance_logo.png',
-                              )),
-                          backgroundColor: themeColor,
-                          flexibleSpace: FlexibleSpaceBar(
-                            title: Text('Bonjour ' +
-                                globals.user.firstname.substring(0, 1) +
-                                globals.user.firstname
-                                    .substring(1)
-                                    .toLowerCase()), //permet d'afficher le prénom avec seulement la premièr lettre en majuscule
-                            centerTitle: true,
-                            titlePadding: const EdgeInsets.fromLTRB(0, 0, 0,
-                                70), //choisit la position de la zone de texte
-                          ),
-                          actions: <Widget>[
-                            IconButton(
-                                tooltip: 'Se déconnecter',
-                                onPressed: () {
-                                  logOut(context);
-                                },
-                                icon: const Icon(Icons.exit_to_app_outlined)),
+                  ? Scaffold(
+                      appBar: AppBar(
+                        title: const Text('Colisage des prélèvements'),
+                        automaticallyImplyLeading: false,
+                        leading: Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Image.asset(
+                              'assets/images/cerballiance_logo.png',
+                            )),
+                        backgroundColor: themeColor,
+                        flexibleSpace: FlexibleSpaceBar(
+                          title: Text('Bonjour ' +
+                              globals.user.firstname.substring(0, 1) +
+                              globals.user.firstname
+                                  .substring(1)
+                                  .toLowerCase()), //permet d'afficher le prénom avec seulement la premièr lettre en majuscule
+                          centerTitle: true,
+                          titlePadding: const EdgeInsets.fromLTRB(0, 0, 0,
+                              70), //choisit la position de la zone de texte
+                        ),
+                        actions: <Widget>[
+                          IconButton(
+                              tooltip: 'Se déconnecter',
+                              onPressed: () {
+                                logOut(context);
+                              },
+                              icon: const Icon(Icons.exit_to_app_outlined)),
+                        ],
+                        bottom: TabBar(
+                          controller: _tabController,
+                          indicator: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: Colors.amber, width: 1),
+                              borderRadius: BorderRadius.circular(8)),
+                          labelColor: themeColor,
+                          unselectedLabelColor: Colors.white,
+                          labelStyle: const TextStyle(fontSize: 16),
+                          tabs: <Widget>[
+                            if (globals.user.userEditing)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.manage_accounts_rounded),
+                                  if (MediaQuery.of(context).size.width >
+                                      minTabWidth)
+                                    const Text(" Utilisateurs")
+                                ],
+                              ),
+                            if (globals.user.boxEditing)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.print),
+                                  if (MediaQuery.of(context).size.width >
+                                      minTabWidth)
+                                    const Text(" Etiquettes")
+                                ],
+                              ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.track_changes_outlined),
+                                if (MediaQuery.of(context).size.width >
+                                    minTabWidth)
+                                  const Text(" Sites")
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.dock_outlined),
+                                if (MediaQuery.of(context).size.width >
+                                    minTabWidth)
+                                  const Text(" Traça")
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.fact_check_outlined),
+                                if (MediaQuery.of(context).size.width >
+                                    minTabWidth)
+                                  const Text(" Feuilles de route")
+                              ],
+                            ),
+                            if (globals.user.sqlExecute)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.data_usage),
+                                  if (MediaQuery.of(context).size.width >
+                                      minTabWidth)
+                                    const Text(" Interface SQL")
+                                ],
+                              ),
                           ],
-                          bottom: TabBar(
-                            indicator: BoxDecoration(
-                                color: Colors.white,
-                                border:
-                                    Border.all(color: Colors.amber, width: 1),
-                                borderRadius: BorderRadius.circular(8)),
-                            labelColor: themeColor,
-                            unselectedLabelColor: Colors.white,
-                            labelStyle: const TextStyle(fontSize: 16),
-                            tabs: <Widget>[
-                              if (globals.user.userEditing)
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.manage_accounts_rounded),
-                                    if (MediaQuery.of(context).size.width >
-                                        minTabWidth)
-                                      const Text(" Utilisateurs")
-                                  ],
-                                ),
-                              if (globals.user.boxEditing)
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.print),
-                                    if (MediaQuery.of(context).size.width >
-                                        minTabWidth)
-                                      const Text(" Etiquettes")
-                                  ],
-                                ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.track_changes_outlined),
-                                  if (MediaQuery.of(context).size.width >
-                                      minTabWidth)
-                                    const Text(" Sites")
-                                ],
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.dock_outlined),
-                                  if (MediaQuery.of(context).size.width >
-                                      minTabWidth)
-                                    const Text(" Traça")
-                                ],
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.fact_check_outlined),
-                                  if (MediaQuery.of(context).size.width >
-                                      minTabWidth)
-                                    const Text(" Feuilles de route")
-                                ],
-                              ),
-                              if (globals.user.sqlExecute)
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.data_usage),
-                                    if (MediaQuery.of(context).size.width >
-                                        minTabWidth)
-                                      const Text(" Interface SQL")
-                                  ],
-                                ),
-                            ],
-                          ),
                         ),
-                        body: TabBarView(
-                          children: widgetTabs,
-                        ),
+                      ),
+                      body: IndexedStack(
+                        index: _widgetIndex,
+                        children: widgetTabs,
                       ),
                     )
                   : Column(
