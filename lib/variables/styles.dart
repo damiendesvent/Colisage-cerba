@@ -22,11 +22,12 @@ SnackBar mySnackBar(Text text,
       Icons.check,
       color: Colors.white,
     ),
-    SnackBarAction? action}) {
+    SnackBarAction? action,
+    int duration = 5}) {
   return SnackBar(
     width: width,
     backgroundColor: color,
-    duration: const Duration(seconds: 5),
+    duration: Duration(seconds: duration),
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
     behavior: SnackBarBehavior.floating,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

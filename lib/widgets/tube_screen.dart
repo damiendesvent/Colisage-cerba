@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../variables/globals.dart' as globals;
 import '../variables/env.sample.dart';
 import '../variables/styles.dart';
@@ -32,8 +33,8 @@ class _TubeListState extends State<TubeList> {
   TextEditingController boxController = TextEditingController();
   TextEditingController tubeController = TextEditingController();
   bool submited = false;
-  Iterable<Site> sites = [];
-  Iterable<User> users = [];
+  List sites = [];
+  List users = [];
   static const List<String> actionsList = [
     '1. Ajouter un tube dans une boite',
     '2. Enlever un tube d\'une boite',
@@ -47,8 +48,8 @@ class _TubeListState extends State<TubeList> {
   bool showTubeDialog = false;
   List<String> tubes = [];
   int index = 1;
-  var existedBox;
   String natureContent = 'Boite/Sachet';
+  List alreadyOnBoxTubes = [];
 
   void getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
@@ -57,9 +58,7 @@ class _TubeListState extends State<TubeList> {
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       setState(() {
-        sites = items.map(
-          (e) => Site.fromSnapshot(e),
-        );
+        sites = items.map((item) => item['LIBELLE SITE']).toList();
       });
     }
   }
@@ -75,29 +74,99 @@ class _TubeListState extends State<TubeList> {
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       setState(() {
-        users = items.map(
-          (e) => User.fromSnapshot(e),
-        );
+        users = items.map((item) => item['CODE UTILISATEUR']).toList();
       });
     }
   }
 
   void getBoxDetail(String code) async {
-    String phpUriSiteList = Env.urlPrefix + 'Boxes/details_box.php';
-    http.Response res = await http.post(Uri.parse(phpUriSiteList), body: {
+    String phpUriBoxDetail = Env.urlPrefix + 'Boxes/details_box.php';
+    http.Response res = await http.post(Uri.parse(phpUriBoxDetail), body: {
       "code": code,
     });
     if (res.body.isNotEmpty) {
       setState(() {
-        existedBox = json.decode(res.body)['CODE BOITE'];
-        natureContent = existedBox is String ? 'Boite' : 'Sachet';
+        natureContent =
+            json.decode(res.body)['CODE BOITE'] is String ? 'Boite' : 'Sachet';
       });
     }
   }
 
-  void onAddTube() {}
+  void getListTube(String code) async {
+    String phpUriTubeList = Env.urlPrefix + 'Tubes/list_tube.php';
+    http.Response res =
+        await http.post(Uri.parse(phpUriTubeList), body: {'code': code});
+    if (res.body.isNotEmpty && res.body != []) {
+      List items = json.decode(res.body);
+      setState(() {
+        alreadyOnBoxTubes = items.map((item) => item['CODE TUBE']).toList();
+      });
+    }
+  }
 
-  void onRemoveTube() {}
+  void onAddTraca(String action) {
+    String phpUriAddTraca = Env.urlPrefix + 'Tracas/add_tracas.php';
+    http.post(Uri.parse(phpUriAddTraca), body: {
+      'user': userController.text,
+      'site': siteController.text,
+      'box': boxController.text,
+      'tube': tubes.toString(),
+      'action': action,
+      'registering': DateTime.now()
+          .toString()
+          .substring(0, DateTime.now().toString().length - 4),
+      'pgm': 'A',
+    });
+  }
+
+  void onAddTube() {
+    String phpUriTubeAddOrUpdate =
+        Env.urlPrefix + 'Tubes/add_or_update_tubes.php';
+    onAddTraca('AJT');
+    http.post(Uri.parse(phpUriTubeAddOrUpdate),
+        body: {'tube': tubes.toString(), 'box': boxController.text});
+    ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
+        Text(' ' +
+            tubes.length.toString() +
+            ' tubes ont bien été ajoutés à la boite n° ' +
+            boxController.text),
+        duration: 8));
+    setState(() {
+      showBoxDialog = false;
+      showTubeDialog = false;
+      tubes.clear();
+      boxController.clear();
+      tubeController.clear();
+      natureContent = 'Boite/sachet';
+    });
+  }
+
+  void onAddBag() {
+    String phpUriBoxAdd = Env.urlPrefix + 'Boxes/add_box.php';
+    http.post(Uri.parse(phpUriBoxAdd),
+        body: {'box': boxController.text, 'type': 'SAC'});
+  }
+
+  void onRemoveTube() {
+    String phpUriTubeRemoveBox = Env.urlPrefix + 'Tubes/remove_box_tubes.php';
+    onAddTraca('VIT');
+    http.post(Uri.parse(phpUriTubeRemoveBox),
+        body: {'tube': tubes.toString(), 'box': boxController.text});
+    ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
+        Text(' ' +
+            tubes.length.toString() +
+            ' tubes ont bien été enlevé de la boite n° ' +
+            boxController.text),
+        duration: 8));
+    setState(() {
+      showBoxDialog = false;
+      showTubeDialog = false;
+      tubes.clear();
+      boxController.clear();
+      tubeController.clear();
+      natureContent = 'Boite/sachet';
+    });
+  }
 
   void onClearBox() {}
 
@@ -112,6 +181,27 @@ class _TubeListState extends State<TubeList> {
     super.initState();
   }
 
+  String? tubeErrorText() {
+    if (tubeController.text.isEmpty) {
+      setState(() {});
+      return 'Veuillez entrer une valeur';
+    } else if (tubes.contains(tubeController.text)) {
+      setState(() {});
+      return 'Le tube a déjà été scanné';
+    } else if (alreadyOnBoxTubes.contains(tubeController.text) &&
+        action[0] == '1') {
+      setState(() {});
+      return 'Le tube est déjà présent';
+    } else if (!alreadyOnBoxTubes.contains(tubeController.text) &&
+        action[0] == '2') {
+      setState(() {});
+      return 'Le tube n\'est pas présent';
+    } else {
+      setState(() {});
+      return null;
+    }
+  }
+
   List<Widget> screen() {
     return [
       Dialog(
@@ -121,152 +211,166 @@ class _TubeListState extends State<TubeList> {
             width: 600,
             height: 800,
             child: Column(children: [
-              Table(
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                columnWidths: const {
-                  0: FixedColumnWidth(160),
-                  1: FractionColumnWidth(0.6)
-                },
-                children: [
-                  TableRow(
+              Form(
+                  key: formKey,
+                  child: Table(
+                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                    columnWidths: const {
+                      0: FixedColumnWidth(160),
+                      1: FractionColumnWidth(0.6)
+                    },
                     children: [
-                      const TableCell(child: Text('Site : ', style: textStyle)),
-                      TableCell(
-                          child: SizedBox(
-                              height: 70,
-                              child: showBoxDialog
-                                  ? Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          0, 14, 0, 0),
-                                      child: Text(
-                                        siteController.text,
-                                        style: textStyle,
-                                      ))
-                                  : Form(
-                                      key: formKey,
-                                      child: SearchField(
-                                        searchStyle: textStyle,
-                                        onSubmit: (_) {
-                                          formKey.currentState!.validate();
-                                        },
-                                        textInputAction: TextInputAction.none,
-                                        //suggestionAction: SuggestionAction.unfocus,
-                                        initialValue: SearchFieldListItem<Site>(
-                                            sites.elementAt(4).libelle),
-                                        controller: siteController,
-                                        validator: (x) {
-                                          if (!sites.contains(x) ||
-                                              x!.isEmpty) {
-                                            return 'Veuillez entrer un site valide';
-                                          }
-                                          return null;
-                                        },
-                                        emptyWidget: Text('Aucun site trouvé',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                color: Colors.red.shade900,
-                                                fontSize: 15)),
-                                        searchInputDecoration: InputDecoration(
-                                          errorText:
-                                              (siteController.text.isEmpty &&
-                                                      submited
-                                                  ? 'Veuillez entrer une valeur'
-                                                  : null),
-                                        ),
-                                        suggestions: sites
-                                            .map(
-                                              (e) => SearchFieldListItem<Site>(
-                                                e.libelle,
-                                                item: e,
-                                              ),
-                                            )
-                                            .toList(),
-                                      ))))
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      const TableCell(
-                          child: Text(
-                        'Utilisateur : ',
-                        style: textStyle,
-                      )),
-                      TableCell(
-                          child: SizedBox(
-                              height: 70,
-                              child: showBoxDialog
-                                  ? Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          0, 14, 0, 0),
-                                      child: Text(
-                                        userController.text,
-                                        style: textStyle,
-                                      ))
-                                  : SearchField(
-                                      searchStyle: textStyle,
-                                      initialValue: SearchFieldListItem<User>(
-                                          globals.user.code),
-                                      controller: userController,
-                                      emptyWidget: Text(
-                                          'Aucun utilisateur trouvé',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              color: Colors.red.shade900,
-                                              fontSize: 15)),
-                                      searchInputDecoration: InputDecoration(
-                                        errorText:
-                                            (userController.text.isEmpty &&
+                      TableRow(
+                        children: [
+                          const TableCell(
+                              child: Text('Site : ', style: textStyle)),
+                          TableCell(
+                              child: SizedBox(
+                                  height: 70,
+                                  child: showBoxDialog
+                                      ? Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              0, 14, 0, 0),
+                                          child: Text(
+                                            siteController.text,
+                                            style: textStyle,
+                                          ))
+                                      : SearchField(
+                                          searchStyle: textStyle,
+                                          onSubmit: (_) {
+                                            formKey.currentState!.validate();
+                                          },
+                                          textInputAction: TextInputAction.none,
+                                          initialValue:
+                                              SearchFieldListItem<String>(
+                                                  sites[4]),
+                                          controller: siteController,
+                                          validator: (x) {
+                                            if (!sites.contains(x) ||
+                                                x!.isEmpty) {
+                                              return 'Veuillez entrer un site valide';
+                                            }
+                                            return null;
+                                          },
+                                          emptyWidget: Text('Aucun site trouvé',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: Colors.red.shade900,
+                                                  fontSize: 15)),
+                                          searchInputDecoration:
+                                              InputDecoration(
+                                            errorText: (siteController
+                                                        .text.isEmpty &&
                                                     submited
                                                 ? 'Veuillez entrer une valeur'
                                                 : null),
-                                      ),
-                                      suggestions: users
-                                          .map(
-                                            (e) => SearchFieldListItem<User>(
-                                              e.code,
-                                              item: e,
-                                            ),
-                                          )
-                                          .toList(),
-                                    )))
+                                          ),
+                                          suggestions: sites
+                                              .map(
+                                                (e) =>
+                                                    SearchFieldListItem<String>(
+                                                  e,
+                                                  item: e,
+                                                ),
+                                              )
+                                              .toList(),
+                                        )))
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                              child: Text(
+                            'Utilisateur : ',
+                            style: textStyle,
+                          )),
+                          TableCell(
+                              child: SizedBox(
+                                  height: 70,
+                                  child: showBoxDialog
+                                      ? Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              0, 14, 0, 0),
+                                          child: Text(
+                                            userController.text,
+                                            style: textStyle,
+                                          ))
+                                      : SearchField(
+                                          searchStyle: textStyle,
+                                          initialValue:
+                                              SearchFieldListItem<String>(
+                                                  globals.user.code),
+                                          controller: userController,
+                                          validator: (x) {
+                                            if (!users.contains(x) ||
+                                                x!.isEmpty) {
+                                              return 'Veuillez entrer un utilisateur valide';
+                                            }
+                                            return null;
+                                          },
+                                          emptyWidget: Text(
+                                              'Aucun utilisateur trouvé',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  color: Colors.red.shade900,
+                                                  fontSize: 15)),
+                                          searchInputDecoration:
+                                              InputDecoration(
+                                            errorText: (userController
+                                                        .text.isEmpty &&
+                                                    submited
+                                                ? 'Veuillez entrer une valeur'
+                                                : null),
+                                          ),
+                                          suggestions: users
+                                              .map(
+                                                (e) =>
+                                                    SearchFieldListItem<String>(
+                                                  e,
+                                                  item: e,
+                                                ),
+                                              )
+                                              .toList(),
+                                        )))
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                              child: Text(
+                            'Action : ',
+                            style: textStyle,
+                          )),
+                          TableCell(
+                              child: SizedBox(
+                                  height: 70,
+                                  child: showBoxDialog
+                                      ? Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              0, 25, 0, 0),
+                                          child: Text(
+                                            action,
+                                            style: textStyle,
+                                          ))
+                                      : DropdownButtonHideUnderline(
+                                          child: DropdownButton(
+                                              value: action,
+                                              style: textStyle,
+                                              items: actionsList.map((value) {
+                                                return DropdownMenuItem(
+                                                    value: value,
+                                                    child:
+                                                        Text(value.toString()));
+                                              }).toList(),
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  action = newValue!;
+                                                });
+                                              }))))
+                        ],
+                      ),
                     ],
-                  ),
-                  TableRow(
-                    children: [
-                      const TableCell(
-                          child: Text(
-                        'Action : ',
-                        style: textStyle,
-                      )),
-                      TableCell(
-                          child: SizedBox(
-                              height: 70,
-                              child: showBoxDialog
-                                  ? Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          0, 25, 0, 0),
-                                      child: Text(
-                                        action,
-                                        style: textStyle,
-                                      ))
-                                  : DropdownButtonHideUnderline(
-                                      child: DropdownButton(
-                                          value: action,
-                                          style: textStyle,
-                                          items: actionsList.map((value) {
-                                            return DropdownMenuItem(
-                                                value: value,
-                                                child: Text(value.toString()));
-                                          }).toList(),
-                                          onChanged: (String? newValue) {
-                                            setState(() {
-                                              action = newValue!;
-                                            });
-                                          }))))
-                    ],
-                  ),
-                ],
-              ),
+                  )),
               Padding(
                 padding: const EdgeInsets.all(30),
                 child: ElevatedButton(
@@ -282,15 +386,15 @@ class _TubeListState extends State<TubeList> {
                       setState(() {
                         boxController.clear();
                         natureContent = 'Boite/sachet';
-                        existedBox = null;
                         showBoxDialog = false;
                         showTubeDialog = false;
-                        tubes.clear;
+                        tubes = [];
                         tubeController.clear();
                       });
                     } else {
                       if (siteController.text.isNotEmpty &&
-                          userController.text.isNotEmpty) {
+                          userController.text.isNotEmpty &&
+                          formKey.currentState!.validate()) {
                         setState(() {
                           submited = false;
                           showBoxDialog = true;
@@ -337,6 +441,10 @@ class _TubeListState extends State<TubeList> {
                                                       boxController.text.isEmpty
                                                   ? 'Veuillez entrer une valeur'
                                                   : null),
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter.deny(
+                                                '"')
+                                          ],
                                           onSubmitted: (_) {
                                             setState(() {
                                               submited = true;
@@ -348,6 +456,7 @@ class _TubeListState extends State<TubeList> {
                                               getBoxDetail(boxController.text);
                                               if (action[0] == '1' ||
                                                   action[0] == '2') {
+                                                getListTube(boxController.text);
                                                 setState(() {
                                                   showTubeDialog = true;
                                                 });
@@ -390,22 +499,13 @@ class _TubeListState extends State<TubeList> {
                                     autofocus: true,
                                     controller: tubeController,
                                     decoration: InputDecoration(
-                                        errorText: submited &&
-                                                (tubeController.text.isEmpty ||
-                                                    tubes.contains(
-                                                        tubeController.text))
-                                            ? (tubes.contains(
-                                                    tubeController.text)
-                                                ? 'Ce tube a déjà été scanné'
-                                                : 'Veuillez entrer une valeur')
-                                            : null),
+                                        errorText:
+                                            submited ? tubeErrorText() : null),
                                     onSubmitted: (_) {
                                       setState(() {
                                         submited = true;
                                       });
-                                      if (tubeController.text.isNotEmpty &&
-                                          !tubes
-                                              .contains(tubeController.text)) {
+                                      if (tubeErrorText() == null) {
                                         setState(() {
                                           submited = false;
                                           tubes.add(tubeController.text);
@@ -414,6 +514,64 @@ class _TubeListState extends State<TubeList> {
                                       }
                                     },
                                   )))
+                        ],
+                      ),
+                    ]),
+              if (showTubeDialog)
+                Table(
+                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                    columnWidths: const {
+                      0: FixedColumnWidth(160),
+                      1: FractionColumnWidth(0.6)
+                    },
+                    children: [
+                      TableRow(
+                        children: [
+                          const TableCell(
+                              child: Padding(padding: EdgeInsets.all(40))),
+                          TableCell(
+                              child: Text(
+                                  'Nombre de tubes dans ' +
+                                      (natureContent == 'Boite'
+                                          ? 'la '
+                                          : 'le ') +
+                                      natureContent.toLowerCase(),
+                                  style: textStyle))
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                              child:
+                                  Text('Avant modification', style: textStyle)),
+                          TableCell(
+                              child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 20),
+                                  child: Text(
+                                    alreadyOnBoxTubes.length.toString() +
+                                        ' / 50',
+                                    style: textStyle,
+                                    textAlign: TextAlign.center,
+                                  )))
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                              child:
+                                  Text('Après modification', style: textStyle)),
+                          TableCell(
+                              child: Text(
+                                  (action[0] == '1'
+                                              ? alreadyOnBoxTubes.length +
+                                                  tubes.length
+                                              : alreadyOnBoxTubes.length -
+                                                  tubes.length)
+                                          .toString() +
+                                      ' / 50',
+                                  style: textStyle,
+                                  textAlign: TextAlign.center))
                         ],
                       ),
                     ]),
@@ -481,18 +639,14 @@ class _TubeListState extends State<TubeList> {
                         style: myButtonStyle,
                         child: const Text('Valider les changements'),
                         onPressed: () {
+                          if (natureContent == 'Sachet') {
+                            onAddBag();
+                          }
                           if (action[0] == '1') {
                             onAddTube();
                           } else {
                             onRemoveTube();
                           }
-                          setState(() {
-                            showBoxDialog = false;
-                            showTubeDialog = false;
-                            tubes.clear;
-                            boxController.clear();
-                            tubeController.clear();
-                          });
                         },
                       ),
                     ),
