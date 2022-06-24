@@ -86,7 +86,7 @@ class _LogInFormState extends State<LogInForm> {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Connexion"),
-          backgroundColor: themeColor,
+          backgroundColor: themeMainColor,
           automaticallyImplyLeading: false,
           centerTitle: true,
         ),
@@ -97,7 +97,7 @@ class _LogInFormState extends State<LogInForm> {
               child: Column(mainAxisSize: MainAxisSize.min, children: [
                 LinearProgressIndicator(
                   value: _formProgress,
-                  color: Colors.amber,
+                  color: themeSecondColor,
                 ),
                 Text('Veuillez rentrer vos identifiants',
                     style: Theme.of(context).textTheme.headline4),

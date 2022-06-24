@@ -28,6 +28,7 @@ class _SqlAppState extends State<SqlApp> {
   String errorHintText = 'Veuillez entrer une valeur';
   String errorText = '';
   bool validQuery = true;
+  final ScrollController _scrollController = ScrollController();
 
   void executeQuery(String query) async {
     String phpUriQuery = Env.urlPrefix + 'query.php';
@@ -96,7 +97,12 @@ class _SqlAppState extends State<SqlApp> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Scrollbar(
+                      controller: _scrollController,
+                      thumbVisibility: true,
+                      trackVisibility: true,
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Center(
@@ -151,6 +157,6 @@ class _SqlAppState extends State<SqlApp> {
         ),
       ),
       dataTable()
-    ]));
+    ])));
   }
 }

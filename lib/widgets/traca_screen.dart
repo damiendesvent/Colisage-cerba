@@ -354,7 +354,7 @@ class _TracaListState extends State<TracaList>
             ])));
   }
 
-  ScrollController scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -422,7 +422,11 @@ class _TracaListState extends State<TracaList>
                               tooltip: 'Recherche simple'),
                         const Spacer(),
                         IconButton(
-                          onPressed: initState,
+                          onPressed: () {
+                            setState(() {
+                              getTracaList();
+                            });
+                          },
                           icon: const Icon(Icons.sync),
                           tooltip: 'Actualiser l\'onglet',
                         ),
@@ -449,29 +453,17 @@ class _TracaListState extends State<TracaList>
                 body: Row(children: <Widget>[
                   Expanded(
                       child: Scrollbar(
-                          controller: scrollController,
+                          controller: _scrollController,
                           thumbVisibility: true,
                           trackVisibility: true,
                           child: SingleChildScrollView(
-                              controller: scrollController,
+                              controller: _scrollController,
                               child: DataTable(
                                 showCheckboxColumn: false,
                                 sortColumnIndex: _currentSortColumn,
                                 sortAscending: _isAscending,
                                 headingTextStyle: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16),
-                                headingRowColor:
-                                    MaterialStateProperty.resolveWith<Color?>(
-                                        (Set<MaterialState> states) {
-                                  if (states.contains(MaterialState.hovered)) {
-                                    return Theme.of(context)
-                                        .colorScheme
-                                        .primary
-                                        .withOpacity(0.8);
-                                  }
-                                  return Colors.amber.shade400.withOpacity(
-                                      0.9); // Use the default value.
-                                }),
                                 columns: [
                                   DataColumn(
                                       label: const Text('Code tracabilité'),

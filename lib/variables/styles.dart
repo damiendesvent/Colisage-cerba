@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-const Color themeColor = Color.fromARGB(255, 25, 111, 187);
+const Color themeMainColor = Color.fromARGB(255, 40, 113, 177);
+const Color themeSecondColor = Color.fromARGB(255, 124, 84, 215);
 
 const Color myBarrierColor = Colors.black26;
 
@@ -11,7 +12,7 @@ ButtonStyle myButtonStyle = ButtonStyle(
   }),
   backgroundColor:
       MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-    return states.contains(MaterialState.disabled) ? null : themeColor;
+    return states.contains(MaterialState.disabled) ? null : themeMainColor;
   }),
 );
 

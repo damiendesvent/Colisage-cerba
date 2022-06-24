@@ -54,6 +54,7 @@ class _SiteListState extends State<SiteList>
   String? maxSite;
   bool showDeleteSite = false;
   bool isAdvancedResearch = false;
+  final ScrollController _scrollController = ScrollController();
 
   Future getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
@@ -1185,139 +1186,152 @@ class _SiteListState extends State<SiteList>
       stream: _streamController.stream,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
-          return CustomScrollView(slivers: [
-            //barre de recherche dynamique
-            SliverAppBar(
-              elevation: 8,
-              forceElevated: true,
-              expandedHeight: isAdvancedResearch ? 100 : 55,
-              floating: true,
-              backgroundColor: Colors.grey[300],
-              flexibleSpace: FlexibleSpaceBar(
-                  background: Column(children: [
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  DropdownButtonHideUnderline(
-                      child: DropdownButton(
-                          value: searchField,
-                          style: const TextStyle(fontSize: 14),
-                          items: searchFieldList.map((searchFieldList) {
-                            return DropdownMenuItem(
-                                value: searchFieldList,
-                                child: Text(searchFieldList));
-                          }).toList(),
-                          onChanged: (String? newsearchField) {
-                            setState(() {
-                              searchField = newsearchField!;
-                            });
-                            searchSite();
-                          })),
-                  Expanded(
-                      child: TextFormField(
-                    controller: _searchTextController,
-                    decoration: const InputDecoration(hintText: 'Recherche'),
-                    onFieldSubmitted: (e) {
-                      searchSite();
-                    },
-                  )),
-                  IconButton(
-                      onPressed: () {
-                        searchSite();
-                      },
-                      icon: const Icon(Icons.search_outlined),
-                      tooltip: 'Rechercher'),
-                  if (!isAdvancedResearch)
-                    IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isAdvancedResearch = true;
-                          });
-                        },
-                        icon: const Icon(Icons.manage_search_outlined),
-                        tooltip: 'Recherche avancée'),
-                  if (isAdvancedResearch)
-                    IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isAdvancedResearch = false;
-                            _advancedSearchTextController.text = '';
-                          });
+          return Scrollbar(
+              controller: _scrollController,
+              thumbVisibility: true,
+              trackVisibility: true,
+              child: CustomScrollView(controller: _scrollController, slivers: [
+                //barre de recherche dynamique
+                SliverAppBar(
+                  elevation: 8,
+                  forceElevated: true,
+                  expandedHeight: isAdvancedResearch ? 100 : 55,
+                  floating: true,
+                  backgroundColor: Colors.grey[300],
+                  flexibleSpace: FlexibleSpaceBar(
+                      background: Column(children: [
+                    Row(mainAxisSize: MainAxisSize.min, children: [
+                      DropdownButtonHideUnderline(
+                          child: DropdownButton(
+                              value: searchField,
+                              style: const TextStyle(fontSize: 14),
+                              items: searchFieldList.map((searchFieldList) {
+                                return DropdownMenuItem(
+                                    value: searchFieldList,
+                                    child: Text(searchFieldList));
+                              }).toList(),
+                              onChanged: (String? newsearchField) {
+                                setState(() {
+                                  searchField = newsearchField!;
+                                });
+                                searchSite();
+                              })),
+                      Expanded(
+                          child: TextFormField(
+                        controller: _searchTextController,
+                        decoration:
+                            const InputDecoration(hintText: 'Recherche'),
+                        onFieldSubmitted: (e) {
                           searchSite();
                         },
-                        icon: const Icon(Icons.search_off_outlined),
-                        tooltip: 'Recherche simple'),
-                  const Spacer(),
-                  if (globals.user.siteEditing)
-                    ElevatedButton(
-                        style: myButtonStyle,
+                      )),
+                      IconButton(
+                          onPressed: () {
+                            searchSite();
+                          },
+                          icon: const Icon(Icons.search_outlined),
+                          tooltip: 'Rechercher'),
+                      if (!isAdvancedResearch)
+                        IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isAdvancedResearch = true;
+                              });
+                            },
+                            icon: const Icon(Icons.manage_search_outlined),
+                            tooltip: 'Recherche avancée'),
+                      if (isAdvancedResearch)
+                        IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isAdvancedResearch = false;
+                                _advancedSearchTextController.text = '';
+                              });
+                              searchSite();
+                            },
+                            icon: const Icon(Icons.search_off_outlined),
+                            tooltip: 'Recherche simple'),
+                      const Spacer(),
+                      if (globals.user.siteEditing)
+                        ElevatedButton(
+                            style: myButtonStyle,
+                            onPressed: () {
+                              showAddPageSite();
+                            },
+                            child: const Text('Ajouter un site')),
+                      if (globals.user.siteEditing)
+                        const Text('  Sites supprimés :'),
+                      if (globals.user.siteEditing)
+                        Switch(
+                            value: showDeleteSite,
+                            onChanged: (newValue) {
+                              setState(() {
+                                showDeleteSite = newValue;
+                              });
+                              getSiteList();
+                            }),
+                      const Spacer(),
+                      IconButton(
                         onPressed: () {
-                          showAddPageSite();
-                        },
-                        child: const Text('Ajouter un site')),
-                  if (globals.user.siteEditing)
-                    const Text('  Sites supprimés :'),
-                  if (globals.user.siteEditing)
-                    Switch(
-                        value: showDeleteSite,
-                        onChanged: (newValue) {
                           setState(() {
-                            showDeleteSite = newValue;
+                            getSiteList();
+                            getMaxSite();
                           });
-                          getSiteList();
-                        }),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: initState,
-                    icon: const Icon(Icons.sync),
-                    tooltip: 'Actualiser l\'onglet',
-                  ),
-                  const Spacer(),
-                  const Text('Nombre de lignes affichées : '),
-                  DropdownButton(
-                      value: numberDisplayed,
-                      items: numberDisplayedList.map((numberDisplayedList) {
-                        return DropdownMenuItem(
-                            value: numberDisplayedList,
-                            child: Text(numberDisplayedList.toString()));
-                      }).toList(),
-                      onChanged: (int? newNumberDisplayed) {
-                        setState(() {
-                          numberDisplayed = newNumberDisplayed!;
-                        });
-                      })
-                ]),
-                Row(
-                  children: advancedResearch(),
-                )
-              ])),
-            ),
-            SliverList(
-                delegate: SliverChildListDelegate([
-              for (Map site in snapshot.data
-                  .take(numberDisplayed)) //affiche la liste des sites
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.location_on_outlined),
-                    trailing: globals.user.siteEditing ? popupMenu(site) : null,
-                    isThreeLine: true,
-                    title: Text(site[searchFieldList.first.toUpperCase()]),
-                    subtitle: Text(searchField +
-                        ' : ' +
-                        site[searchField.replaceAll('é', 'e').toUpperCase()] +
-                        '\n' +
-                        (isAdvancedResearch
-                            ? advancedSearchField +
-                                ' : ' +
-                                site[advancedSearchField
-                                    .replaceAll('é', 'e')
-                                    .toUpperCase()]
-                            : '')),
-                    onTap: () {
-                      showDetailSite(Site.fromSnapshot(site));
-                    },
-                  ),
-                )
-            ]))
-          ]);
+                        },
+                        icon: const Icon(Icons.sync),
+                        tooltip: 'Actualiser l\'onglet',
+                      ),
+                      const Spacer(),
+                      const Text('Nombre de lignes affichées : '),
+                      DropdownButton(
+                          value: numberDisplayed,
+                          items: numberDisplayedList.map((numberDisplayedList) {
+                            return DropdownMenuItem(
+                                value: numberDisplayedList,
+                                child: Text(numberDisplayedList.toString()));
+                          }).toList(),
+                          onChanged: (int? newNumberDisplayed) {
+                            setState(() {
+                              numberDisplayed = newNumberDisplayed!;
+                            });
+                          })
+                    ]),
+                    Row(
+                      children: advancedResearch(),
+                    )
+                  ])),
+                ),
+                SliverList(
+                    delegate: SliverChildListDelegate([
+                  for (Map site in snapshot.data
+                      .take(numberDisplayed)) //affiche la liste des sites
+                    Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.location_on_outlined),
+                        trailing:
+                            globals.user.siteEditing ? popupMenu(site) : null,
+                        isThreeLine: true,
+                        title: Text(site[searchFieldList.first.toUpperCase()]),
+                        subtitle: Text(searchField +
+                            ' : ' +
+                            site[searchField
+                                .replaceAll('é', 'e')
+                                .toUpperCase()] +
+                            '\n' +
+                            (isAdvancedResearch
+                                ? advancedSearchField +
+                                    ' : ' +
+                                    site[advancedSearchField
+                                        .replaceAll('é', 'e')
+                                        .toUpperCase()]
+                                : '')),
+                        onTap: () {
+                          showDetailSite(Site.fromSnapshot(site));
+                        },
+                      ),
+                    )
+                ]))
+              ]));
         }
         return const Center(child: CircularProgressIndicator());
       },

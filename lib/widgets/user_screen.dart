@@ -66,7 +66,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
     'Fonction',
     'Edition site',
     'Edition feuille de route',
-    'Edition boite',
+    'Edition boîte',
     'Edition utilisateur',
     'Exécution SQL'
   ];
@@ -76,7 +76,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   final _advancedSearchTextController = TextEditingController();
   static const numberDisplayedList = [10, 25, 50, 100];
   int numberDisplayed = 25;
-
+  final ScrollController _scrollController = ScrollController();
   bool showDeleteUser = false;
 
   Future getUserList() async {
@@ -552,7 +552,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                             tableRowSpacer,
                             TableRow(children: [
                               const TableCell(
-                                  child: Text('Edition de boites :',
+                                  child: Text('Edition de boîtes :',
                                       style: textStyle)),
                               TableCell(
                                   child: Checkbox(
@@ -1037,7 +1037,11 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                               tooltip: 'Recherche simple'),
                         const Spacer(),
                         IconButton(
-                          onPressed: initState,
+                          onPressed: () {
+                            setState(() {
+                              getUserList();
+                            });
+                          },
                           icon: const Icon(Icons.sync),
                           tooltip: 'Actualiser l\'onglet',
                         ),
@@ -1064,103 +1068,122 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                 body: Row(
                   children: [
                     Expanded(
-                        child: SingleChildScrollView(
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                          DataTable(
-                            headingRowHeight: 80,
-                            sortColumnIndex: _currentSortColumn,
-                            sortAscending: _isAscending,
-                            headingTextStyle: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                            columns: [
-                              DataColumn(
-                                  label: const Text('Code\nutilisateur',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('CODE UTILISATEUR')),
-                              DataColumn(
-                                  label: const Text('Nom',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('NOM')),
-                              DataColumn(
-                                  label: const Text('Prénom',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('PRENOM')),
-                              DataColumn(
-                                  label: const Text('Fonction',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('FONCTION')),
-                              DataColumn(
-                                  label: const Text('Edition\nde sites',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('EDITION SITE')),
-                              DataColumn(
-                                  label: const Text(
-                                      'Edition\nde feuilles de route',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('EDITION FEUILLE DE ROUTE')),
-                              DataColumn(
-                                  label: const Text('Edition\nde boites',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('EDITION BOITE')),
-                              DataColumn(
-                                  label: const Text('Edition\ndes utilisateurs',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('EDITION UTILISATEUR')),
-                              DataColumn(
-                                  label: const Text('Accès au\npanneau SQL',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('EXECUTION SQL')),
-                              DataColumn(
-                                  label: Column(children: [
-                                Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                    child: ElevatedButton(
-                                        style: myButtonStyle,
-                                        onPressed: () {
-                                          showAddPageUser();
-                                        },
-                                        child: const Text(
-                                            'Ajouter un utilisateur'))),
-                                const Spacer(),
-                                Row(children: [
-                                  const Text('Utilisateurs supprimées :'),
-                                  Switch(
-                                      value: showDeleteUser,
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          showDeleteUser = newValue;
-                                        });
-                                        getUserList();
-                                      })
-                                ])
-                              ]))
-                            ],
-                            rows: [
-                              for (Map user in snapshot.data)
-                                DataRow(
-                                  color:
-                                      MaterialStateProperty.resolveWith<Color?>(
-                                          (Set<MaterialState> states) {
-                                    if (states
-                                        .contains(MaterialState.selected)) {
-                                      return Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withOpacity(0.08);
-                                    }
-                                    if ((i = i + 1).isEven) {
-                                      return Colors.grey.withOpacity(0.2);
-                                    }
-                                    return null; // Use the default value.
-                                  }),
-                                  cells: dataCells(user),
-                                )
-                            ],
-                          )
-                        ])))
+                        child: Scrollbar(
+                            controller: _scrollController,
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            child: SingleChildScrollView(
+                                controller: _scrollController,
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      DataTable(
+                                        headingRowHeight: 80,
+                                        sortColumnIndex: _currentSortColumn,
+                                        sortAscending: _isAscending,
+                                        headingTextStyle: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                        columns: [
+                                          DataColumn(
+                                              label: const Text(
+                                                  'Code\nutilisateur',
+                                                  textAlign: TextAlign.center),
+                                              onSort:
+                                                  sorting('CODE UTILISATEUR')),
+                                          DataColumn(
+                                              label: const Text('Nom',
+                                                  textAlign: TextAlign.center),
+                                              onSort: sorting('NOM')),
+                                          DataColumn(
+                                              label: const Text('Prénom',
+                                                  textAlign: TextAlign.center),
+                                              onSort: sorting('PRENOM')),
+                                          DataColumn(
+                                              label: const Text('Fonction',
+                                                  textAlign: TextAlign.center),
+                                              onSort: sorting('FONCTION')),
+                                          DataColumn(
+                                              label: const Text(
+                                                  'Edition\nde sites',
+                                                  textAlign: TextAlign.center),
+                                              onSort: sorting('EDITION SITE')),
+                                          DataColumn(
+                                              label: const Text(
+                                                  'Edition\nde feuilles de route',
+                                                  textAlign: TextAlign.center),
+                                              onSort: sorting(
+                                                  'EDITION FEUILLE DE ROUTE')),
+                                          DataColumn(
+                                              label: const Text(
+                                                  'Edition\nde boîtes',
+                                                  textAlign: TextAlign.center),
+                                              onSort: sorting('EDITION BOITE')),
+                                          DataColumn(
+                                              label: const Text(
+                                                  'Edition\ndes utilisateurs',
+                                                  textAlign: TextAlign.center),
+                                              onSort: sorting(
+                                                  'EDITION UTILISATEUR')),
+                                          DataColumn(
+                                              label: const Text(
+                                                  'Accès au\npanneau SQL',
+                                                  textAlign: TextAlign.center),
+                                              onSort: sorting('EXECUTION SQL')),
+                                          DataColumn(
+                                              label: Column(children: [
+                                            Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        0, 10, 0, 0),
+                                                child: ElevatedButton(
+                                                    style: myButtonStyle,
+                                                    onPressed: () {
+                                                      showAddPageUser();
+                                                    },
+                                                    child: const Text(
+                                                        'Ajouter un utilisateur'))),
+                                            const Spacer(),
+                                            Row(children: [
+                                              const Text(
+                                                  'Utilisateurs supprimées :'),
+                                              Switch(
+                                                  value: showDeleteUser,
+                                                  onChanged: (newValue) {
+                                                    setState(() {
+                                                      showDeleteUser = newValue;
+                                                    });
+                                                    getUserList();
+                                                  })
+                                            ])
+                                          ]))
+                                        ],
+                                        rows: [
+                                          for (Map user in snapshot.data)
+                                            DataRow(
+                                              color: MaterialStateProperty
+                                                  .resolveWith<Color?>(
+                                                      (Set<MaterialState>
+                                                          states) {
+                                                if (states.contains(
+                                                    MaterialState.selected)) {
+                                                  return Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withOpacity(0.08);
+                                                }
+                                                if ((i = i + 1).isEven) {
+                                                  return Colors.grey
+                                                      .withOpacity(0.2);
+                                                }
+                                                return null; // Use the default value.
+                                              }),
+                                              cells: dataCells(user),
+                                            )
+                                        ],
+                                      )
+                                    ]))))
                   ],
                 ));
           }

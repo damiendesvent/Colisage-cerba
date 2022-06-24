@@ -98,12 +98,9 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                             child: Image.asset(
                               'assets/images/cerballiance_logo.png',
                             )),
-                        backgroundColor: themeColor,
+                        backgroundColor: themeMainColor,
                         flexibleSpace: FlexibleSpaceBar(
-                          title: Text('Bonjour ' +
-                              globals.user.firstname +
-                              ' ' +
-                              globals.user.lastname),
+                          title: Text('Bonjour ' + globals.user.firstname),
                           centerTitle: true,
                           titlePadding: const EdgeInsets.fromLTRB(0, 0, 0,
                               70), //choisit la position de la zone de texte
@@ -127,9 +124,10 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                           controller: _tabController,
                           indicator: BoxDecoration(
                               color: Colors.white,
-                              border: Border.all(color: Colors.amber, width: 1),
+                              border:
+                                  Border.all(color: themeSecondColor, width: 1),
                               borderRadius: BorderRadius.circular(8)),
-                          labelColor: themeColor,
+                          labelColor: themeMainColor,
                           unselectedLabelColor: Colors.white,
                           labelStyle: const TextStyle(fontSize: 16),
                           tabs: <Widget>[
@@ -177,7 +175,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                                 const Icon(Icons.dock_outlined),
                                 if (MediaQuery.of(context).size.width >
                                     minTabWidth)
-                                  const Text(" Traça")
+                                  const Text(" Traçabilité")
                               ],
                             ),
                             Row(

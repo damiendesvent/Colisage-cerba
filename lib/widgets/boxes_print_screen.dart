@@ -53,6 +53,7 @@ class _BoxesPrintState extends State<BoxesPrint>
   String editedBoxType = '';
   bool deleteBoxes = false;
   bool showDeletedBoxTypes = false;
+  final ScrollController _scrollController = ScrollController();
 
   getBoxTypeList() async {
     String phpUriBoxTypes = Env.urlPrefix + 'Box_types/list_box_type.php';
@@ -70,8 +71,8 @@ class _BoxesPrintState extends State<BoxesPrint>
         getBoxMax();
       } else {
         setState(() {
-          boxTypesLibelleList = ['Aucun type de boite trouvé'];
-          boxTypesAcronymeList = ['Aucun type de boite trouvé'];
+          boxTypesLibelleList = ['Aucun type de boîte trouvé'];
+          boxTypesAcronymeList = ['Aucun type de boîte trouvé'];
           boxType = boxTypesLibelleList.first;
         });
       }
@@ -108,7 +109,7 @@ class _BoxesPrintState extends State<BoxesPrint>
               ),
               content: Text(
                 int.parse(quantity) > 1
-                    ? 'Êtes-vous sûr de vouloir imprimer \nles boites ' +
+                    ? 'Êtes-vous sûr de vouloir imprimer \nles boîtes ' +
                         boxType +
                         ' n° ' +
                         (maxDatatable[boxType]! + 1).toString() +
@@ -116,7 +117,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                         (maxDatatable[boxType]! + int.parse(quantity))
                             .toString() +
                         ' ?'
-                    : 'Êtes-vous sûr de vouloir imprimer \nla boite ' +
+                    : 'Êtes-vous sûr de vouloir imprimer \nla boîte ' +
                         boxType +
                         ' n° ' +
                         (maxDatatable[boxType]! + 1).toString() +
@@ -169,14 +170,14 @@ class _BoxesPrintState extends State<BoxesPrint>
       ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
         Text(
           int.parse(quantity) > 1
-              ? ' Les boites ' +
+              ? ' Les boîtes ' +
                   boxType +
                   ' n° ' +
                   (maxDatatable[boxType]! + 1).toString() +
                   ' à ' +
                   (maxDatatable[boxType]! + int.parse(quantity)).toString() +
                   ' ont bien été créées.'
-              : 'La boite ' +
+              : 'La boîte ' +
                   boxType +
                   ' n° ' +
                   (maxDatatable[boxType]! + 1).toString() +
@@ -376,7 +377,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                             ]))
                       else
                         TableCell(
-                            child: boxType != 'Aucun type de boite trouvé'
+                            child: boxType != 'Aucun type de boîte trouvé'
                                 ? Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -397,7 +398,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                             showPrintPage(libelle: type);
                                           },
                                           tooltip:
-                                              'Imprimer des boites existantes',
+                                              'Imprimer des boîtes existantes',
                                         ),
                                         IconButton(
                                           icon: const Icon(Icons.delete),
@@ -408,7 +409,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                               deleteBoxes = true;
                                             });
                                           },
-                                          tooltip: 'Supprimer des boites',
+                                          tooltip: 'Supprimer des boîtes',
                                         )
                                       ])
                                 : const Text('Aucune action réalisable',
@@ -485,7 +486,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                           Duration(milliseconds: globals.milisecondWait),
                           () => getBoxTypeList());
                       ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
-                          Text('Le type de boite ' +
+                          Text('Le type de boîte ' +
                               libelle +
                               ' a bien été supprimé'),
                           action: SnackBarAction(
@@ -537,7 +538,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                           Duration(milliseconds: globals.milisecondWait),
                           () => getBoxTypeList());
                       ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
-                          Text('Le type de boite ' +
+                          Text('Le type de boîte ' +
                               libelle +
                               ' a bien été restauré')));
                     },
@@ -557,7 +558,7 @@ class _BoxesPrintState extends State<BoxesPrint>
     http.post(Uri.parse(phpUriUpdate),
         body: {'newLibelle': libelle, 'acronyme': acronyme});
     ScaffoldMessenger.of(context).showSnackBar(mySnackBar(Text(
-        'Le type de boite ' +
+        'Le type de boîte ' +
             boxTypesLibelleList[boxTypesAcronymeList.indexOf(acronyme)] +
             ' a été renommé en ' +
             libelle)));
@@ -669,14 +670,14 @@ class _BoxesPrintState extends State<BoxesPrint>
     });
     ScaffoldMessenger.of(context).showSnackBar(mySnackBar(Text(
         int.parse(min) + 1 < maxDatatable[editedBoxType]!
-            ? ' Les boites ' +
+            ? ' Les boîtes ' +
                 editedBoxType +
                 ' n° ' +
                 (int.parse(min) + 1).toString() +
                 ' à ' +
                 (maxDatatable[editedBoxType]!).toString() +
                 ' ont bien été supprimées.'
-            : 'La boite ' +
+            : 'La boîte ' +
                 editedBoxType +
                 ' n° ' +
                 (int.parse(min) + 1).toString() +
@@ -723,7 +724,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                         Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             child: Text(
-                              'Ajout d\'un type de boite',
+                              'Ajout d\'un type de boîte',
                               style: TextStyle(
                                   fontSize: 18, color: Colors.grey.shade700),
                             )),
@@ -861,62 +862,69 @@ class _BoxesPrintState extends State<BoxesPrint>
         stream: _streamController.stream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
-            return SingleChildScrollView(
-                child: Column(
-              children: [
-                const Padding(
-                    padding: EdgeInsets.all(30),
-                    child: Text(
-                      'Création d\'étiquettes de boites',
-                      style: TextStyle(fontSize: 24),
-                    )),
-                Text(
-                  'Cet outil crée les boites du type spécifié à la suite des boites existantes puis lance l\'impression de leurs étiquettes.',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-                ),
-                Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
-                    child: SizedBox(
-                        width: 400,
-                        child: DropdownButtonFormField(
-                          value: boxType,
-                          items: boxTypesLibelleList.map((boxType) {
-                            return DropdownMenuItem(
-                                value: boxType, child: Text(boxType));
-                          }).toList(),
-                          onChanged: (newValue) {
-                            setState(() {
-                              boxType = newValue.toString();
-                            });
-                          },
-                        ))),
-                Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: SizedBox(
-                        width: 400,
-                        child: TextFormField(
-                          readOnly: boxType == 'Aucun type de boite trouvé',
-                          controller: _boxQuantityController,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          decoration: const InputDecoration(
-                              hintText: 'Quantité à imprimer'),
-                          onFieldSubmitted: (_) {
-                            barcodesPrint();
-                          },
-                        ))),
-                ElevatedButton(
-                    style: myButtonStyle,
-                    onPressed: () {
-                      if (_boxQuantityController.text.isNotEmpty) {
-                        barcodesPrint();
-                      }
-                    },
-                    child: const Text('Créer et imprimer')),
-                displayBoxes(),
-              ],
-            ));
+            return Scrollbar(
+                controller: _scrollController,
+                thumbVisibility: true,
+                trackVisibility: true,
+                child: SingleChildScrollView(
+                    controller: _scrollController,
+                    child: Column(
+                      children: [
+                        const Padding(
+                            padding: EdgeInsets.all(30),
+                            child: Text(
+                              'Création d\'étiquettes de boîtes',
+                              style: TextStyle(fontSize: 24),
+                            )),
+                        Text(
+                          'Cet outil crée les boîtes du type spécifié à la suite des boîtes existantes puis lance l\'impression de leurs étiquettes.',
+                          style: TextStyle(
+                              fontSize: 14, color: Colors.grey.shade700),
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
+                            child: SizedBox(
+                                width: 400,
+                                child: DropdownButtonFormField(
+                                  value: boxType,
+                                  items: boxTypesLibelleList.map((boxType) {
+                                    return DropdownMenuItem(
+                                        value: boxType, child: Text(boxType));
+                                  }).toList(),
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      boxType = newValue.toString();
+                                    });
+                                  },
+                                ))),
+                        Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: SizedBox(
+                                width: 400,
+                                child: TextFormField(
+                                  readOnly:
+                                      boxType == 'Aucun type de boîte trouvé',
+                                  controller: _boxQuantityController,
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  decoration: const InputDecoration(
+                                      hintText: 'Quantité à imprimer'),
+                                  onFieldSubmitted: (_) {
+                                    barcodesPrint();
+                                  },
+                                ))),
+                        ElevatedButton(
+                            style: myButtonStyle,
+                            onPressed: () {
+                              if (_boxQuantityController.text.isNotEmpty) {
+                                barcodesPrint();
+                              }
+                            },
+                            child: const Text('Créer et imprimer')),
+                        displayBoxes(),
+                      ],
+                    )));
           }
           return const Center(child: CircularProgressIndicator());
         });
