@@ -85,7 +85,7 @@ class _LogInFormState extends State<LogInForm> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Connexion"),
+          title: const Text("Identification"),
           backgroundColor: themeMainColor,
           automaticallyImplyLeading: false,
           centerTitle: true,
@@ -137,19 +137,21 @@ class _LogInFormState extends State<LogInForm> {
                     },
                   ),
                 ),
-                ElevatedButton(
-                    style: myButtonStyle,
-                    onPressed: () {
-                      setState(() {
-                        submited = true;
-                      });
-                      if (_codeTextController.text.isNotEmpty &&
-                          _passwordTextController.text.isNotEmpty) {
-                        tryConnecting(_codeTextController.text,
-                            _passwordTextController.text);
-                      }
-                    },
-                    child: const Text('Connexion')),
+                Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: ElevatedButton(
+                        style: myButtonStyle,
+                        onPressed: () {
+                          setState(() {
+                            submited = true;
+                          });
+                          if (_codeTextController.text.isNotEmpty &&
+                              _passwordTextController.text.isNotEmpty) {
+                            tryConnecting(_codeTextController.text,
+                                _passwordTextController.text);
+                          }
+                        },
+                        child: const Text('Connexion'))),
               ]),
             ),
             if (login == true)

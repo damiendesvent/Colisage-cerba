@@ -211,13 +211,16 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                       children: [
                           Text('Vous n\'êtes pas connecté !',
                               style: Theme.of(context).textTheme.headline2),
-                          ElevatedButton(
-                            style: myButtonStyle,
-                            onPressed: () {
-                              Navigator.of(context).pushNamed('/');
-                            },
-                            child: const Text('Revenir à la page de connexion'),
-                          ),
+                          Padding(
+                              padding: const EdgeInsets.all(30),
+                              child: ElevatedButton(
+                                style: myButtonStyle,
+                                onPressed: () {
+                                  Navigator.of(context).pushNamed('/');
+                                },
+                                child: const Text(
+                                    'Revenir à la page de connexion'),
+                              )),
                         ])),
         ));
   }

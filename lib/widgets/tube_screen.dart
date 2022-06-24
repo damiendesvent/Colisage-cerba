@@ -36,11 +36,11 @@ class _TubeListState extends State<TubeList> {
   List sites = [];
   List users = [];
   static const List<String> actionsList = [
-    '1. Ajouter un tube dans une boîte',
-    '2. Enlever un tube d\'une boîte',
-    '3. Ramasser une boîte',
-    '4. Déposer une boîte',
-    '5. Vider une boîte'
+    '1 : Ajouter un tube dans une boîte',
+    '2 : Enlever un tube d\'une boîte',
+    '3 : Ramasser un sachet/boîte',
+    '4 : Déposer un sachet/boîte',
+    '5 : Vider une boîte'
   ];
   String action = actionsList.first;
   final formKey = GlobalKey<FormState>();
@@ -56,7 +56,6 @@ class _TubeListState extends State<TubeList> {
   List alreadyOnBoxTubes = [];
   final ScrollController _mainScrollController = ScrollController();
   final ScrollController _secondScrollController = ScrollController();
-  String lastBoxAction = '';
   String? boxErrorText;
 
   void getSiteList() async {
@@ -194,6 +193,12 @@ class _TubeListState extends State<TubeList> {
   }
 
   void onDepositBox() {
+    if (tubes.isNotEmpty) {
+      onRemoveTube();
+      setState(() {
+        tubes = [];
+      });
+    }
     onAddTraca(action: 'DEP');
     ScaffoldMessenger.of(context).showSnackBar(mySnackBar(Text(
         natureContent == 'Boîte'
@@ -202,18 +207,32 @@ class _TubeListState extends State<TubeList> {
     onResetStates();
   }
 
-  Future<String> checkLastBoxAction() async {
-    String phpUriCheckLastActionTraca =
-        Env.urlPrefix + 'Tracas/check_last_action_traca.php';
-    http.Response res = await http.post(Uri.parse(phpUriCheckLastActionTraca),
+  Future<Map<String, String>> checkLastBoxTraca() async {
+    String phpUriCheckLastTraca =
+        Env.urlPrefix + 'Tracas/check_last_action_and_site_traca.php';
+    http.Response res = await http.post(Uri.parse(phpUriCheckLastTraca),
         body: {'box': boxController.text});
     if (res.body.isNotEmpty) {
       var items = json.decode(res.body);
       if (items is! bool) {
-        return items['ACTION'];
+        return {'action': items['ACTION'], 'site': items['LIBELLE SITE']};
       }
     }
-    return '';
+    return {'action': '', 'site': ''};
+  }
+
+  Future<bool> isDepositSite() async {
+    String phpUriDetailSite =
+        Env.urlPrefix + 'Sites/details_site_w_libelle.php';
+    http.Response res = await http.post(Uri.parse(phpUriDetailSite),
+        body: {'libelle': siteController.text});
+    if (res.body.isNotEmpty) {
+      var items = json.decode(res.body);
+      if (items['SITE DEPOT'] == '1') {
+        return true;
+      }
+    }
+    return false;
   }
 
   @override
@@ -245,41 +264,325 @@ class _TubeListState extends State<TubeList> {
   }
 
   void checkBoxErrorText() {
-    checkLastBoxAction().then((value) {
+    checkLastBoxTraca().then((lastTracaBox) {
       if (boxController.text.isNotEmpty) {
         getNatureContent(boxController.text);
-        if (value == 'RAM' && action[0] != '4') {
+        if (lastTracaBox['action'] == 'RAM' && action[0] != '4') {
           setState(() {
             boxErrorText = natureContent == 'Boîte'
                 ? 'La boîte est ramassée'
                 : 'Le sachet est ramassé';
           });
-        } else if (value == 'DEP' && action[0] != '3') {
+        } else if (lastTracaBox['action'] == 'DEP') {
+          if (action[0] == '3') {
+            if (lastTracaBox['site'] != siteController.text) {
+              setState(() {
+                boxErrorText = natureContent == 'Boîte'
+                    ? 'La boîte n\'est pas sur ce site'
+                    : 'Le sachet n\'est pas sur ce site';
+              });
+            } else {
+              isDepositSite().then((value) {
+                if (value) {
+                  getListTube(boxController.text, setTubes: true);
+                }
+              });
+              setState(() {
+                boxErrorText = null;
+                showTourneeDialog = true;
+              });
+            }
+          } else {
+            setState(() {
+              boxErrorText = natureContent == 'Boîte'
+                  ? 'La boîte est déposée'
+                  : 'Le sachet est déposé';
+            });
+          }
+        } else if (lastTracaBox['site']!.isNotEmpty &&
+            lastTracaBox['site'] != siteController.text &&
+            action[0] == '1') {
           setState(() {
             boxErrorText = natureContent == 'Boîte'
-                ? 'La boîte est déposée'
-                : 'Le sachet est déposé';
+                ? 'La boîte contient des tubes d\'un autre site'
+                : 'Le sachet contient des tubes d\'un autre site';
           });
         } else {
           setState(() {
             submited = false;
             boxErrorText = null;
           });
-          if ('12'.contains(action[0])) {
-            getListTube(boxController.text);
-            setState(() {
-              showTubeDialog = true;
-            });
-          } else if ('34'.contains(action[0])) {
-            setState(() {
-              showTourneeDialog = true;
-            });
-          } else {
-            getListTube(boxController.text, setTubes: true);
-            setState(() {
-              showTubeDialog = true;
-            });
+          switch (action[0]) {
+            case '1':
+              getListTube(boxController.text);
+              setState(() {
+                showTubeDialog = true;
+              });
+              break;
+            case '2':
+              getListTube(boxController.text);
+              setState(() {
+                showTubeDialog = true;
+              });
+              break;
+            case '3':
+              setState(() {
+                showTourneeDialog = true;
+              });
+              break;
+            case '4':
+              isDepositSite().then((value) {
+                if (value) {
+                  getListTube(boxController.text, setTubes: true);
+                }
+              });
+              setState(() {
+                showTourneeDialog = true;
+              });
+              break;
+            case '5':
+              getListTube(boxController.text, setTubes: true);
+              setState(() {
+                showTubeDialog = true;
+              });
+              break;
           }
+        }
+      } else {
+        // si boxController est vide
+        setState(() {
+          boxErrorText = 'Veuillez entrer une valeur';
+        });
+      }
+    });
+  }
+
+  void _checkBoxErrorText() {
+    checkLastBoxTraca().then((lastTracaBox) {
+      if (boxController.text.isNotEmpty) {
+        getNatureContent(boxController.text);
+        switch (natureContent) {
+          case 'Boîte':
+            switch (action[0]) {
+              case '1':
+                switch (lastTracaBox['action']) {
+                  case '':
+                    getListTube(boxController.text);
+                    setState(() {
+                      boxErrorText = null;
+                      submited = false;
+                      showTubeDialog = true;
+                    });
+                    break;
+                  case 'AJT':
+                    if (lastTracaBox['site'] == siteController.text) {
+                      getListTube(boxController.text);
+                      setState(() {
+                        showTubeDialog = true;
+                        boxErrorText = null;
+                        submited = false;
+                      });
+                    } else {
+                      setState(() {
+                        boxErrorText =
+                            'La boîte contient des tubes d\'un autre site';
+                      });
+                    }
+                    break;
+                  case 'VIT':
+                    getListTube(boxController.text);
+                    setState(() {
+                      showTubeDialog = true;
+                      boxErrorText = null;
+                      submited = false;
+                    });
+                    break;
+                  default:
+                    setState(() {
+                      boxErrorText = 'La boîte a été ramassée';
+                    });
+                    break;
+                }
+                break;
+              case '2':
+                switch (lastTracaBox['action']) {
+                  case '':
+                    getListTube(boxController.text);
+                    setState(() {
+                      showTubeDialog = true;
+                    });
+                    break;
+                  case 'AJT':
+                    getListTube(boxController.text);
+                    setState(() {
+                      showTubeDialog = true;
+                      boxErrorText = null;
+                      submited = false;
+                    });
+                    break;
+                  case 'VIT':
+                    getListTube(boxController.text);
+                    setState(() {
+                      showTubeDialog = true;
+                      boxErrorText = null;
+                      submited = false;
+                    });
+                    break;
+                  default:
+                    setState(() {
+                      boxErrorText = 'La boîte a été ramassée';
+                    });
+                    break;
+                }
+                break;
+              case '3':
+                switch (lastTracaBox['action']) {
+                  case '':
+                    setState(() {
+                      boxErrorText = null;
+                      submited = false;
+                      showTourneeDialog = true;
+                    });
+                    break;
+                  case 'DEP':
+                    if (lastTracaBox['site'] == siteController.text) {
+                      setState(() {
+                        boxErrorText = null;
+                        submited = false;
+                        showTourneeDialog = true;
+                      });
+                    } else {
+                      setState(() {
+                        boxErrorText = 'La boîte n\'est pas sur ce site';
+                      });
+                    }
+                    break;
+                  case 'RAM':
+                    setState(() {
+                      boxErrorText = 'Boîte déjà ramassée';
+                    });
+                    break;
+                }
+                break;
+              case '4':
+                switch (lastTracaBox['action']) {
+                  case '':
+                    setState(() {
+                      boxErrorText = 'La boîte n\'a pas été ramassée';
+                    });
+                    break;
+                  case 'DEP':
+                    setState(() {
+                      boxErrorText = 'La boîte a déjà été déposée';
+                    });
+                    break;
+                  case 'RAM':
+                    isDepositSite().then((value) {
+                      if (value) {
+                        getListTube(boxController.text, setTubes: true);
+                      }
+                    });
+                    setState(() {
+                      showTourneeDialog = true;
+                    });
+                    break;
+                }
+                break;
+              case '5':
+                switch (lastTracaBox['action']) {
+                  case '':
+                    getListTube(boxController.text, setTubes: true);
+                    setState(() {
+                      showTubeDialog = true;
+                    });
+                    break;
+                  case 'AJT':
+                    getListTube(boxController.text, setTubes: true);
+                    setState(() {
+                      showTubeDialog = true;
+                      boxErrorText = null;
+                      submited = false;
+                    });
+                    break;
+                  case 'VIT':
+                    getListTube(boxController.text, setTubes: true);
+                    setState(() {
+                      showTubeDialog = true;
+                      boxErrorText = null;
+                      submited = false;
+                    });
+                    break;
+                  default:
+                    setState(() {
+                      boxErrorText = 'La boîte a été ramassée';
+                    });
+                    break;
+                }
+                break;
+            }
+            break;
+          case 'Sachet':
+            switch (action[0]) {
+              case '3':
+                switch (lastTracaBox['action']) {
+                  case '':
+                    setState(() {
+                      boxErrorText = null;
+                      submited = false;
+                      showTourneeDialog = true;
+                    });
+                    break;
+                  case 'DEP':
+                    if (lastTracaBox['site'] == siteController.text) {
+                      setState(() {
+                        boxErrorText = null;
+                        submited = false;
+                        showTourneeDialog = true;
+                      });
+                    } else {
+                      setState(() {
+                        boxErrorText = 'Le sachet n\'est pas sur ce site';
+                      });
+                    }
+                    break;
+                  case 'RAM':
+                    setState(() {
+                      boxErrorText = 'Sachet déjà ramassé';
+                    });
+                    break;
+                }
+                break;
+              case '4':
+                switch (lastTracaBox['action']) {
+                  case '':
+                    setState(() {
+                      boxErrorText = 'Le sachet n\'a pas été ramassé';
+                    });
+                    break;
+                  case 'DEP':
+                    setState(() {
+                      boxErrorText = 'Le sachet a déjà été déposé';
+                    });
+                    break;
+                  case 'RAM':
+                    isDepositSite().then((value) {
+                      if (value) {
+                        //mettre variable pour supprimer sachet à la validation
+                      }
+                    });
+                    setState(() {
+                      showTourneeDialog = true;
+                    });
+                    break;
+                }
+                break;
+              default:
+                setState(() {
+                  boxErrorText = 'Impossibles d\'éditer les tubes d\'un sachet';
+                });
+                break;
+            }
+            break;
         }
       } else {
         setState(() {
@@ -534,7 +837,7 @@ class _TubeListState extends State<TubeList> {
                                                       setState(() {
                                                         submited = true;
                                                       });
-                                                      checkBoxErrorText();
+                                                      _checkBoxErrorText();
                                                     },
                                                   ))),
                                           IconButton(
@@ -543,7 +846,7 @@ class _TubeListState extends State<TubeList> {
                                                 setState(() {
                                                   submited = true;
                                                 });
-                                                checkBoxErrorText();
+                                                _checkBoxErrorText();
                                               },
                                               icon: const Icon(Icons
                                                   .subdirectory_arrow_left))

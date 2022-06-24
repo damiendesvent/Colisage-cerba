@@ -2,6 +2,8 @@
 header('Content-Type: application/json, charset=utf-8');
 include "../db_cerba.php";
 
+date_default_timezone_set('Europe/Paris');
+
 $user = $_POST['user'];
 $tournee = $_POST['tournee'] == null ? 'NULL' : '"'.$_POST['tournee'].'"';
 $site = $_POST['site'];
@@ -17,15 +19,23 @@ $comment = $_POST['comment'] == null ? 'NULL' : '"'.$_POST['comment'].'"';
 
 $synchronizing = date('Y-m-d H:i:s');
 
-$tube = substr($tube, 1, strlen($tube) - 2);
-$tube = explode(',',$tube);
+if (strlen($tube) > 2) {
+    $tube = substr($tube, 1, strlen($tube) - 2);
+    $tube = explode(',',$tube);
 
-$values = '';
+    $values = '';
 
-for ($i = 0; $i < count($tube); $i ++) {
+    for ($i = 0; $i < count($tube); $i ++) {
+        $sqlQuery = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `ORIGINE PGM`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) 
+                    VALUES ("'.$user.'", '.$tournee.', (SELECT `CODE SITE` FROM `sites` WHERE `LIBELLE SITE` = "'.$site.'"), "'.$box.'", "'.$tube[$i].'", "'.$action.'", '.$correspondant.', "'.$registering.'", "'.$synchronizing.'", "'.$pgm.'", '.$lettrage.', '.$car.', '.$comment.')';
+        $stmt = $db -> prepare($sqlQuery);
+        $result = $stmt -> execute();
+    }
+}
+
+else {
     $sqlQuery = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `ORIGINE PGM`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) 
-                VALUES ("'.$user.'", '.$tournee.', (SELECT `CODE SITE` FROM `sites` WHERE `LIBELLE SITE` = "'.$site.'"), "'.$box.'", "'.$tube[$i].'", "'.$action.'", '.$correspondant.', "'.$registering.'", "'.$synchronizing.'", "'.$pgm.'", '.$lettrage.', '.$car.', '.$comment.')';
-    $stmt = $db -> prepare($sqlQuery);
-    $result = $stmt -> execute();
-    echo json_encode($result);
+                    VALUES ("'.$user.'", '.$tournee.', (SELECT `CODE SITE` FROM `sites` WHERE `LIBELLE SITE` = "'.$site.'"), "'.$box.'", NULL, "'.$action.'", '.$correspondant.', "'.$registering.'", "'.$synchronizing.'", "'.$pgm.'", '.$lettrage.', '.$car.', '.$comment.')';
+        $stmt = $db -> prepare($sqlQuery);
+        $result = $stmt -> execute();
 }
