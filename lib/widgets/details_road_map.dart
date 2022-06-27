@@ -627,15 +627,24 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
 
   Widget headerRoadMap(bool isEditing) {
     if (!isEditing) {
-      return Column(children: [
-        Text('Code tournée : ${roadMap.code}',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        Text('Libellé : ${roadMap.libelle}', style: textStyle),
-        Text('Téléphone chauffeur : ${roadMap.tel}', style: textStyle),
-        Text('Commentaire : ${roadMap.comment}', style: textStyle),
-        Text('Ordre d\'affichage PDA : ${roadMap.sortingNumer}',
-            style: textStyle),
-      ]);
+      return Dialog(
+          insetPadding: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(25))),
+          elevation: 8,
+          child: SizedBox(
+              width: 500,
+              height: 110,
+              child: Column(children: [
+                Text('Code tournée : ${roadMap.code}',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold)),
+                Text('Libellé : ${roadMap.libelle}', style: textStyle),
+                Text('Téléphone chauffeur : ${roadMap.tel}', style: textStyle),
+                Text('Ordre d\'affichage PDA : ${roadMap.sortingNumer}',
+                    style: textStyle),
+                Text('Commentaire : ${roadMap.comment}', style: textStyle),
+              ])));
     } else {
       late TextEditingController libelleController =
           TextEditingController(text: roadMap.libelle);
@@ -645,76 +654,113 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
           TextEditingController(text: roadMap.comment);
       late TextEditingController pdaController =
           TextEditingController(text: roadMap.sortingNumer.toString());
-      return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Text('Code tournée : ${roadMap.code}',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text('Libellé : ', style: textStyle),
-          SizedBox(
-            width: 200,
-            child: TextField(
-              controller: libelleController,
-              inputFormatters: [LengthLimitingTextInputFormatter(35)],
-            ),
-          )
-        ]),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text('Téléphone chauffeur : ', style: textStyle),
-          SizedBox(
-            width: 200,
-            child: TextField(
-              controller: telController,
-              inputFormatters: [LengthLimitingTextInputFormatter(20)],
-            ),
-          )
-        ]),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text('Commentaire : ', style: textStyle),
-          SizedBox(
-            width: 200,
-            child: TextField(
-              controller: commentController,
-              inputFormatters: [LengthLimitingTextInputFormatter(254)],
-            ),
-          )
-        ]),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text('Ordre d\'affichage PDA : ', style: textStyle),
-          SizedBox(
-            width: 200,
-            child: TextField(
-              controller: pdaController,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(4),
-                FilteringTextInputFormatter.digitsOnly
-              ],
-            ),
-          )
-        ]),
-        Center(
-            child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: SizedBox(
-                    width: 105,
-                    child: ElevatedButton(
-                      style: myButtonStyle,
-                      onPressed: () {
-                        onUpdateRoadMap(RoadMap(
-                            code: roadMap.code,
-                            libelle: libelleController.text,
-                            tel: telController.text,
-                            comment: commentController.text,
-                            sortingNumer: int.parse(pdaController.text)));
-                        setState(() {
-                          editing = false;
-                        });
-                      },
-                      child: Row(children: const [
-                        Icon(Icons.check),
-                        Text(' Valider')
-                      ]),
-                    )))),
-      ]);
+      return Dialog(
+          insetPadding: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(25))),
+          elevation: 8,
+          child: SizedBox(
+              width: 500,
+              height: 350,
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Code tournée : ${roadMap.code}',
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Text('Libellé* : ', style: textStyle),
+                      SizedBox(
+                        width: 200,
+                        child: TextField(
+                          controller: libelleController,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(35)
+                          ],
+                        ),
+                      )
+                    ]),
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Text('Téléphone chauffeur* : ', style: textStyle),
+                      SizedBox(
+                        width: 200,
+                        child: TextField(
+                          controller: telController,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(20)
+                          ],
+                        ),
+                      )
+                    ]),
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Text('Commentaire : ', style: textStyle),
+                      SizedBox(
+                        width: 200,
+                        child: TextField(
+                          controller: commentController,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(254)
+                          ],
+                        ),
+                      )
+                    ]),
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Text('Ordre d\'affichage PDA* : ', style: textStyle),
+                      SizedBox(
+                        width: 200,
+                        child: TextField(
+                          controller: pdaController,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(4),
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                        ),
+                      )
+                    ]),
+                    Center(
+                        child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: SizedBox(
+                                width: 231,
+                                child: Row(children: [
+                                  ElevatedButton(
+                                      style: myButtonStyle,
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Row(children: const [
+                                        Icon(Icons.clear),
+                                        Text(' Annuler')
+                                      ])),
+                                  const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 10)),
+                                  ElevatedButton(
+                                    style: myButtonStyle,
+                                    onPressed: () {
+                                      onUpdateRoadMap(RoadMap(
+                                          code: roadMap.code,
+                                          libelle: libelleController.text,
+                                          tel: telController.text,
+                                          comment: commentController.text,
+                                          sortingNumer:
+                                              int.parse(pdaController.text)));
+                                      setState(() {
+                                        editing = false;
+                                      });
+                                    },
+                                    child: Row(children: const [
+                                      Icon(Icons.check),
+                                      Text(' Valider')
+                                    ]),
+                                  )
+                                ])))),
+                    Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Text('* : champs obligatoires',
+                            style: TextStyle(
+                                color: Colors.grey.shade700, fontSize: 12)))
+                  ])));
     }
   }
 
@@ -939,183 +985,206 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
         stream: _streamController.stream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
-            return Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                trackVisibility: true,
-                child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          headerRoadMap(editing),
-                          const SizedBox(height: 50),
-                          AppBar(
-                              elevation: 8,
-                              toolbarHeight: isAdvancedResearch ? 100 : 55,
-                              backgroundColor: Colors.grey[300],
-                              flexibleSpace: Column(children: [
-                                Row(mainAxisSize: MainAxisSize.min, children: [
-                                  DropdownButtonHideUnderline(
-                                      child: DropdownButton(
-                                          value: searchField,
-                                          style: const TextStyle(fontSize: 14),
-                                          items: searchFieldList
-                                              .map((searchFieldList) {
-                                            return DropdownMenuItem(
-                                                value: searchFieldList,
-                                                child: Text(searchFieldList
-                                                    .toString()));
-                                          }).toList(),
-                                          onChanged: (String? newsearchField) {
-                                            setState(() {
-                                              searchField = newsearchField!;
-                                            });
-                                          })),
-                                  Expanded(
-                                      child: TextFormField(
-                                    controller: _searchTextController,
-                                    decoration: const InputDecoration(
-                                        hintText: 'Recherche'),
-                                    onFieldSubmitted: (e) {
-                                      searchDetailRoadMap();
-                                    },
-                                  )),
-                                  IconButton(
-                                      onPressed: () {
-                                        searchDetailRoadMap();
-                                      },
-                                      icon: const Icon(Icons.search_outlined),
-                                      tooltip: 'Rechercher'),
-                                  if (!isAdvancedResearch)
-                                    IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            isAdvancedResearch = true;
-                                          });
-                                        },
-                                        icon: const Icon(
-                                            Icons.manage_search_outlined),
-                                        tooltip: 'Recherche avancée'),
-                                  if (isAdvancedResearch)
-                                    IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            isAdvancedResearch = false;
-                                          });
-                                        },
-                                        icon: const Icon(
-                                            Icons.search_off_outlined),
-                                        tooltip: 'Recherche simple'),
-                                  const Spacer(),
-                                  IconButton(
+            return Scaffold(
+                appBar: PreferredSize(
+                    child: Column(children: [
+                      Container(
+                          width: double.infinity,
+                          color: backgroundColor,
+                          child: headerRoadMap(editing)),
+                      AppBar(
+                          elevation: 8,
+                          toolbarHeight: isAdvancedResearch ? 100 : 55,
+                          backgroundColor: Colors.grey[300],
+                          flexibleSpace: Column(children: [
+                            Row(mainAxisSize: MainAxisSize.min, children: [
+                              DropdownButtonHideUnderline(
+                                  child: DropdownButton(
+                                      value: searchField,
+                                      style: const TextStyle(fontSize: 14),
+                                      items: searchFieldList
+                                          .map((searchFieldList) {
+                                        return DropdownMenuItem(
+                                            value: searchFieldList,
+                                            child: Text(
+                                                searchFieldList.toString()));
+                                      }).toList(),
+                                      onChanged: (String? newsearchField) {
+                                        setState(() {
+                                          searchField = newsearchField!;
+                                        });
+                                      })),
+                              Expanded(
+                                  child: TextFormField(
+                                controller: _searchTextController,
+                                decoration: const InputDecoration(
+                                    hintText: 'Recherche'),
+                                onFieldSubmitted: (e) {
+                                  searchDetailRoadMap();
+                                },
+                              )),
+                              IconButton(
+                                  onPressed: () {
+                                    searchDetailRoadMap();
+                                  },
+                                  icon: const Icon(Icons.search_outlined),
+                                  tooltip: 'Rechercher'),
+                              if (!isAdvancedResearch)
+                                IconButton(
                                     onPressed: () {
                                       setState(() {
-                                        getDetailsRoadMapList();
-                                        getSiteList();
+                                        isAdvancedResearch = true;
                                       });
                                     },
-                                    icon: const Icon(Icons.sync),
-                                    tooltip: 'Actualiser l\'onglet',
-                                  ),
-                                  const Spacer(),
-                                  const Text('Nombre de lignes affichées : '),
-                                  DropdownButton(
-                                      value: numberDisplayed,
-                                      items: numberDisplayedList
-                                          .map((numberDisplayedList) {
-                                        return DropdownMenuItem(
-                                            value: numberDisplayedList,
-                                            child: Text(numberDisplayedList
-                                                .toString()));
-                                      }).toList(),
-                                      onChanged: (int? newNumberDisplayed) {
-                                        setState(() {
-                                          numberDisplayed = newNumberDisplayed!;
-                                        });
-                                      })
-                                ]),
-                                Row(
-                                  children: advancedResearch(),
-                                )
-                              ])),
-                          DataTable(
-                            headingRowHeight: 80,
-                            sortColumnIndex: _currentSortColumn,
-                            sortAscending: _isAscending,
-                            headingTextStyle: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                            columns: [
-                              DataColumn(
-                                  label: const Text('Code avancement',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('CODE AVANCEMENT')),
-                              DataColumn(
-                                  label: const Text('Site',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('LIBELLE SITE')),
-                              DataColumn(
-                                  label: const Text('Heure arrivée',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('HEURE ARRIVEE')),
-                              DataColumn(
-                                  label: const Text('Commentaire',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('COMMENTAIRE')),
-                              DataColumn(
-                                  label: const Text('Passage sur appel',
-                                      textAlign: TextAlign.center),
-                                  onSort: sorting('PASSAGE SUR APPEL')),
-                              if (globals.user.roadMapEditing)
-                                DataColumn(
-                                    label: Column(children: [
-                                  Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          0, 10, 0, 0),
-                                      child: ElevatedButton(
-                                          style: myButtonStyle,
-                                          onPressed: () {
-                                            showAddPageDetailRoadMap();
-                                          },
-                                          child:
-                                              const Text('Ajouter une étape'))),
-                                  const Spacer(),
-                                  Row(children: [
-                                    const Text('Etapes supprimées :'),
-                                    Switch(
-                                        value: showDeleteDetailRoadMap,
-                                        onChanged: (newValue) {
-                                          setState(() {
-                                            showDeleteDetailRoadMap = newValue;
-                                          });
-                                          getDetailsRoadMapList();
-                                        })
-                                  ])
-                                ]))
-                            ],
-                            rows: [
-                              for (Map roadMapDetail in snapshot.data)
-                                DataRow(
-                                  color:
-                                      MaterialStateProperty.resolveWith<Color?>(
-                                          (Set<MaterialState> states) {
-                                    if (states
-                                        .contains(MaterialState.selected)) {
-                                      return Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withOpacity(0.08);
-                                    }
-                                    if ((i = i + 1).isEven) {
-                                      return Colors.grey.withOpacity(0.2);
-                                    }
-                                    return null; // Use the default value.
-                                  }),
-                                  cells: dataCells(roadMapDetail),
-                                )
-                            ],
-                          )
-                        ])));
+                                    icon: const Icon(
+                                        Icons.manage_search_outlined),
+                                    tooltip: 'Recherche avancée'),
+                              if (isAdvancedResearch)
+                                IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        isAdvancedResearch = false;
+                                      });
+                                    },
+                                    icon: const Icon(Icons.search_off_outlined),
+                                    tooltip: 'Recherche simple'),
+                              const Spacer(),
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    getDetailsRoadMapList();
+                                    getSiteList();
+                                  });
+                                },
+                                icon: const Icon(Icons.sync),
+                                tooltip: 'Actualiser l\'onglet',
+                              ),
+                              const Spacer(),
+                              const Text('Nombre de lignes affichées : '),
+                              DropdownButton(
+                                  value: numberDisplayed,
+                                  items: numberDisplayedList
+                                      .map((numberDisplayedList) {
+                                    return DropdownMenuItem(
+                                        value: numberDisplayedList,
+                                        child: Text(
+                                            numberDisplayedList.toString()));
+                                  }).toList(),
+                                  onChanged: (int? newNumberDisplayed) {
+                                    setState(() {
+                                      numberDisplayed = newNumberDisplayed!;
+                                    });
+                                  })
+                            ]),
+                            Row(
+                              children: advancedResearch(),
+                            )
+                          ])),
+                    ]),
+                    preferredSize:
+                        Size(double.infinity, widget.editing ? 425 : 190)),
+                body: Scrollbar(
+                    controller: _scrollController,
+                    thumbVisibility: true,
+                    trackVisibility: true,
+                    child: SingleChildScrollView(
+                        controller: _scrollController,
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              snapshot.data.isEmpty
+                                  ? SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height -
+                                              348,
+                                      child: const Center(
+                                          child: Text(
+                                              'Aucune étape ne correspond à votre recherche.')))
+                                  : DataTable(
+                                      headingRowHeight: 80,
+                                      sortColumnIndex: _currentSortColumn,
+                                      sortAscending: _isAscending,
+                                      headingTextStyle: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                      columns: [
+                                        DataColumn(
+                                            label: const Text('Code avancement',
+                                                textAlign: TextAlign.center),
+                                            onSort: sorting('CODE AVANCEMENT')),
+                                        DataColumn(
+                                            label: const Text('Site',
+                                                textAlign: TextAlign.center),
+                                            onSort: sorting('LIBELLE SITE')),
+                                        DataColumn(
+                                            label: const Text('Heure arrivée',
+                                                textAlign: TextAlign.center),
+                                            onSort: sorting('HEURE ARRIVEE')),
+                                        DataColumn(
+                                            label: const Text('Commentaire',
+                                                textAlign: TextAlign.center),
+                                            onSort: sorting('COMMENTAIRE')),
+                                        DataColumn(
+                                            label: const Text(
+                                                'Passage sur appel',
+                                                textAlign: TextAlign.center),
+                                            onSort:
+                                                sorting('PASSAGE SUR APPEL')),
+                                        if (globals.user.roadMapEditing)
+                                          DataColumn(
+                                              label: Column(children: [
+                                            Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        0, 10, 0, 0),
+                                                child: ElevatedButton(
+                                                    style: myButtonStyle,
+                                                    onPressed: () {
+                                                      showAddPageDetailRoadMap();
+                                                    },
+                                                    child: const Text(
+                                                        'Ajouter une étape'))),
+                                            const Spacer(),
+                                            Row(children: [
+                                              const Text('Etapes supprimées :'),
+                                              Switch(
+                                                  value:
+                                                      showDeleteDetailRoadMap,
+                                                  onChanged: (newValue) {
+                                                    setState(() {
+                                                      showDeleteDetailRoadMap =
+                                                          newValue;
+                                                    });
+                                                    getDetailsRoadMapList();
+                                                  })
+                                            ])
+                                          ]))
+                                      ],
+                                      rows: [
+                                        for (Map roadMapDetail in snapshot.data)
+                                          DataRow(
+                                            color: MaterialStateProperty
+                                                .resolveWith<Color?>(
+                                                    (Set<MaterialState>
+                                                        states) {
+                                              if (states.contains(
+                                                  MaterialState.selected)) {
+                                                return Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                    .withOpacity(0.08);
+                                              }
+                                              if ((i = i + 1).isEven) {
+                                                return Colors.grey
+                                                    .withOpacity(0.2);
+                                              }
+                                              return null; // Use the default value.
+                                            }),
+                                            cells: dataCells(roadMapDetail),
+                                          )
+                                      ],
+                                    )
+                            ]))));
           }
           return const Center(child: CircularProgressIndicator());
         });

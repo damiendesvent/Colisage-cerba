@@ -16,9 +16,7 @@ class RoadMapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: RoadMapList(),
-    );
+    return const Scaffold(body: RoadMapList());
   }
 }
 
@@ -558,6 +556,12 @@ class _RoadMapListState extends State<RoadMapList>
                                         )
                                       ])))),
                           const Spacer(),
+                          Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Text('* : champs obligatoires',
+                                  style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                      fontSize: 12)))
                         ],
                       ))
                 ]));
@@ -692,38 +696,45 @@ class _RoadMapListState extends State<RoadMapList>
                   ),
                   SliverList(
                       delegate: SliverChildListDelegate([
-                    for (Map roadMap in snapshot.data
-                        .take(numberDisplayed)) //affiche la liste des road_maps
-                      Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.map_outlined),
-                          trailing: globals.user.roadMapEditing
-                              ? popupMenu(roadMap)
-                              : null,
-                          isThreeLine: true,
-                          title: Text(roadMap['CODE TOURNEE']),
-                          subtitle: Text(searchField +
-                              ' : ' +
-                              roadMap[searchField
-                                  .replaceAll('é', 'e')
-                                  .toUpperCase()] +
-                              '\n' +
-                              (isAdvancedResearch
-                                  ? advancedSearchField +
-                                      ' : ' +
-                                      roadMap[advancedSearchField
-                                          .replaceAll('é', 'e')
-                                          .toUpperCase()]
-                                  : '')),
-                          onTap: () {
-                            setState(() {
-                              showDetailsRoadMap = true;
-                              globals.detailedRoadMap =
-                                  RoadMap.fromSnapshot(roadMap);
-                            });
-                          },
-                        ),
-                      )
+                    if (snapshot.data.isEmpty)
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height - 200,
+                          child: const Center(
+                              child: Text(
+                                  'Aucune feuille de route ne correspond à votre recherche.')))
+                    else
+                      for (Map roadMap in snapshot.data.take(
+                          numberDisplayed)) //affiche la liste des road_maps
+                        Card(
+                          child: ListTile(
+                            leading: const Icon(Icons.map_outlined),
+                            trailing: globals.user.roadMapEditing
+                                ? popupMenu(roadMap)
+                                : null,
+                            isThreeLine: true,
+                            title: Text(roadMap['CODE TOURNEE']),
+                            subtitle: Text(searchField +
+                                ' : ' +
+                                roadMap[searchField
+                                    .replaceAll('é', 'e')
+                                    .toUpperCase()] +
+                                '\n' +
+                                (isAdvancedResearch
+                                    ? advancedSearchField +
+                                        ' : ' +
+                                        roadMap[advancedSearchField
+                                            .replaceAll('é', 'e')
+                                            .toUpperCase()]
+                                    : '')),
+                            onTap: () {
+                              setState(() {
+                                showDetailsRoadMap = true;
+                                globals.detailedRoadMap =
+                                    RoadMap.fromSnapshot(roadMap);
+                              });
+                            },
+                          ),
+                        )
                   ]))
                 ]));
           } else {
@@ -731,32 +742,33 @@ class _RoadMapListState extends State<RoadMapList>
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      child: IconButton(
-                          onPressed: () {
-                            getRoadMapList();
-                            setState(() {
-                              showDetailsRoadMap = false;
-                              isEditing = false;
-                            });
-                          },
-                          icon: const Icon(Icons.clear, size: 30),
-                          tooltip: 'Retour'),
-                    )
-                  ],
-                ),
+                Container(
+                    height: 30,
+                    color: backgroundColor,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          child: IconButton(
+                              onPressed: () {
+                                getRoadMapList();
+                                setState(() {
+                                  showDetailsRoadMap = false;
+                                  isEditing = false;
+                                });
+                              },
+                              icon: const Icon(Icons.clear, size: 30),
+                              tooltip: 'Retour'),
+                        )
+                      ],
+                    )),
                 Expanded(
-                    child: SizedBox(
-                  height: 100,
                   child: DetailsRoadMapScreen(
                     roadMap: globals.detailedRoadMap,
                     editing: isEditing,
                   ),
-                ))
+                )
               ],
             );
           }

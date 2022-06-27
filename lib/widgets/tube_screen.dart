@@ -12,7 +12,10 @@ class TubeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: TubeList());
+    return Scaffold(
+      body: const TubeList(),
+      backgroundColor: backgroundColor,
+    );
   }
 }
 

@@ -450,97 +450,119 @@ class _TracaListState extends State<TracaList>
                         children: advancedResearch(),
                       )
                     ]))),
-                body: Row(children: <Widget>[
-                  Expanded(
-                      child: Scrollbar(
-                          controller: _scrollController,
-                          thumbVisibility: true,
-                          trackVisibility: true,
-                          child: SingleChildScrollView(
-                              controller: _scrollController,
-                              child: DataTable(
-                                showCheckboxColumn: false,
-                                sortColumnIndex: _currentSortColumn,
-                                sortAscending: _isAscending,
-                                headingTextStyle: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                                columns: [
-                                  DataColumn(
-                                      label: const Text('Code tracabilité'),
-                                      onSort: sorting('CODE TRACABILITE')),
-                                  DataColumn(
-                                      label: const Text('Utilisateur'),
-                                      onSort: sorting('UTILISATEUR')),
-                                  DataColumn(
-                                      label: const Text('Code tournée'),
-                                      onSort: sorting('CODE TOURNEE')),
-                                  DataColumn(
-                                      label: const Text('Code site'),
-                                      onSort: sorting('CODE SITE')),
-                                  DataColumn(
-                                      label: const Text('Boite'),
-                                      onSort: sorting('BOITE')),
-                                  DataColumn(
-                                      label: const Text('Tube'),
-                                      onSort: sorting('TUBE')),
-                                  DataColumn(
-                                      label: const Text('Action'),
-                                      onSort: sorting('ACTION')),
-                                  DataColumn(
-                                      label: const Text('Code voiture'),
-                                      onSort: sorting('CODE VOITURE')),
-                                  DataColumn(
-                                      label: const Text('Enregistrement'),
-                                      onSort:
-                                          sorting('DATE HEURE ENREGISTREMENT')),
-                                  DataColumn(
-                                      label: const Text('Synchronisation'),
-                                      onSort: sorting(
-                                          'DATE HEURE SYNCHRONISATION')),
-                                ],
-                                rows: [
-                                  for (Map traca
-                                      in snapshot.data.take(numberDisplayed))
-                                    DataRow(
-                                        color: MaterialStateProperty
-                                            .resolveWith<Color?>(
-                                                (Set<MaterialState> states) {
-                                          if (states.contains(
-                                              MaterialState.selected)) {
-                                            return Colors.grey
-                                                .withOpacity(0.08);
-                                          }
-                                          if ((i += 1).isEven) {
-                                            return Colors.grey.withOpacity(0.2);
-                                          }
-                                          return null; // alterne les couleurs des lignes
-                                        }),
-                                        onSelectChanged: (bool? selected) {
-                                          if (selected!) {
-                                            showDetailTraca(
-                                                Traca.fromSnapshot(traca));
-                                          }
-                                        },
-                                        cells: [
-                                          DataCell(
-                                              Text(traca['CODE TRACABILITE'])),
-                                          DataCell(Text(traca['UTILISATEUR'])),
-                                          DataCell(Text(
-                                              traca['CODE TOURNEE'] ?? '')),
-                                          DataCell(Text(traca['CODE SITE'])),
-                                          DataCell(Text(traca['BOITE'] ?? '')),
-                                          DataCell(Text(traca['TUBE'] ?? '')),
-                                          DataCell(Text(traca['ACTION'])),
-                                          DataCell(Text(
-                                              traca['CODE VOITURE'] ?? '')),
-                                          DataCell(Text(traca[
-                                              'DATE HEURE ENREGISTREMENT'])),
-                                          DataCell(Text(traca[
-                                              'DATE HEURE SYNCHRONISATION'])),
-                                        ])
-                                ],
-                              ))))
-                ]));
+                body: snapshot.data.isEmpty
+                    ? const Center(
+                        child: Text(
+                            'Aucune traçabilité ne correspond à votre recherche.'))
+                    : Row(children: <Widget>[
+                        Expanded(
+                            child: Scrollbar(
+                                controller: _scrollController,
+                                thumbVisibility: true,
+                                trackVisibility: true,
+                                child: SingleChildScrollView(
+                                    controller: _scrollController,
+                                    child: DataTable(
+                                      headingRowColor: MaterialStateProperty
+                                          .resolveWith<Color?>(
+                                              (Set<MaterialState> states) {
+                                        return Colors.grey.withOpacity(0.2);
+                                      }),
+                                      showCheckboxColumn: false,
+                                      sortColumnIndex: _currentSortColumn,
+                                      sortAscending: _isAscending,
+                                      headingTextStyle: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                      columns: [
+                                        DataColumn(
+                                            label:
+                                                const Text('Code tracabilité'),
+                                            onSort:
+                                                sorting('CODE TRACABILITE')),
+                                        DataColumn(
+                                            label: const Text('Utilisateur'),
+                                            onSort: sorting('UTILISATEUR')),
+                                        DataColumn(
+                                            label: const Text('Code tournée'),
+                                            onSort: sorting('CODE TOURNEE')),
+                                        DataColumn(
+                                            label: const Text('Code site'),
+                                            onSort: sorting('CODE SITE')),
+                                        DataColumn(
+                                            label: const Text('Boite'),
+                                            onSort: sorting('BOITE')),
+                                        DataColumn(
+                                            label: const Text('Tube'),
+                                            onSort: sorting('TUBE')),
+                                        DataColumn(
+                                            label: const Text('Action'),
+                                            onSort: sorting('ACTION')),
+                                        DataColumn(
+                                            label: const Text('Code voiture'),
+                                            onSort: sorting('CODE VOITURE')),
+                                        DataColumn(
+                                            label: const Text('Enregistrement'),
+                                            onSort: sorting(
+                                                'DATE HEURE ENREGISTREMENT')),
+                                        DataColumn(
+                                            label:
+                                                const Text('Synchronisation'),
+                                            onSort: sorting(
+                                                'DATE HEURE SYNCHRONISATION')),
+                                      ],
+                                      rows: [
+                                        for (Map traca in snapshot.data
+                                            .take(numberDisplayed))
+                                          DataRow(
+                                              color: MaterialStateProperty
+                                                  .resolveWith<Color?>(
+                                                      (Set<MaterialState>
+                                                          states) {
+                                                if (states.contains(
+                                                    MaterialState.selected)) {
+                                                  return Colors.grey
+                                                      .withOpacity(0.08);
+                                                }
+                                                if ((i += 1).isEven) {
+                                                  return backgroundColor;
+                                                }
+                                                return null; // alterne les couleurs des lignes
+                                              }),
+                                              onSelectChanged:
+                                                  (bool? selected) {
+                                                if (selected!) {
+                                                  showDetailTraca(
+                                                      Traca.fromSnapshot(
+                                                          traca));
+                                                }
+                                              },
+                                              cells: [
+                                                DataCell(Text(
+                                                    traca['CODE TRACABILITE'])),
+                                                DataCell(
+                                                    Text(traca['UTILISATEUR'])),
+                                                DataCell(Text(
+                                                    traca['CODE TOURNEE'] ??
+                                                        '')),
+                                                DataCell(
+                                                    Text(traca['CODE SITE'])),
+                                                DataCell(
+                                                    Text(traca['BOITE'] ?? '')),
+                                                DataCell(
+                                                    Text(traca['TUBE'] ?? '')),
+                                                DataCell(Text(traca['ACTION'])),
+                                                DataCell(Text(
+                                                    traca['CODE VOITURE'] ??
+                                                        '')),
+                                                DataCell(Text(traca[
+                                                    'DATE HEURE ENREGISTREMENT'])),
+                                                DataCell(Text(traca[
+                                                    'DATE HEURE SYNCHRONISATION'])),
+                                              ])
+                                      ],
+                                    ))))
+                      ]));
           }
           return const Center(child: CircularProgressIndicator());
         });

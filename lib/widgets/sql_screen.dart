@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/variables/styles.dart';
 import '../variables/env.sample.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -8,7 +9,10 @@ class SqlScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: SqlApp());
+    return Scaffold(
+      body: const SqlApp(),
+      backgroundColor: backgroundColor,
+    );
   }
 }
 
@@ -98,65 +102,67 @@ class _SqlAppState extends State<SqlApp> {
   @override
   Widget build(BuildContext context) {
     return Scrollbar(
-                      controller: _scrollController,
-                      thumbVisibility: true,
-                      trackVisibility: true,
-                      child: SingleChildScrollView(
-                        controller: _scrollController,
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Commande : ',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(
-                  width: 1000,
-                  child: TextField(
-                    controller: queryController,
-                    decoration: InputDecoration(
-                        hintText: 'SELECT * from sites',
-                        errorText:
-                            ((queryController.text.isEmpty || !validQuery) &&
-                                    submited
-                                ? errorHintText
-                                : null)),
-                    onSubmitted: (_) {
-                      setState(() {
-                        submited = true;
-                        validQuery = true;
-                      });
-                      if (queryController.text.isNotEmpty) {
-                        executeQuery(queryController.text);
-                      } else {
-                        output = null;
-                        errorText = 'Veuillez entrer une valeur';
-                      }
-                    },
-                  )),
-              IconButton(
-                icon: const Icon(Icons.subdirectory_arrow_left),
-                onPressed: () {
-                  setState(() {
-                    submited = true;
-                    validQuery = true;
-                  });
-                  if (queryController.text.isNotEmpty) {
-                    executeQuery(queryController.text);
-                  } else {
-                    output = null;
-                    errorText = 'Veuillez entrer une valeur';
-                  }
-                },
-              )
-            ],
-          ),
-        ),
-      ),
-      dataTable()
-    ])));
+        controller: _scrollController,
+        thumbVisibility: true,
+        trackVisibility: true,
+        child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('Commande : ',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          SizedBox(
+                              width: 1000,
+                              child: TextField(
+                                controller: queryController,
+                                decoration: InputDecoration(
+                                    hintText: 'SELECT * from sites',
+                                    errorText: ((queryController.text.isEmpty ||
+                                                !validQuery) &&
+                                            submited
+                                        ? errorHintText
+                                        : null)),
+                                onSubmitted: (_) {
+                                  setState(() {
+                                    submited = true;
+                                    validQuery = true;
+                                  });
+                                  if (queryController.text.isNotEmpty) {
+                                    executeQuery(queryController.text);
+                                  } else {
+                                    output = null;
+                                    errorText = 'Veuillez entrer une valeur';
+                                  }
+                                },
+                              )),
+                          IconButton(
+                            icon: const Icon(Icons.subdirectory_arrow_left),
+                            onPressed: () {
+                              setState(() {
+                                submited = true;
+                                validQuery = true;
+                              });
+                              if (queryController.text.isNotEmpty) {
+                                executeQuery(queryController.text);
+                              } else {
+                                output = null;
+                                errorText = 'Veuillez entrer une valeur';
+                              }
+                            },
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  dataTable()
+                ])));
   }
 }

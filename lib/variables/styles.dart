@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 const Color themeMainColor = Color.fromARGB(255, 40, 113, 177);
 const Color themeSecondColor = Color.fromARGB(255, 124, 84, 215);
+final Color backgroundColor = Colors.lightBlue.shade50
+    .withOpacity(0.5); //Color.fromARGB(30, 118, 189, 255);
 
 const Color myBarrierColor = Colors.black26;
 

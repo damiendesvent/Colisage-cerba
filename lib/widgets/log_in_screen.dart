@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../variables/styles.dart';
 import 'package:http/http.dart' as http;
@@ -13,15 +12,8 @@ class LogInScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
-      body: const Center(
-        child: SizedBox(
-          width: double.infinity,
-          child: Card(
-            child: LogInForm(),
-          ),
-        ),
-      ),
+      backgroundColor: backgroundColor,
+      body: const LogInForm(),
     );
   }
 }
@@ -84,26 +76,42 @@ class _LogInFormState extends State<LogInForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text("Identification"),
-          backgroundColor: themeMainColor,
-          automaticallyImplyLeading: false,
-          centerTitle: true,
-        ),
-        body: ListView(
-          children: [
-            Form(
-              onChanged: _updateFormProgress,
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                LinearProgressIndicator(
-                  value: _formProgress,
-                  color: themeSecondColor,
-                ),
-                Text('Veuillez rentrer vos identifiants',
-                    style: Theme.of(context).textTheme.headline4),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
+      elevation: 8,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(25))),
+      child: SizedBox(
+        height: 400,
+        width: 600,
+        child: Form(
+          onChanged: _updateFormProgress,
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            AppBar(
+              shape: const RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(25))),
+              leading: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Image.asset(
+                    'assets/images/cerballiance_logo.png',
+                  )),
+              title: const Text(
+                "Colisage des prélèvements",
+                style: TextStyle(fontSize: 22),
+              ),
+              backgroundColor: themeMainColor,
+              automaticallyImplyLeading: false,
+              centerTitle: true,
+            ),
+            LinearProgressIndicator(
+              value: _formProgress,
+              color: themeSecondColor,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 32, 12, 12),
+              child: SizedBox(
+                  height: 60,
                   child: TextFormField(
                     autofocus: true,
                     controller: _codeTextController,
@@ -113,10 +121,12 @@ class _LogInFormState extends State<LogInForm> {
                         errorText: _codeTextController.text.isEmpty && submited
                             ? 'Veuillez entrer une valeur'
                             : null),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  )),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: SizedBox(
+                  height: 60,
                   child: TextFormField(
                     obscureText: true,
                     controller: _passwordTextController,
@@ -136,33 +146,37 @@ class _LogInFormState extends State<LogInForm> {
                             _passwordTextController.text);
                       }
                     },
-                  ),
-                ),
-                Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: ElevatedButton(
-                        style: myButtonStyle,
-                        onPressed: () {
-                          setState(() {
-                            submited = true;
-                          });
-                          if (_codeTextController.text.isNotEmpty &&
-                              _passwordTextController.text.isNotEmpty) {
-                            tryConnecting(_codeTextController.text,
-                                _passwordTextController.text);
-                          }
-                        },
-                        child: const Text('Connexion'))),
-              ]),
+                  )),
             ),
-            if (login == true)
-              if (!globals.isAuthentified)
-                const ListTile(
-                  title: Text('Vos identifiants ne sont pas reconnus'),
-                  subtitle:
-                      Text('Veuillez vérifier qu\'il n\'y a pas d\'erreur.'),
-                )
-          ],
-        ));
+            Padding(
+                padding: const EdgeInsets.all(28),
+                child: ElevatedButton(
+                    style: myButtonStyle,
+                    onPressed: () {
+                      setState(() {
+                        submited = true;
+                      });
+                      if (_codeTextController.text.isNotEmpty &&
+                          _passwordTextController.text.isNotEmpty) {
+                        tryConnecting(_codeTextController.text,
+                            _passwordTextController.text);
+                      }
+                    },
+                    child: const Text('Connexion'))),
+            if (login == true && !globals.isAuthentified)
+              const ListTile(
+                title: Text(
+                  'Vos identifiants ne sont pas reconnus',
+                  textAlign: TextAlign.center,
+                ),
+                subtitle: Text(
+                  'Veuillez vérifier qu\'il n\'y a pas d\'erreur.',
+                  textAlign: TextAlign.center,
+                ),
+              )
+          ]),
+        ),
+      ),
+    );
   }
 }

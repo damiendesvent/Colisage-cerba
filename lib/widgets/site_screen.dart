@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/variables/styles.dart';
@@ -15,9 +17,7 @@ class SiteScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: SiteList(),
-    );
+    return const Scaffold(body: SiteList());
   }
 }
 
@@ -730,7 +730,13 @@ class _SiteListState extends State<SiteList>
                                           ]),
                                         )
                                       ])))),
-                          const Spacer()
+                          const Spacer(),
+                          Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Text('* : champs obligatoires',
+                                  style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                      fontSize: 12)))
                         ],
                       ))
                 ]));
@@ -1205,6 +1211,12 @@ class _SiteListState extends State<SiteList>
                                         )
                                       ])))),
                           const Spacer(),
+                          Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Text('* : champs obligatoires',
+                                  style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                      fontSize: 12)))
                         ],
                       ))
                 ]));
@@ -1336,33 +1348,41 @@ class _SiteListState extends State<SiteList>
                 ),
                 SliverList(
                     delegate: SliverChildListDelegate([
-                  for (Map site in snapshot.data
-                      .take(numberDisplayed)) //affiche la liste des sites
-                    Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.location_on_outlined),
-                        trailing:
-                            globals.user.siteEditing ? popupMenu(site) : null,
-                        isThreeLine: true,
-                        title: Text(site[searchFieldList.first.toUpperCase()]),
-                        subtitle: Text(searchField +
-                            ' : ' +
-                            site[searchField
-                                .replaceAll('é', 'e')
-                                .toUpperCase()] +
-                            '\n' +
-                            (isAdvancedResearch
-                                ? advancedSearchField +
-                                    ' : ' +
-                                    site[advancedSearchField
-                                        .replaceAll('é', 'e')
-                                        .toUpperCase()]
-                                : '')),
-                        onTap: () {
-                          showDetailSite(Site.fromSnapshot(site));
-                        },
-                      ),
-                    )
+                  if (snapshot.data.isEmpty)
+                    SizedBox(
+                        height: MediaQuery.of(context).size.height - 200,
+                        child: const Center(
+                            child: Text(
+                                'Aucun utilisateur ne correspond à votre recherche.')))
+                  else
+                    for (Map site in snapshot.data
+                        .take(numberDisplayed)) //affiche la liste des sites
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.location_on_outlined),
+                          trailing:
+                              globals.user.siteEditing ? popupMenu(site) : null,
+                          isThreeLine: true,
+                          title:
+                              Text(site[searchFieldList.first.toUpperCase()]),
+                          subtitle: Text(searchField +
+                              ' : ' +
+                              site[searchField
+                                  .replaceAll('é', 'e')
+                                  .toUpperCase()] +
+                              '\n' +
+                              (isAdvancedResearch
+                                  ? advancedSearchField +
+                                      ' : ' +
+                                      site[advancedSearchField
+                                          .replaceAll('é', 'e')
+                                          .toUpperCase()]
+                                  : '')),
+                          onTap: () {
+                            showDetailSite(Site.fromSnapshot(site));
+                          },
+                        ),
+                      )
                 ]))
               ]));
         }

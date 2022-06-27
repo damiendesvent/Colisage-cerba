@@ -14,8 +14,9 @@ class BoxesPrintScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: BoxesPrint(),
+    return Scaffold(
+      body: const BoxesPrint(),
+      backgroundColor: backgroundColor,
     );
   }
 }
@@ -48,12 +49,16 @@ class _BoxesPrintState extends State<BoxesPrint>
   List boxTypesLibelleList = [];
   List boxTypesAcronymeList = [];
   String boxType = '';
+  String boxType2 = '';
   String quantity = '';
   Map<String, int> maxDatatable = {'': 0};
   String editedBoxType = '';
   bool deleteBoxes = false;
   bool showDeletedBoxTypes = false;
   final ScrollController _scrollController = ScrollController();
+  TextEditingController minBoxController = TextEditingController();
+  TextEditingController maxBoxController = TextEditingController();
+  bool submited = false;
 
   getBoxTypeList() async {
     String phpUriBoxTypes = Env.urlPrefix + 'Box_types/list_box_type.php';
@@ -67,6 +72,7 @@ class _BoxesPrintState extends State<BoxesPrint>
           boxTypesLibelleList = items.map((item) => item['LIBELLE']).toList();
           boxTypesAcronymeList = items.map((item) => item['ACRONYME']).toList();
           boxType = boxTypesLibelleList.first;
+          boxType2 = boxType;
         });
         getBoxMax();
       } else {
@@ -74,6 +80,7 @@ class _BoxesPrintState extends State<BoxesPrint>
           boxTypesLibelleList = ['Aucun type de boîte trouvé'];
           boxTypesAcronymeList = ['Aucun type de boîte trouvé'];
           boxType = boxTypesLibelleList.first;
+          boxType2 = boxType;
         });
       }
     }
@@ -163,9 +170,11 @@ class _BoxesPrintState extends State<BoxesPrint>
     });
     await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdfRes.bodyBytes);
-    Navigator.of(context).pop();
-    Future.delayed(
-        Duration(milliseconds: globals.milisecondWait), () => getBoxMax());
+    if (createBoxes) {
+      Navigator.of(context).pop();
+      Future.delayed(
+          Duration(milliseconds: globals.milisecondWait), () => getBoxMax());
+    }
     if (createBoxes) {
       ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
         Text(
@@ -198,7 +207,7 @@ class _BoxesPrintState extends State<BoxesPrint>
     return StatefulBuilder(
         builder: (context, setState) => Container(
             padding: const EdgeInsets.all(5),
-            margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 80),
+            margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 50),
             decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
@@ -391,14 +400,6 @@ class _BoxesPrintState extends State<BoxesPrint>
                                             });
                                           },
                                           tooltip: 'Editer le libellé',
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.print),
-                                          onPressed: () {
-                                            showPrintPage(libelle: type);
-                                          },
-                                          tooltip:
-                                              'Imprimer des boîtes existantes',
                                         ),
                                         IconButton(
                                           icon: const Icon(Icons.delete),
@@ -833,6 +834,11 @@ class _BoxesPrintState extends State<BoxesPrint>
                                       )
                                     ])))),
                         const Spacer(),
+                        Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Text('* : champs obligatoires',
+                                style: TextStyle(
+                                    color: Colors.grey.shade700, fontSize: 12)))
                       ]))
                 ]));
           });
@@ -869,59 +875,262 @@ class _BoxesPrintState extends State<BoxesPrint>
                 child: SingleChildScrollView(
                     controller: _scrollController,
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Padding(
-                            padding: EdgeInsets.all(30),
-                            child: Text(
-                              'Création d\'étiquettes de boîtes',
-                              style: TextStyle(fontSize: 24),
-                            )),
-                        Text(
-                          'Cet outil crée les boîtes du type spécifié à la suite des boîtes existantes puis lance l\'impression de leurs étiquettes.',
-                          style: TextStyle(
-                              fontSize: 14, color: Colors.grey.shade700),
-                        ),
-                        Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
-                            child: SizedBox(
-                                width: 400,
-                                child: DropdownButtonFormField(
-                                  value: boxType,
-                                  items: boxTypesLibelleList.map((boxType) {
-                                    return DropdownMenuItem(
-                                        value: boxType, child: Text(boxType));
-                                  }).toList(),
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      boxType = newValue.toString();
-                                    });
-                                  },
-                                ))),
-                        Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: SizedBox(
-                                width: 400,
-                                child: TextFormField(
-                                  readOnly:
-                                      boxType == 'Aucun type de boîte trouvé',
-                                  controller: _boxQuantityController,
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  decoration: const InputDecoration(
-                                      hintText: 'Quantité à imprimer'),
-                                  onFieldSubmitted: (_) {
-                                    barcodesPrint();
-                                  },
-                                ))),
-                        ElevatedButton(
-                            style: myButtonStyle,
-                            onPressed: () {
-                              if (_boxQuantityController.text.isNotEmpty) {
-                                barcodesPrint();
-                              }
-                            },
-                            child: const Text('Créer et imprimer')),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Spacer(),
+                              Dialog(
+                                  insetPadding: const EdgeInsets.all(30),
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(25))),
+                                  elevation: 8,
+                                  child: SizedBox(
+                                      width: 500,
+                                      height: 350,
+                                      child: Column(
+                                        children: [
+                                          const Padding(
+                                              padding: EdgeInsets.all(30),
+                                              child: Text(
+                                                'Création d\'étiquettes de boîtes',
+                                                style: TextStyle(fontSize: 24),
+                                              )),
+                                          Padding(
+                                              padding: const EdgeInsets.all(8),
+                                              child: Text(
+                                                'Cet outil crée les boîtes du type spécifié puis lance l\'impression de leurs étiquettes.',
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color:
+                                                        Colors.grey.shade700),
+                                              )),
+                                          Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      10, 20, 10, 0),
+                                              child: SizedBox(
+                                                  width: 400,
+                                                  child:
+                                                      DropdownButtonFormField(
+                                                    value: boxType,
+                                                    items: boxTypesLibelleList
+                                                        .map((boxType) {
+                                                      return DropdownMenuItem(
+                                                          value: boxType,
+                                                          child: Text(boxType));
+                                                    }).toList(),
+                                                    onChanged: (newValue) {
+                                                      setState(() {
+                                                        boxType =
+                                                            newValue.toString();
+                                                      });
+                                                    },
+                                                  ))),
+                                          Padding(
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              child: SizedBox(
+                                                  width: 400,
+                                                  child: TextFormField(
+                                                    readOnly: boxType ==
+                                                        'Aucun type de boîte trouvé',
+                                                    controller:
+                                                        _boxQuantityController,
+                                                    inputFormatters: <
+                                                        TextInputFormatter>[
+                                                      FilteringTextInputFormatter
+                                                          .digitsOnly
+                                                    ],
+                                                    decoration:
+                                                        const InputDecoration(
+                                                            hintText:
+                                                                'Quantité à imprimer'),
+                                                    onFieldSubmitted: (_) {
+                                                      if (_boxQuantityController
+                                                          .text.isNotEmpty) {
+                                                        barcodesPrint();
+                                                      }
+                                                    },
+                                                  ))),
+                                          Padding(
+                                              padding: const EdgeInsets.all(15),
+                                              child: ElevatedButton(
+                                                  style: myButtonStyle,
+                                                  onPressed: () {
+                                                    if (_boxQuantityController
+                                                        .text.isNotEmpty) {
+                                                      barcodesPrint();
+                                                    }
+                                                  },
+                                                  child: const Text(
+                                                      'Créer et imprimer'))),
+                                        ],
+                                      ))),
+                              const Spacer(),
+                              Dialog(
+                                  insetPadding: const EdgeInsets.all(30),
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(25))),
+                                  elevation: 8,
+                                  child: SizedBox(
+                                      width: 500,
+                                      height: 350,
+                                      child: Column(
+                                        children: [
+                                          const Padding(
+                                              padding: EdgeInsets.all(30),
+                                              child: Text(
+                                                'Impression d\'étiquettes de boîtes',
+                                                style: TextStyle(fontSize: 24),
+                                              )),
+                                          Padding(
+                                              padding: const EdgeInsets.all(8),
+                                              child: Text(
+                                                'Cet outil l\'impression des étiquettes de boîtes spécifiées.',
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color:
+                                                        Colors.grey.shade700),
+                                              )),
+                                          Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      10, 20, 10, 0),
+                                              child: SizedBox(
+                                                  width: 400,
+                                                  child:
+                                                      DropdownButtonFormField(
+                                                    value: boxType2,
+                                                    items: boxTypesLibelleList
+                                                        .map((boxType) {
+                                                      return DropdownMenuItem(
+                                                          value: boxType,
+                                                          child: Text(boxType));
+                                                    }).toList(),
+                                                    onChanged: (newValue) {
+                                                      setState(() {
+                                                        boxType2 =
+                                                            newValue.toString();
+                                                      });
+                                                    },
+                                                  ))),
+                                          Padding(
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    SizedBox(
+                                                        height: 60,
+                                                        width: 180,
+                                                        child: TextFormField(
+                                                          readOnly: boxType2 ==
+                                                              'Aucun type de boîte trouvé',
+                                                          controller:
+                                                              minBoxController,
+                                                          inputFormatters: <
+                                                              TextInputFormatter>[
+                                                            FilteringTextInputFormatter
+                                                                .digitsOnly,
+                                                            LengthLimitingTextInputFormatter(
+                                                                4)
+                                                          ],
+                                                          decoration: InputDecoration(
+                                                              hintText:
+                                                                  'N° début',
+                                                              errorText: submited &&
+                                                                      (minBoxController
+                                                                              .text
+                                                                              .isEmpty ||
+                                                                          int.parse(minBoxController.text) <
+                                                                              1 ||
+                                                                          int.parse(minBoxController.text) >
+                                                                              maxDatatable[boxType2]!)
+                                                                  ? 'Valeur non valide'
+                                                                  : null),
+                                                        )),
+                                                    const Padding(
+                                                        padding:
+                                                            EdgeInsets.all(20)),
+                                                    SizedBox(
+                                                        height: 60,
+                                                        width: 180,
+                                                        child: TextFormField(
+                                                          readOnly: boxType2 ==
+                                                              'Aucun type de boîte trouvé',
+                                                          controller:
+                                                              maxBoxController,
+                                                          inputFormatters: <
+                                                              TextInputFormatter>[
+                                                            FilteringTextInputFormatter
+                                                                .digitsOnly,
+                                                            LengthLimitingTextInputFormatter(
+                                                                4),
+                                                          ],
+                                                          decoration: InputDecoration(
+                                                              hintText:
+                                                                  'N° fin',
+                                                              errorText: submited
+                                                                  ? 'Valeur non valide'
+                                                                  : null),
+                                                        ))
+                                                  ])),
+                                          Padding(
+                                              padding: const EdgeInsets.all(15),
+                                              child: ElevatedButton(
+                                                  style: myButtonStyle,
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      submited = true;
+                                                    });
+                                                    if (minBoxController
+                                                            .text.isNotEmpty &&
+                                                        maxBoxController
+                                                            .text.isNotEmpty) {
+                                                      if (int.parse(
+                                                                  minBoxController
+                                                                      .text) >=
+                                                              1 &&
+                                                          int.parse(
+                                                                  maxBoxController
+                                                                      .text) <=
+                                                              maxDatatable[
+                                                                  boxType2]! &&
+                                                          int.parse(
+                                                                  minBoxController
+                                                                      .text) <=
+                                                              int.parse(
+                                                                  maxBoxController
+                                                                      .text)) {
+                                                        setState(() {
+                                                          submited = false;
+                                                        });
+                                                        onPrint(
+                                                            start:
+                                                                minBoxController
+                                                                    .text,
+                                                            stop: maxBoxController
+                                                                .text,
+                                                            acronyme: boxTypesAcronymeList[
+                                                                boxTypesLibelleList
+                                                                    .indexOf(
+                                                                        boxType2)],
+                                                            libelle: boxType2,
+                                                            createBoxes: false);
+                                                      }
+                                                    }
+                                                  },
+                                                  child:
+                                                      const Text('Imprimer'))),
+                                        ],
+                                      ))),
+                              const Spacer()
+                            ]),
                         displayBoxes(),
                       ],
                     )));
