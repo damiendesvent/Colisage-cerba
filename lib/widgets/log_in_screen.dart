@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../variables/styles.dart';
 import 'package:http/http.dart' as http;
@@ -41,9 +42,6 @@ class _LogInFormState extends State<LogInForm> {
 
   void tryConnecting(String code, String password) async {
     String phpUriUserDetail = Env.urlPrefix + 'Users/detail_user.php';
-    setState(() {
-      login = true;
-    });
     http.Response res = await http.post(Uri.parse(phpUriUserDetail),
         body: {"code": code.toUpperCase(), "password": password});
     if (res.body.isNotEmpty) {
@@ -55,6 +53,9 @@ class _LogInFormState extends State<LogInForm> {
               '/welcome', (Route<dynamic> route) => false);
         });
       }
+      setState(() {
+        login = true;
+      });
     }
   }
 

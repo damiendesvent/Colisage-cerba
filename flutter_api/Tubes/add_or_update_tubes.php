@@ -4,6 +4,7 @@ include "../db_cerba.php";
 
 $tube = $_POST['tube'];
 $box = $_POST['box'];
+$site = $_POST['site'];
 
 $tube = substr($tube, 1, strlen($tube) - 2);
 $tube = explode(',',$tube);
@@ -16,12 +17,12 @@ for ($i = 0; $i < count($tube); $i ++) {
     $result = $stmt -> fetch(PDO::FETCH_ASSOC);
 
     if (gettype($result) == 'boolean') {
-        $sqlQuery = 'INSERT INTO `tube` (`code tube`, `code boite`) VALUES ("'.$tube[$i].'", "'.$box.'");';
+        $sqlQuery = 'INSERT INTO `tube` (`code tube`, `code boite`, `code site`) VALUES ("'.$tube[$i].'", "'.$box.'", (SELECT `CODE SITE` FROM `sites` WHERE `LIBELLE SITE` = "'.$site.'"));';
         $stmt = $db -> prepare($sqlQuery);
         $result = $stmt -> execute();
     }
     else {
-        $sqlQuery = 'UPDATE `tube` SET `CODE BOITE` = "'.$box.'" WHERE `CODE TUBE` = "'.$tube[$i].'"';
+        $sqlQuery = 'UPDATE `tube` SET `CODE BOITE` = "'.$box.'", `CODE SITE` = (SELECT `CODE SITE` FROM `sites` WHERE `LIBELLE SITE` = "'.$site.'") WHERE `CODE TUBE` = "'.$tube[$i].'"';
         $stmt = $db -> prepare($sqlQuery);
         $stmt -> execute();
     }

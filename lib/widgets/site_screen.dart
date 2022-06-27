@@ -55,6 +55,8 @@ class _SiteListState extends State<SiteList>
   bool showDeleteSite = false;
   bool isAdvancedResearch = false;
   final ScrollController _scrollController = ScrollController();
+  late String collectionSiteValue;
+  late String depositSiteValue;
 
   Future getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
@@ -416,293 +418,324 @@ class _SiteListState extends State<SiteList>
     late TextEditingController commentController =
         TextEditingController(text: site.comment);
     List<String> yesNoList = ['Non', 'Oui'];
-    late String collectionSiteValue = site.collectionSite ? 'Oui' : 'Non';
-    late String depositSiteValue = site.depositSite ? 'Oui' : 'Non';
+    setState(() {
+      collectionSiteValue = site.collectionSite ? 'Oui' : 'Non';
+      depositSiteValue = site.depositSite ? 'Oui' : 'Non';
+    });
 
     bool submited = false;
     showDialog(
         barrierColor: myBarrierColor,
         context: context,
-        builder: (_) => Dialog(
-            insetPadding:
-                const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
-            elevation: 8,
-            child: Stack(alignment: Alignment.center, children: [
-              SizedBox(
-                  height: 700,
-                  width: 700,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Text(
-                            'Edition du site n° ' + site.code.toString(),
-                            style: TextStyle(
-                                fontSize: 18, color: Colors.grey.shade700),
-                          )),
-                      const Spacer(),
-                      Table(
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          defaultColumnWidth: const FractionColumnWidth(0.4),
-                          children: [
-                            TableRow(
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Dialog(
+                insetPadding:
+                    const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
+                elevation: 8,
+                child: Stack(alignment: Alignment.center, children: [
+                  SizedBox(
+                      height: 700,
+                      width: 700,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Text(
+                                'Edition du site n° ' + site.code.toString(),
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.grey.shade700),
+                              )),
+                          const Spacer(),
+                          Table(
+                              defaultVerticalAlignment:
+                                  TableCellVerticalAlignment.middle,
+                              defaultColumnWidth:
+                                  const FractionColumnWidth(0.4),
                               children: [
-                                const TableCell(
-                                    child: Text('Code site : ',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16))),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 55,
-                                        child: Text(site.code.toString(),
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold))))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child:
-                                        Text('Libellé* : ', style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 55,
-                                        child: TextField(
-                                          controller: libelleController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(35)
-                                          ],
-                                          decoration: InputDecoration(
-                                              errorText: libelleController
-                                                          .text.isEmpty &&
-                                                      submited
-                                                  ? 'Veuillez entrer une valeur'
-                                                  : null),
-                                        )))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Correspondant : ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 55,
-                                        child: TextField(
-                                          controller: correspondantController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(20)
-                                          ],
-                                        )))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child:
-                                        Text('Adresse* : ', style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 55,
-                                        child: TextField(
-                                          controller: adressController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(35)
-                                          ],
-                                          decoration: InputDecoration(
-                                              errorText: adressController
-                                                          .text.isEmpty &&
-                                                      submited
-                                                  ? 'Veuillez entrer une valeur'
-                                                  : null),
-                                        )))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Complément d\'adresse : ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 55,
-                                        child: TextField(
-                                          controller: cpltAdressController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(35)
-                                          ],
-                                        )))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Code Postal* : ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 55,
-                                        child: TextField(
-                                          controller: cpController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(6),
-                                            FilteringTextInputFormatter
-                                                .digitsOnly
-                                          ],
-                                          decoration: InputDecoration(
-                                              errorText: cpController
-                                                          .text.isEmpty &&
-                                                      submited
-                                                  ? 'Veuillez entrer une valeur'
-                                                  : null),
-                                        )))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Ville* : ', style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 55,
-                                        child: TextField(
-                                          controller: cityController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(35)
-                                          ],
-                                          decoration: InputDecoration(
-                                              errorText: cityController
-                                                          .text.isEmpty &&
-                                                      submited
-                                                  ? 'Veuillez entrer une valeur'
-                                                  : null),
-                                        )))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Site de prélèvement : ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        width: 100,
-                                        child: DropdownButton(
-                                          items: yesNoList.map((yesNo) {
-                                            return DropdownMenuItem(
-                                                value: yesNo,
-                                                child: Text(yesNo.toString()));
-                                          }).toList(),
-                                          value: collectionSiteValue,
-                                          onChanged: (String? newValue) {
-                                            setState(() {
-                                              collectionSiteValue = newValue!;
-                                            });
+                                TableRow(
+                                  children: [
+                                    const TableCell(
+                                        child: Text('Code site : ',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16))),
+                                    TableCell(
+                                        child: SizedBox(
+                                            height: 55,
+                                            child: Text(site.code.toString(),
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.bold))))
+                                  ],
+                                ),
+                                TableRow(
+                                  children: [
+                                    const TableCell(
+                                        child: Text('Libellé* : ',
+                                            style: textStyle)),
+                                    TableCell(
+                                        child: SizedBox(
+                                            height: 55,
+                                            child: TextField(
+                                              controller: libelleController,
+                                              inputFormatters: [
+                                                LengthLimitingTextInputFormatter(
+                                                    35)
+                                              ],
+                                              decoration: InputDecoration(
+                                                  errorText: libelleController
+                                                              .text.isEmpty &&
+                                                          submited
+                                                      ? 'Veuillez entrer une valeur'
+                                                      : null),
+                                            )))
+                                  ],
+                                ),
+                                TableRow(
+                                  children: [
+                                    const TableCell(
+                                        child: Text('Correspondant : ',
+                                            style: textStyle)),
+                                    TableCell(
+                                        child: SizedBox(
+                                            height: 55,
+                                            child: TextField(
+                                              controller:
+                                                  correspondantController,
+                                              inputFormatters: [
+                                                LengthLimitingTextInputFormatter(
+                                                    20)
+                                              ],
+                                            )))
+                                  ],
+                                ),
+                                TableRow(
+                                  children: [
+                                    const TableCell(
+                                        child: Text('Adresse* : ',
+                                            style: textStyle)),
+                                    TableCell(
+                                        child: SizedBox(
+                                            height: 55,
+                                            child: TextField(
+                                              controller: adressController,
+                                              inputFormatters: [
+                                                LengthLimitingTextInputFormatter(
+                                                    35)
+                                              ],
+                                              decoration: InputDecoration(
+                                                  errorText: adressController
+                                                              .text.isEmpty &&
+                                                          submited
+                                                      ? 'Veuillez entrer une valeur'
+                                                      : null),
+                                            )))
+                                  ],
+                                ),
+                                TableRow(
+                                  children: [
+                                    const TableCell(
+                                        child: Text('Complément d\'adresse : ',
+                                            style: textStyle)),
+                                    TableCell(
+                                        child: SizedBox(
+                                            height: 55,
+                                            child: TextField(
+                                              controller: cpltAdressController,
+                                              inputFormatters: [
+                                                LengthLimitingTextInputFormatter(
+                                                    35)
+                                              ],
+                                            )))
+                                  ],
+                                ),
+                                TableRow(
+                                  children: [
+                                    const TableCell(
+                                        child: Text('Code Postal* : ',
+                                            style: textStyle)),
+                                    TableCell(
+                                        child: SizedBox(
+                                            height: 55,
+                                            child: TextField(
+                                              controller: cpController,
+                                              inputFormatters: [
+                                                LengthLimitingTextInputFormatter(
+                                                    6),
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly
+                                              ],
+                                              decoration: InputDecoration(
+                                                  errorText: cpController
+                                                              .text.isEmpty &&
+                                                          submited
+                                                      ? 'Veuillez entrer une valeur'
+                                                      : null),
+                                            )))
+                                  ],
+                                ),
+                                TableRow(
+                                  children: [
+                                    const TableCell(
+                                        child: Text('Ville* : ',
+                                            style: textStyle)),
+                                    TableCell(
+                                        child: SizedBox(
+                                            height: 55,
+                                            child: TextField(
+                                              controller: cityController,
+                                              inputFormatters: [
+                                                LengthLimitingTextInputFormatter(
+                                                    35)
+                                              ],
+                                              decoration: InputDecoration(
+                                                  errorText: cityController
+                                                              .text.isEmpty &&
+                                                          submited
+                                                      ? 'Veuillez entrer une valeur'
+                                                      : null),
+                                            )))
+                                  ],
+                                ),
+                                TableRow(
+                                  children: [
+                                    const TableCell(
+                                        child: Text('Site de prélèvement : ',
+                                            style: textStyle)),
+                                    TableCell(
+                                        child: SizedBox(
+                                            height: 40,
+                                            width: 100,
+                                            child: DropdownButton(
+                                              value: collectionSiteValue,
+                                              items: yesNoList.map((yesNo) {
+                                                return DropdownMenuItem(
+                                                    value: yesNo,
+                                                    child:
+                                                        Text(yesNo.toString()));
+                                              }).toList(),
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  collectionSiteValue =
+                                                      newValue!;
+                                                });
+                                              },
+                                            )))
+                                  ],
+                                ),
+                                TableRow(
+                                  children: [
+                                    const TableCell(
+                                        child: Text(
+                                            'Site de dépôt :            ',
+                                            style: textStyle)),
+                                    TableCell(
+                                        child: SizedBox(
+                                            height: 40,
+                                            width: 100,
+                                            child: DropdownButton(
+                                              items: yesNoList.map((yesNo) {
+                                                return DropdownMenuItem(
+                                                    value: yesNo,
+                                                    child:
+                                                        Text(yesNo.toString()));
+                                              }).toList(),
+                                              value: depositSiteValue,
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  depositSiteValue = newValue!;
+                                                });
+                                              },
+                                            )))
+                                  ],
+                                ),
+                                TableRow(
+                                  children: [
+                                    const TableCell(
+                                        child: Text('Commentaire : ',
+                                            style: textStyle)),
+                                    TableCell(
+                                        child: SizedBox(
+                                            height: 55,
+                                            child: TextField(
+                                              controller: commentController,
+                                              inputFormatters: [
+                                                LengthLimitingTextInputFormatter(
+                                                    254)
+                                              ],
+                                            )))
+                                  ],
+                                ),
+                              ]),
+                          Center(
+                              child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 20),
+                                  child: SizedBox(
+                                      width: 231,
+                                      child: Row(children: [
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
                                           },
-                                        )))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Site de dépôt :            ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        width: 100,
-                                        child: DropdownButton(
-                                          items: yesNoList.map((yesNo) {
-                                            return DropdownMenuItem(
-                                                value: yesNo,
-                                                child: Text(yesNo.toString()));
-                                          }).toList(),
-                                          value: depositSiteValue,
-                                          onChanged: (String? newValue) {
+                                          child: Row(children: const [
+                                            Icon(Icons.clear),
+                                            Text(' Annuler')
+                                          ]),
+                                        ),
+                                        const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10)),
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
                                             setState(() {
-                                              depositSiteValue = newValue!;
+                                              submited = true;
                                             });
+                                            if (libelleController
+                                                    .text.isNotEmpty &&
+                                                adressController
+                                                    .text.isNotEmpty &&
+                                                cityController
+                                                    .text.isNotEmpty) {
+                                              onUpdateSite(Site(
+                                                  code: site.code,
+                                                  libelle:
+                                                      libelleController.text,
+                                                  correspondant:
+                                                      correspondantController
+                                                          .text,
+                                                  adress: adressController.text,
+                                                  cpltAdress:
+                                                      cpltAdressController.text,
+                                                  cp: int.parse(
+                                                      cpController.text),
+                                                  city: cityController.text,
+                                                  collectionSite:
+                                                      collectionSiteValue ==
+                                                          'Oui',
+                                                  depositSite:
+                                                      depositSiteValue == 'Oui',
+                                                  comment:
+                                                      commentController.text));
+                                            }
                                           },
-                                        )))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Commentaire : ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 55,
-                                        child: TextField(
-                                          controller: commentController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(
-                                                254)
-                                          ],
-                                        )))
-                              ],
-                            ),
-                          ]),
-                      Center(
-                          child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 20),
-                              child: SizedBox(
-                                  width: 231,
-                                  child: Row(children: [
-                                    ElevatedButton(
-                                      style: myButtonStyle,
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Row(children: const [
-                                        Icon(Icons.clear),
-                                        Text(' Annuler')
-                                      ]),
-                                    ),
-                                    const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10)),
-                                    ElevatedButton(
-                                      style: myButtonStyle,
-                                      onPressed: () {
-                                        setState(() {
-                                          submited = true;
-                                        });
-                                        if (libelleController.text.isNotEmpty &&
-                                            adressController.text.isNotEmpty &&
-                                            cityController.text.isNotEmpty) {
-                                          onUpdateSite(Site(
-                                              code: site.code,
-                                              libelle: libelleController.text,
-                                              correspondant:
-                                                  correspondantController.text,
-                                              adress: adressController.text,
-                                              cpltAdress:
-                                                  cpltAdressController.text,
-                                              cp: int.parse(cpController.text),
-                                              city: cityController.text,
-                                              collectionSite: isCollectionSite,
-                                              depositSite: isDepositSite,
-                                              comment: commentController.text));
-                                        }
-                                      },
-                                      child: Row(children: const [
-                                        Icon(Icons.check),
-                                        Text(' Valider')
-                                      ]),
-                                    )
-                                  ])))),
-                      const Spacer()
-                    ],
-                  ))
-            ])));
+                                          child: Row(children: const [
+                                            Icon(Icons.check),
+                                            Text(' Valider')
+                                          ]),
+                                        )
+                                      ])))),
+                          const Spacer()
+                        ],
+                      ))
+                ]));
+          });
+        });
   }
 
   void onUpdateSite(Site site) {
