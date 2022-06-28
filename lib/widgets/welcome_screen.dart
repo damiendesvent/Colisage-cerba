@@ -43,7 +43,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
 
   void initializeTimer() {
     timer?.cancel();
-    timer = Timer(const Duration(minutes: 5), handleTimeout);
+    timer = Timer(const Duration(minutes: 15), handleTimeout);
   }
 
   void handleTimeout() {

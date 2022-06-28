@@ -943,21 +943,21 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
       ];
     } else {
       return [
-        DataCell(Text(user['CODE UTILISATEUR'])),
-        DataCell(Text(user['NOM'])),
-        DataCell(Text(user['PRENOM'])),
-        DataCell(Text(user['FONCTION'])),
+        DataCell(SelectableText(user['CODE UTILISATEUR'])),
+        DataCell(SelectableText(user['NOM'])),
+        DataCell(SelectableText(user['PRENOM'])),
+        DataCell(SelectableText(user['FONCTION'])),
         DataCell(
-            Center(child: Text(user['EDITION SITE'] == '1' ? 'Oui' : 'Non'))),
+            Center(child: SelectableText(user['EDITION SITE'] == '1' ? 'Oui' : 'Non'))),
         DataCell(Center(
             child:
-                Text(user['EDITION FEUILLE DE ROUTE'] == '1' ? 'Oui' : 'Non'))),
+                SelectableText(user['EDITION FEUILLE DE ROUTE'] == '1' ? 'Oui' : 'Non'))),
         DataCell(
-            Center(child: Text(user['EDITION BOITE'] == '1' ? 'Oui' : 'Non'))),
+            Center(child: SelectableText(user['EDITION BOITE'] == '1' ? 'Oui' : 'Non'))),
         DataCell(Center(
-            child: Text(user['EDITION UTILISATEUR'] == '1' ? 'Oui' : 'Non'))),
+            child: SelectableText(user['EDITION UTILISATEUR'] == '1' ? 'Oui' : 'Non'))),
         DataCell(
-            Center(child: Text(user['EXECUTION SQL'] == '1' ? 'Oui' : 'Non'))),
+            Center(child: SelectableText(user['EXECUTION SQL'] == '1' ? 'Oui' : 'Non'))),
         DataCell(Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

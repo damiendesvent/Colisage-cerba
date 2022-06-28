@@ -75,69 +75,6 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
     }
   }
 
-  void showDetailedSite(String code) async {
-    const TextStyle textStyle = TextStyle(fontSize: 16);
-    String phpUriDetailedSite = Env.urlPrefix + 'Sites/details_site.php';
-    http.Response res = await http
-        .post(Uri.parse(phpUriDetailedSite), body: {'searchCode': code});
-    if (res.body.isNotEmpty) {
-      List items = json.decode(res.body);
-      Site site = Site.fromList(items);
-      showDialog(
-          barrierColor: myBarrierColor,
-          context: context,
-          builder: (_) => Dialog(
-              insetPadding:
-                  const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
-              elevation: 8,
-              child: Stack(alignment: Alignment.center, children: [
-                SizedBox(
-                    width: 600,
-                    height: 400,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Spacer(),
-                        Text('Code site : ' + code,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20)),
-                        const Spacer(),
-                        Text('Libellé : ' + site.libelle, style: textStyle),
-                        const Spacer(),
-                        Text('Correspondant : ' + site.correspondant,
-                            style: textStyle),
-                        const Spacer(),
-                        Text('Adresse : ' + site.adress, style: textStyle),
-                        const Spacer(),
-                        Text('Complément d\'adresse : ' + site.cpltAdress,
-                            style: textStyle),
-                        const Spacer(),
-                        Text(
-                            'Code postal : ' +
-                                (site.cp == 0 ? '' : site.cp.toString()),
-                            style: textStyle),
-                        const Spacer(),
-                        Text('Ville : ' + site.city, style: textStyle),
-                        const Spacer(),
-                        Text(
-                            'Site de prélèvement : ' +
-                                (site.collectionSite ? 'Oui' : 'Non'),
-                            style: textStyle),
-                        const Spacer(),
-                        Text(
-                            'Site de dépôt : ' +
-                                (site.depositSite ? 'Oui' : 'Non'),
-                            style: textStyle),
-                        const Spacer(),
-                        Text('Commentaires correspondant : ' + (site.comment),
-                            style: textStyle),
-                        const Spacer(),
-                      ],
-                    ))
-              ])));
-    }
-  }
-
   sorting(String field) {
     return ((columnIndex, _) {
       setState(() {
@@ -636,14 +573,18 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
               width: 500,
               height: 110,
               child: Column(children: [
-                Text('Code tournée : ${roadMap.code}',
+                SelectableText('Code tournée : ${roadMap.code}',
                     style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.bold)),
-                Text('Libellé : ${roadMap.libelle}', style: textStyle),
-                Text('Téléphone chauffeur : ${roadMap.tel}', style: textStyle),
-                Text('Ordre d\'affichage PDA : ${roadMap.sortingNumer}',
+                SelectableText('Libellé : ${roadMap.libelle}',
                     style: textStyle),
-                Text('Commentaire : ${roadMap.comment}', style: textStyle),
+                SelectableText('Téléphone chauffeur : ${roadMap.tel}',
+                    style: textStyle),
+                SelectableText(
+                    'Ordre d\'affichage PDA : ${roadMap.sortingNumer}',
+                    style: textStyle),
+                SelectableText('Commentaire : ${roadMap.comment}',
+                    style: textStyle),
               ])));
     } else {
       late TextEditingController libelleController =
@@ -913,14 +854,12 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
       ];
     } else {
       return [
-        DataCell(Text(roadMapDetail['CODE AVANCEMENT'])),
-        DataCell(Text(roadMapDetail['LIBELLE SITE']), onTap: () {
-          showDetailedSite(roadMapDetail['CODE SITE']);
-        }),
-        DataCell(Text(roadMapDetail['HEURE ARRIVEE'])),
-        DataCell(Text(roadMapDetail['COMMENTAIRE'])),
-        DataCell(
-            Text(roadMapDetail['PASSAGE SUR APPEL'] == '1' ? 'Oui' : 'Non')),
+        DataCell(SelectableText(roadMapDetail['CODE AVANCEMENT'])),
+        DataCell(SelectableText(roadMapDetail['LIBELLE SITE'])),
+        DataCell(SelectableText(roadMapDetail['HEURE ARRIVEE'])),
+        DataCell(SelectableText(roadMapDetail['COMMENTAIRE'])),
+        DataCell(SelectableText(
+            roadMapDetail['PASSAGE SUR APPEL'] == '1' ? 'Oui' : 'Non')),
         if (globals.user.roadMapEditing)
           DataCell(Row(
             mainAxisAlignment: MainAxisAlignment.center,

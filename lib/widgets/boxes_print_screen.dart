@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/gestures.dart';
+
 import '../variables/env.sample.dart';
 import '../variables/styles.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +97,7 @@ class _BoxesPrintState extends State<BoxesPrint>
       if (res.body.isNotEmpty) {
         List items = json.decode(res.body);
         String item = items[0]['MAX(`CODE BOITE`)'] ?? '';
-        item = item == '' ? '0' : item.substring(4);
+        item = item == '' ? '0' : item.substring(item.length - 5);
         setState(() {
           maxDatatable[type] = int.parse(item);
         });
@@ -250,7 +252,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                     fontSize: 16, fontWeight: FontWeight.bold)))
                       else
                         TableCell(
-                            child: Text(
+                            child: SelectableText(
                           type,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
@@ -268,7 +270,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                         fontSize: 16))))),
                     for (String type in boxTypesAcronymeList)
                       TableCell(
-                          child: Text(
+                          child: SelectableText(
                         type,
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontSize: 16),
@@ -285,7 +287,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                         fontSize: 16))))),
                     for (String type in boxTypesLibelleList)
                       TableCell(
-                          child: Text(
+                          child: SelectableText(
                               maxDatatable[type] != null &&
                                       maxDatatable[type]! > 0
                                   ? '1'
@@ -323,7 +325,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                 style: const TextStyle(fontSize: 16)))
                       else
                         TableCell(
-                            child: Text(maxDatatable[type].toString(),
+                            child: SelectableText(maxDatatable[type].toString(),
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(fontSize: 16)))
                   ]),

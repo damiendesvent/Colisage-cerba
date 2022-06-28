@@ -277,7 +277,7 @@ class _SiteListState extends State<SiteList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 55,
-                                        child: Text(site.code.toString(),
+                                        child: SelectableText(site.code.toString(),
                                             style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 16)))),
@@ -291,7 +291,7 @@ class _SiteListState extends State<SiteList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 55,
-                                        child: Text(site.libelle,
+                                        child: SelectableText(site.libelle,
                                             style: textStyle)))
                               ],
                             ),
@@ -303,7 +303,7 @@ class _SiteListState extends State<SiteList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 55,
-                                        child: Text(site.correspondant,
+                                        child: SelectableText(site.correspondant,
                                             style: textStyle)))
                               ],
                             ),
@@ -315,7 +315,7 @@ class _SiteListState extends State<SiteList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 55,
-                                        child: Text(site.adress,
+                                        child: SelectableText(site.adress,
                                             style: textStyle)))
                               ],
                             ),
@@ -327,7 +327,7 @@ class _SiteListState extends State<SiteList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 55,
-                                        child: Text(site.cpltAdress,
+                                        child: SelectableText(site.cpltAdress,
                                             style: textStyle)))
                               ],
                             ),
@@ -339,7 +339,7 @@ class _SiteListState extends State<SiteList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 55,
-                                        child: Text(site.cp.toString(),
+                                        child: SelectableText(site.cp.toString(),
                                             style: textStyle)))
                               ],
                             ),
@@ -351,7 +351,7 @@ class _SiteListState extends State<SiteList>
                                     child: SizedBox(
                                         height: 55,
                                         child:
-                                            Text(site.city, style: textStyle)))
+                                            SelectableText(site.city, style: textStyle)))
                               ],
                             ),
                             TableRow(
@@ -388,7 +388,7 @@ class _SiteListState extends State<SiteList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 55,
-                                        child: Text(site.comment,
+                                        child: SelectableText(site.comment,
                                             style: textStyle)))
                               ],
                             ),

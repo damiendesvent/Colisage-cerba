@@ -538,26 +538,27 @@ class _TracaListState extends State<TracaList>
                                                 }
                                               },
                                               cells: [
-                                                DataCell(Text(
-                                                    traca['CODE TRACABILITE'])),
+                                                DataCell(SelectableText(
+                                                  traca['CODE TRACABILITE'],
+                                                )),
                                                 DataCell(
-                                                    Text(traca['UTILISATEUR'])),
-                                                DataCell(Text(
+                                                    SelectableText(traca['UTILISATEUR'])),
+                                                DataCell(SelectableText(
                                                     traca['CODE TOURNEE'] ??
                                                         '')),
                                                 DataCell(
-                                                    Text(traca['CODE SITE'])),
+                                                    SelectableText(traca['CODE SITE'])),
                                                 DataCell(
-                                                    Text(traca['BOITE'] ?? '')),
+                                                    SelectableText(traca['BOITE'] ?? '')),
                                                 DataCell(
-                                                    Text(traca['TUBE'] ?? '')),
-                                                DataCell(Text(traca['ACTION'])),
-                                                DataCell(Text(
+                                                    SelectableText(traca['TUBE'] ?? '')),
+                                                DataCell(SelectableText(traca['ACTION'])),
+                                                DataCell(SelectableText(
                                                     traca['CODE VOITURE'] ??
                                                         '')),
-                                                DataCell(Text(traca[
+                                                DataCell(SelectableText(traca[
                                                     'DATE HEURE ENREGISTREMENT'])),
-                                                DataCell(Text(traca[
+                                                DataCell(SelectableText(traca[
                                                     'DATE HEURE SYNCHRONISATION'])),
                                               ])
                                       ],
