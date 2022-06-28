@@ -775,6 +775,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                     width: 231,
                                     child: Row(children: [
                                       ElevatedButton(
+                                          style: myButtonStyle,
                                           onPressed: () {
                                             Navigator.of(context).pop();
                                           },
@@ -782,6 +783,9 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             Icon(Icons.clear),
                                             Text('Annuler')
                                           ])),
+                                      const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10)),
                                       ElevatedButton(
                                         style: myButtonStyle,
                                         onPressed: () {

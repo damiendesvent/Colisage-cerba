@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/variables/styles.dart';
@@ -923,6 +921,8 @@ class _SiteListState extends State<SiteList>
                                         child: SizedBox(
                                             height: 55,
                                             child: TextField(
+                                              textInputAction:
+                                                  TextInputAction.next,
                                               controller: codeController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -957,6 +957,8 @@ class _SiteListState extends State<SiteList>
                                         child: SizedBox(
                                             height: 55,
                                             child: TextField(
+                                              textInputAction:
+                                                  TextInputAction.next,
                                               controller: libelleController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -980,6 +982,8 @@ class _SiteListState extends State<SiteList>
                                         child: SizedBox(
                                             height: 55,
                                             child: TextField(
+                                              textInputAction:
+                                                  TextInputAction.next,
                                               controller:
                                                   correspondantController,
                                               inputFormatters: [
@@ -998,6 +1002,8 @@ class _SiteListState extends State<SiteList>
                                         child: SizedBox(
                                             height: 55,
                                             child: TextField(
+                                              textInputAction:
+                                                  TextInputAction.next,
                                               controller: adressController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -1021,6 +1027,8 @@ class _SiteListState extends State<SiteList>
                                         child: SizedBox(
                                             height: 55,
                                             child: TextField(
+                                              textInputAction:
+                                                  TextInputAction.next,
                                               controller: cpltController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -1038,6 +1046,8 @@ class _SiteListState extends State<SiteList>
                                         child: SizedBox(
                                             height: 55,
                                             child: TextField(
+                                              textInputAction:
+                                                  TextInputAction.next,
                                               controller: cpController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(

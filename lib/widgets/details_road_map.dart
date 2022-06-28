@@ -693,18 +693,6 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                       )
                     ]),
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text('Commentaire : ', style: textStyle),
-                      SizedBox(
-                        width: 200,
-                        child: TextField(
-                          controller: commentController,
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(254)
-                          ],
-                        ),
-                      )
-                    ]),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                       Text('Ordre d\'affichage PDA* : ', style: textStyle),
                       SizedBox(
                         width: 200,
@@ -713,6 +701,18 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(4),
                             FilteringTextInputFormatter.digitsOnly
+                          ],
+                        ),
+                      )
+                    ]),
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Text('Commentaire : ', style: textStyle),
+                      SizedBox(
+                        width: 200,
+                        child: TextField(
+                          controller: commentController,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(254)
                           ],
                         ),
                       )
