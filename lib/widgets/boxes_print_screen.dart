@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/gestures.dart';
 
 import '../variables/env.sample.dart';
 import '../variables/styles.dart';

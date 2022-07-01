@@ -26,7 +26,7 @@ if (strlen($tube) > 2) {
     $values = '';
 
     for ($i = 0; $i < count($tube); $i ++) {
-        $sqlQuery = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `ORIGINE PGM`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) 
+        $sqlQuery = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `CODE ORIGINE`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) 
                     VALUES ("'.$user.'", '.$tournee.', (SELECT `CODE SITE` FROM `sites` WHERE `LIBELLE SITE` = "'.$site.'"), "'.$box.'", "'.$tube[$i].'", "'.$action.'", '.$correspondant.', "'.$registering.'", "'.$synchronizing.'", "'.$pgm.'", '.$lettrage.', '.$car.', '.$comment.')';
         $stmt = $db -> prepare($sqlQuery);
         $result = $stmt -> execute();
@@ -34,7 +34,7 @@ if (strlen($tube) > 2) {
 }
 
 else {
-    $sqlQuery = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `ORIGINE PGM`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) 
+    $sqlQuery = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `CODE ORIGINE`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) 
                     VALUES ("'.$user.'", '.$tournee.', (SELECT `CODE SITE` FROM `sites` WHERE `LIBELLE SITE` = "'.$site.'"), "'.$box.'", NULL, "'.$action.'", '.$correspondant.', "'.$registering.'", "'.$synchronizing.'", "'.$pgm.'", '.$lettrage.', '.$car.', '.$comment.')';
         $stmt = $db -> prepare($sqlQuery);
         $result = $stmt -> execute();

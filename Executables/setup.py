@@ -1,3 +1,4 @@
+from msilib.schema import Error
 import os
 import shutil
 import tkinter as tk
@@ -7,22 +8,98 @@ from datetime import datetime
 import webbrowser
 import socket
 import subprocess
+import mysql.connector
+from apscheduler.schedulers.background import BackgroundScheduler
+from pytz import timezone
+import glob
 
-# Toutes les variables en dur
-zip_file = 'MAMP.zip'
-extract_folder = 'MAMP'
-conf_file_path = 'MAMP/conf/apache/httpd.conf'
-default_path = 'directoryPathSlash'
-default_antislash_path = 'directoryPathAntiSlash'
-main_file_path = 'MAMP/htdocs/main.dart.js'
-default_ip = 'default_ip'
-my_file_path = 'MAMP/conf/mysql/my.ini'
-php_file_path = 'MAMP/conf/php7.4.1/php.ini'
 
-path = os.getcwd()
-path_w_slash = path.replace('\\','/')
-global ip
-ip = socket.gethostbyname(socket.gethostname())
+# on lit le contenu du fichier variables.txt qui contient les variables
+with open('bin/variables.txt') as variables_file :
+    variables = variables_file.read()
+    variables = variables.splitlines()
+    variableDict = {}
+    for variable in variables :
+        if not (variable.startswith('#') or len(variable) < 2) :
+            variable = variable.split(' = ')
+            variableDict[variable[0]] = variable[1]
+
+    zip_file = variableDict['zip_file']
+    extract_folder = variableDict['extract_folder']
+    conf_file_path = variableDict['conf_file_path']
+    default_path = variableDict['default_path']
+    default_antislash_path = variableDict['default_antislash_path']
+    main_file_path = variableDict['main_file_path']
+    default_ip = variableDict['default_ip']
+    my_file_path = variableDict['my_file_path']
+    php_file_path = variableDict['php_file_path']
+    pda_track_in_directory = variableDict['pda_track_in_directory']
+    pda_track_out_directory = variableDict['pda_track_out_directory']
+    minute_synchro_1 = int(variableDict['minute_synchro_1'])
+    minute_synchro_2 = int(variableDict['minute_synchro_2'])
+
+
+# cette fonction sert de switch au service PDA en activant ou désactivant la tache planifiée + en mettant à jour l'affichage
+def start_stop_pda() :
+    global pda_connexion
+    pda_connexion = not pda_connexion
+    if pda_connexion :
+        canvas1.itemconfigure(led_pda_signal, fill='green')
+        canvas1.itemconfigure(displayed_pda_signal, text='Service PDA\nen marche\nDernière synchronisation :\n', fill='green')
+        scheduler.start()
+    else :
+        canvas1.itemconfigure(led_pda_signal, fill='red')
+        canvas1.itemconfigure(displayed_pda_signal, text='Service PDA\nà l\'arrêt', fill='red')
+        scheduler.stop()
+
+
+# cette fonction est celle utilisée en tache planifiée pour le service PDA
+def import_traca_pda() :
+    os.chdir(pda_track_in_directory)
+    list_files = glob.glob('*.txt')
+    try :
+        mydb = mysql.connector.connect(host='localhost', user='root', password='root', database='cerba')
+        mycursor = mydb.cursor()
+        for file_path in list_files :
+            pda_number = file_path[2:8]
+            with open(file_path, 'r') as file :
+                file_data = file.read()
+                traca_list = file_data.splitlines()
+                for traca in traca_list :
+                    car = traca[0:2]
+                    user = traca[2:6]
+                    tour =  traca[6:10]
+                    step = traca[10:13]
+                    site = traca[13:17]
+                    action = traca[17:20]
+                    box = traca[20:40].strip()
+                    time = datetime(year = int(traca[42:46]), month = int(traca[46:48]), day = int(traca[48:50]), hour = int(traca[50:52]), minute = int(traca[52:54]), second = int(traca[54:56])).strftime('%Y-%m-%d %H:%M:%S')
+                    image = traca[56:80]
+                    signing = traca[80:104]
+                    comment = traca[104:152].strip()
+
+                    actual_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+                    box = 'NULL' if len(box) == 0 else '"' + box + '"'
+                    comment = 'NULL' if len(comment) == 0 else '"' + comment + '"'
+
+                    query = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `CODE ORIGINE`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) VALUES ("' + user + '", ' + tour + ', ' + site + ', ' + box + ', NULL, "' + action + '", NULL, "' + time + '", "' + actual_time + '", "' + pda_number + '", NULL, ' + car + ', ' + comment + ')'
+                    mycursor.execute(query)
+                    mydb.commit()
+                    
+            os.remove(file_path)
+
+        mycursor.close()
+        mydb.close()
+        
+        canvas1.itemconfigure(displayed_pda_signal, text='Service PDA\nen marche\nDernière synchronisation :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
+
+    except Exception as e:
+        canvas1.itemconfigure(displayed_pda_signal, text= 'Erreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
+
+
+    
+
 
 
 def install() :
@@ -135,9 +212,23 @@ def open_website() :
         messagebox.showerror('Serveur non démarré', 'Le serveur n\'est pas démarré,\nappuyez d\'abord sur Démarrer le serveur')
 
 
-root= tk.Tk(className='Serveur Colisage des prélèvements')
+path = os.getcwd()
+path_w_slash = path.replace('\\','/')
+global ip
+ip = socket.gethostbyname(socket.gethostname())
+
+global pda_connexion
+pda_connexion = False
+
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(import_traca_pda, 'cron', minute=minute_synchro_1, timezone='Europe/Berlin')
+scheduler.add_job(import_traca_pda, 'cron', minute=minute_synchro_2, timezone='Europe/Berlin')
+
+
+root= tk.Tk(className='Serveur de colisage')
 root.protocol('WM_DELETE_WINDOW', disable_event) # désactive la croix de fermeture Windows
-root.iconbitmap('Cerba.ico')
+root.iconbitmap('bin/Cerba.ico')
 canvas1 = tk.Canvas(root, width = 500, height = 400)
 canvas1.pack()
 
@@ -166,5 +257,11 @@ canvas1.create_window(250, 150, window=open_website_button)
 
 led_signal = canvas1.create_oval(50,20,70,40, fill='red')
 displayed_signal = canvas1.create_text(90,30, anchor= 'w', text='Serveur à l\'arrêt', fill='red')
+
+led_pda_signal = canvas1.create_oval(60,220,80,240, fill='red')
+displayed_pda_signal = canvas1.create_text(30,280, anchor= 'w', text='Service PDA\nà l\'arrêt', fill='red')
+
+pda_button = tk.Button(text='Activer/Désactiver l\'envoi et la\nréception des fichiers PDA', command=start_stop_pda, bg='grey', fg='white')
+pda_window = canvas1.create_window(250, 250, window=pda_button)
 
 root.mainloop()

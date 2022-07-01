@@ -10,6 +10,7 @@ bool isAuthentified = false;
 int milisecondWait = 20;
 bool shouldKeepAlive = false;
 bool shouldDisplaySyncButton = false;
+String pda_trak_in_directory = '/';
 
 User user = User(
     code: '',
