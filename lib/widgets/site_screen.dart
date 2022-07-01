@@ -29,7 +29,7 @@ class SiteList extends StatefulWidget {
 class _SiteListState extends State<SiteList>
     with AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => globals.shouldKeepAlive;
 
   final StreamController<List> _streamController = StreamController<List>();
   final _searchTextController = TextEditingController();
@@ -277,7 +277,8 @@ class _SiteListState extends State<SiteList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 55,
-                                        child: SelectableText(site.code.toString(),
+                                        child: SelectableText(
+                                            site.code.toString(),
                                             style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 16)))),
@@ -303,7 +304,8 @@ class _SiteListState extends State<SiteList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 55,
-                                        child: SelectableText(site.correspondant,
+                                        child: SelectableText(
+                                            site.correspondant,
                                             style: textStyle)))
                               ],
                             ),
@@ -339,7 +341,8 @@ class _SiteListState extends State<SiteList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 55,
-                                        child: SelectableText(site.cp.toString(),
+                                        child: SelectableText(
+                                            site.cp.toString(),
                                             style: textStyle)))
                               ],
                             ),
@@ -350,8 +353,8 @@ class _SiteListState extends State<SiteList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 55,
-                                        child:
-                                            SelectableText(site.city, style: textStyle)))
+                                        child: SelectableText(site.city,
+                                            style: textStyle)))
                               ],
                             ),
                             TableRow(
@@ -1326,16 +1329,17 @@ class _SiteListState extends State<SiteList>
                               getSiteList();
                             }),
                       const Spacer(),
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            getSiteList();
-                            getMaxSite();
-                          });
-                        },
-                        icon: const Icon(Icons.sync),
-                        tooltip: 'Actualiser l\'onglet',
-                      ),
+                      if (globals.shouldDisplaySyncButton)
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              getSiteList();
+                              getMaxSite();
+                            });
+                          },
+                          icon: const Icon(Icons.sync),
+                          tooltip: 'Actualiser l\'onglet',
+                        ),
                       const Spacer(),
                       const Text('Nombre de lignes affichées : '),
                       DropdownButton(

@@ -30,7 +30,7 @@ class RoadMapList extends StatefulWidget {
 class _RoadMapListState extends State<RoadMapList>
     with AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => globals.shouldKeepAlive;
 
   final StreamController<List> _streamController = StreamController<List>();
   final _searchTextController = TextEditingController();
@@ -664,15 +664,16 @@ class _RoadMapListState extends State<RoadMapList>
                                 getRoadMapList();
                               }),
                         const Spacer(),
-                        IconButton(
-                          onPressed: () {
-                            setState(() {
-                              getRoadMapList();
-                            });
-                          },
-                          icon: const Icon(Icons.sync),
-                          tooltip: 'Actualiser l\'onglet',
-                        ),
+                        if (globals.shouldDisplaySyncButton)
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                getRoadMapList();
+                              });
+                            },
+                            icon: const Icon(Icons.sync),
+                            tooltip: 'Actualiser l\'onglet',
+                          ),
                         const Spacer(),
                         const Text('Nombre de lignes affichées : '),
                         DropdownButton(

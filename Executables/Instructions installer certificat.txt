@@ -1,0 +1,67 @@
+Le certificat SSL permettant d'avoir une connexion HTTPS sécurisée est valable 50 ans,
+Cependant, s'il y a un problème avec celui-ci et que vous devez le générer à nouveau : voici la démarche.
+
+Note : on peut générer le certificat depuis n'importe quel ordinateur. Pas besoin d'être sur le serveur
+
+On utilise "openssl" pour générer le certificat, c'est une commande Linux.
+Pour utiliser Linux sous un ordinateur Windows, vous avez deux méthodes principales :
+
+
+A / Utiliser 'WSL' (machine virtuelle Linux sous Windows) :
+	Si vous utilisez utiliser WSL avec une des distributions Linux, 
+
+	1 - Ouvrez le programme WSL, une invite de commande Bash s'affiche.
+
+	2 - Placez-vous dans le répertoire de votre choix ou directement dans C:\MAMP\conf\Apache
+
+	3 - Tapez : openssl genrsa -aes128 -out server.key 2048
+
+	4 - Un mot de passe vous est demandé, vous devez rentrer au moins 4 caractères, il faudra retenir 
+	    ce mot de passe durant la manipulation mais vous n'en aurez plus besoin après. (les caractères ne s'affichent pas : c'est normal)
+
+	5 - Rentrez à nouveau le même mot de passe pour le confirmer.
+
+	6 - Tapez : openssl req -new -key server.key -out server.csr
+
+	7 - Entrez le mot de passe que vous venez de créer.
+
+	8 - On vous demande des informations pour générer le certificat :
+	    	Pour 'Country Name', tapez : FR
+	    	Pour 'State' et 'Locality Name, appuyez sur Entrée
+		Pour 'Organization Name', tapez : Cerballiance
+		Pour 'Organization Unit Name', appuyez sur Entrée
+		Pour 'Common Nam', tapez : colisage.cerba.local
+		Pour 'Email Adress', 'challenge password' et 'optionnal company name', appuyez sur Entrée
+
+	8 -  Tapez : openssl x509 -req -days 18250 -in server.csr -signkey server.key -out server.crt
+
+	9 - Entrez à nouveau le mot de passe créé précédemment
+	    Vous venez de signer le certificat pour 18250 jours soit 50 ans.
+
+	10 - Tapez : cp server.key server.tmp
+
+	11 - Tapez : openssl rsa -in server.tmp -out server.key
+
+	12 - Si vous avez effectué vos démarches ailleurs que dans le dossier C:\MAMP\conf\Apache du serveur :
+		Placez les fichiers 'server.crt' et 'server.key' dans le répertoire C:\MAMP\conf\Apache du serveur.
+
+
+B / Utiliser 'Git Bash' :
+	Si vous utilisez le programme 'Git Bash',
+	
+	1 - Ouvrez 'Git Bash'
+
+	2 - Suivez les étapes 2 à 12 de la partie A en remplaçant à chaque fois la commande "openssl" par "winpty openssl"
+
+
+C / Je n'ai ni 'WSL', ni 'Git Bash' :
+	
+	1 - Le plus simple est d'installer le logiciel 'Git' disponible à l'adresse https://git-scm.com/download/win
+	    Il faut ensuite cliquer sur 'Click here to download' dans le texte 'Click here to download the latest (x.x.x) 64-bit version of Git for Windows.'
+	
+	2 - Suivez les étapes de la partie B
+
+
+
+
+Guide rédigé par Damien Desvent le 29.06.2022 basé sur OpenSSL 1.1.10

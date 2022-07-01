@@ -26,7 +26,7 @@ class TracaList extends StatefulWidget {
 class _TracaListState extends State<TracaList>
     with AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => globals.shouldKeepAlive;
 
   final StreamController<List> _streamController = StreamController<List>();
   final _searchTextController = TextEditingController();
@@ -421,15 +421,16 @@ class _TracaListState extends State<TracaList>
                               icon: const Icon(Icons.search_off_outlined),
                               tooltip: 'Recherche simple'),
                         const Spacer(),
-                        IconButton(
-                          onPressed: () {
-                            setState(() {
-                              getTracaList();
-                            });
-                          },
-                          icon: const Icon(Icons.sync),
-                          tooltip: 'Actualiser l\'onglet',
-                        ),
+                        if (globals.shouldDisplaySyncButton)
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                getTracaList();
+                              });
+                            },
+                            icon: const Icon(Icons.sync),
+                            tooltip: 'Actualiser l\'onglet',
+                          ),
                         const Spacer(),
                         const Text('Nombre de lignes affichées : '),
                         DropdownButton(
@@ -541,18 +542,19 @@ class _TracaListState extends State<TracaList>
                                                 DataCell(SelectableText(
                                                   traca['CODE TRACABILITE'],
                                                 )),
-                                                DataCell(
-                                                    SelectableText(traca['UTILISATEUR'])),
+                                                DataCell(SelectableText(
+                                                    traca['UTILISATEUR'])),
                                                 DataCell(SelectableText(
                                                     traca['CODE TOURNEE'] ??
                                                         '')),
-                                                DataCell(
-                                                    SelectableText(traca['CODE SITE'])),
-                                                DataCell(
-                                                    SelectableText(traca['BOITE'] ?? '')),
-                                                DataCell(
-                                                    SelectableText(traca['TUBE'] ?? '')),
-                                                DataCell(SelectableText(traca['ACTION'])),
+                                                DataCell(SelectableText(
+                                                    traca['CODE SITE'])),
+                                                DataCell(SelectableText(
+                                                    traca['BOITE'] ?? '')),
+                                                DataCell(SelectableText(
+                                                    traca['TUBE'] ?? '')),
+                                                DataCell(SelectableText(
+                                                    traca['ACTION'])),
                                                 DataCell(SelectableText(
                                                     traca['CODE VOITURE'] ??
                                                         '')),

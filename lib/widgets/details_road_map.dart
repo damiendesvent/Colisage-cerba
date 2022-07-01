@@ -988,16 +988,17 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                     icon: const Icon(Icons.search_off_outlined),
                                     tooltip: 'Recherche simple'),
                               const Spacer(),
-                              IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    getDetailsRoadMapList();
-                                    getSiteList();
-                                  });
-                                },
-                                icon: const Icon(Icons.sync),
-                                tooltip: 'Actualiser l\'onglet',
-                              ),
+                              if (globals.shouldDisplaySyncButton)
+                                IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      getDetailsRoadMapList();
+                                      getSiteList();
+                                    });
+                                  },
+                                  icon: const Icon(Icons.sync),
+                                  tooltip: 'Actualiser l\'onglet',
+                                ),
                               const Spacer(),
                               const Text('Nombre de lignes affichées : '),
                               DropdownButton(

@@ -8,6 +8,8 @@ import '../models/traca.dart';
 bool isAuthentified = false;
 
 int milisecondWait = 20;
+bool shouldKeepAlive = false;
+bool shouldDisplaySyncButton = false;
 
 User user = User(
     code: '',
@@ -51,4 +53,3 @@ Traca detailedTraca = Traca(
     lettrage: 0,
     car: 0,
     comment: '');
-

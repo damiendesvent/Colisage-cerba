@@ -37,7 +37,7 @@ class UpperCaseTextFormatter extends TextInputFormatter {
 
 class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => globals.shouldKeepAlive;
 
   TextStyle textStyle = const TextStyle(fontSize: 16);
   final StreamController<List> _streamController = StreamController<List>();
@@ -947,17 +947,21 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         DataCell(SelectableText(user['NOM'])),
         DataCell(SelectableText(user['PRENOM'])),
         DataCell(SelectableText(user['FONCTION'])),
-        DataCell(
-            Center(child: SelectableText(user['EDITION SITE'] == '1' ? 'Oui' : 'Non'))),
         DataCell(Center(
             child:
-                SelectableText(user['EDITION FEUILLE DE ROUTE'] == '1' ? 'Oui' : 'Non'))),
-        DataCell(
-            Center(child: SelectableText(user['EDITION BOITE'] == '1' ? 'Oui' : 'Non'))),
+                SelectableText(user['EDITION SITE'] == '1' ? 'Oui' : 'Non'))),
         DataCell(Center(
-            child: SelectableText(user['EDITION UTILISATEUR'] == '1' ? 'Oui' : 'Non'))),
-        DataCell(
-            Center(child: SelectableText(user['EXECUTION SQL'] == '1' ? 'Oui' : 'Non'))),
+            child: SelectableText(
+                user['EDITION FEUILLE DE ROUTE'] == '1' ? 'Oui' : 'Non'))),
+        DataCell(Center(
+            child:
+                SelectableText(user['EDITION BOITE'] == '1' ? 'Oui' : 'Non'))),
+        DataCell(Center(
+            child: SelectableText(
+                user['EDITION UTILISATEUR'] == '1' ? 'Oui' : 'Non'))),
+        DataCell(Center(
+            child:
+                SelectableText(user['EXECUTION SQL'] == '1' ? 'Oui' : 'Non'))),
         DataCell(Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -1066,15 +1070,16 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                               icon: const Icon(Icons.search_off_outlined),
                               tooltip: 'Recherche simple'),
                         const Spacer(),
-                        IconButton(
-                          onPressed: () {
-                            setState(() {
-                              getUserList();
-                            });
-                          },
-                          icon: const Icon(Icons.sync),
-                          tooltip: 'Actualiser l\'onglet',
-                        ),
+                        if (globals.shouldDisplaySyncButton)
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                getUserList();
+                              });
+                            },
+                            icon: const Icon(Icons.sync),
+                            tooltip: 'Actualiser l\'onglet',
+                          ),
                         const Spacer(),
                         const Text('Nombre de lignes affichées : '),
                         DropdownButton(

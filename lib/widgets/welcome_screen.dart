@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/variables/styles.dart';
 import '../variables/globals.dart' as globals;
-import 'site_screen.dart';
-import 'user_screen.dart';
 import 'tube_screen.dart';
 import 'traca_screen.dart';
-import 'road_map_screen.dart';
-import 'boxes_print_screen.dart';
-import 'sql_screen.dart';
+import 'management_screen.dart';
 import 'dart:async';
 
 class WelcomeScreen extends StatelessWidget {
@@ -28,17 +24,13 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
   Timer? timer;
-  int minTabWidth = 1130;
+  int minTabWidth = 800;
   List<Widget> widgetTabs = [
-    if (globals.user.userEditing) const UserScreen(),
-    if (globals.user.boxEditing) const BoxesPrintScreen(),
-    const SiteScreen(),
-    const TubeScreen(),
     const TracaScreen(),
-    const RoadMapScreen(),
-    if (globals.user.sqlExecute) const SqlScreen()
+    const TubeScreen(),
+    const ManagementScreen(),
   ];
-  int _widgetIndex = 3;
+  int _widgetIndex = 1;
   late TabController _tabController;
 
   void initializeTimer() {
@@ -99,11 +91,12 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                               'assets/images/cerballiance_logo.png',
                             )),
                         backgroundColor: themeMainColor,
+                        toolbarHeight: 50,
                         flexibleSpace: FlexibleSpaceBar(
                           title: Text('Bonjour ' + globals.user.firstname),
                           centerTitle: true,
                           titlePadding: const EdgeInsets.fromLTRB(0, 0, 0,
-                              70), //choisit la position de la zone de texte
+                              60), //choisit la position de la zone de texte
                         ),
                         actions: <Widget>[
                           Padding(
@@ -131,33 +124,13 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                           unselectedLabelColor: Colors.white,
                           labelStyle: const TextStyle(fontSize: 16),
                           tabs: <Widget>[
-                            if (globals.user.userEditing)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.manage_accounts_rounded),
-                                  if (MediaQuery.of(context).size.width >
-                                      minTabWidth)
-                                    const Text(" Utilisateurs")
-                                ],
-                              ),
-                            if (globals.user.boxEditing)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.print),
-                                  if (MediaQuery.of(context).size.width >
-                                      minTabWidth)
-                                    const Text(" Etiquettes")
-                                ],
-                              ),
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.track_changes_outlined),
+                                const Icon(Icons.dock_outlined),
                                 if (MediaQuery.of(context).size.width >
                                     minTabWidth)
-                                  const Text(" Sites")
+                                  const Text(" Traçabilité")
                               ],
                             ),
                             Row(
@@ -172,39 +145,21 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.dock_outlined),
+                                const Icon(Icons.tune),
                                 if (MediaQuery.of(context).size.width >
                                     minTabWidth)
-                                  const Text(" Traçabilité")
+                                  const Text(" Gestion colisage")
                               ],
                             ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.fact_check_outlined),
-                                if (MediaQuery.of(context).size.width >
-                                    minTabWidth)
-                                  const Text(" Feuilles de route")
-                              ],
-                            ),
-                            if (globals.user.sqlExecute)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.data_usage),
-                                  if (MediaQuery.of(context).size.width >
-                                      minTabWidth)
-                                    const Text(" Interface SQL")
-                                ],
-                              ),
                           ],
                         ),
                       ),
-                      body: IndexedStack(
+                      body: /*IndexedStack(
                         index: _widgetIndex,
                         children: widgetTabs,
-                      ),
-                    )
+                      ),*/
+                          TabBarView(
+                              controller: _tabController, children: widgetTabs))
                   : Column(
                       //si la variable isAuthentified est égale à false, on affiche un message d'erreur
                       mainAxisSize: MainAxisSize.min,

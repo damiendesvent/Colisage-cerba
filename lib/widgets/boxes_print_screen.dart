@@ -44,7 +44,7 @@ class UpperCaseTextFormatter extends TextInputFormatter {
 class _BoxesPrintState extends State<BoxesPrint>
     with AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => globals.shouldKeepAlive;
 
   final _boxQuantityController = TextEditingController();
   final StreamController<List> _streamController = StreamController<List>();
