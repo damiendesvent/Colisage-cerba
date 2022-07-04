@@ -37,7 +37,6 @@ class _SiteListState extends State<SiteList>
   static const numberDisplayedList = [10, 25, 50, 100];
   int numberDisplayed = 25;
   static const searchFieldList = [
-    'Code site',
     'Correspondant',
     'Libellé site',
     'Adresse',
@@ -45,18 +44,28 @@ class _SiteListState extends State<SiteList>
     'CP',
     'Ville'
   ];
-  String searchField = searchFieldList[2];
-  String advancedSearchField = searchFieldList[6];
+  String searchField = searchFieldList[5];
+  String advancedSearchField = searchFieldList[1];
   bool isCollectionSite = false;
   bool isDepositSite = false;
-  String? maxSite;
   bool showDeleteSite = false;
   bool isAdvancedResearch = false;
   final ScrollController _scrollController = ScrollController();
   late String collectionSiteValue;
   late String depositSiteValue;
 
-  Future getSiteList() async {
+  Future<bool> isExistingSite(String libelle) async {
+    String phpUriDetailsSite =
+        Env.urlPrefix + 'Sites/details_site_w_libelle.php';
+    http.Response res = await http
+        .post(Uri.parse(phpUriDetailsSite), body: {'libelle': libelle});
+    if (res.body.isNotEmpty && res.body != 'false') {
+      return true;
+    }
+    return false;
+  }
+
+  void getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
     http.Response res = await http.post(Uri.parse(phpUriSiteList), body: {
       "limit": numberDisplayedList.last.toString(),
@@ -71,11 +80,10 @@ class _SiteListState extends State<SiteList>
   @override
   void initState() {
     getSiteList();
-    getMaxSite();
     super.initState();
   }
 
-  Future searchSite() async {
+  void searchSite() async {
     String phpUriSiteSearch = Env.urlPrefix + 'Sites/search_site.php';
     http.Response res = await http.post(Uri.parse(phpUriSiteSearch), body: {
       "field": searchField.toUpperCase(),
@@ -122,16 +130,6 @@ class _SiteListState extends State<SiteList>
       ];
     } else {
       return [const Spacer()];
-    }
-  }
-
-  void getMaxSite() async {
-    String phpUriMaxSite = Env.urlPrefix + 'Sites/max_site.php';
-    http.Response res = await http.get(Uri.parse(phpUriMaxSite));
-    if (res.body.isNotEmpty) {
-      setState(() {
-        maxSite = json.decode(res.body)[0]['MAX(`CODE SITE`)'];
-      });
     }
   }
 
@@ -200,7 +198,7 @@ class _SiteListState extends State<SiteList>
                       });
                       Future.delayed(
                           Duration(milliseconds: globals.milisecondWait),
-                          () => getSiteList());
+                          () => searchSite());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -270,23 +268,6 @@ class _SiteListState extends State<SiteList>
                             TableRow(
                               children: [
                                 const TableCell(
-                                    child: Text('Code site : ',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16))),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 55,
-                                        child: SelectableText(
-                                            site.code.toString(),
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16)))),
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
                                     child:
                                         Text('Libellé : ', style: textStyle)),
                                 TableCell(
@@ -342,7 +323,9 @@ class _SiteListState extends State<SiteList>
                                     child: SizedBox(
                                         height: 55,
                                         child: SelectableText(
-                                            site.cp.toString(),
+                                            site.cp == 0
+                                                ? ''
+                                                : site.cp.toString(),
                                             style: textStyle)))
                               ],
                             ),
@@ -455,23 +438,6 @@ class _SiteListState extends State<SiteList>
                               defaultColumnWidth:
                                   const FractionColumnWidth(0.4),
                               children: [
-                                TableRow(
-                                  children: [
-                                    const TableCell(
-                                        child: Text('Code site : ',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16))),
-                                    TableCell(
-                                        child: SizedBox(
-                                            height: 55,
-                                            child: Text(site.code.toString(),
-                                                style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold))))
-                                  ],
-                                ),
                                 TableRow(
                                   children: [
                                     const TableCell(
@@ -760,7 +726,7 @@ class _SiteListState extends State<SiteList>
       "comment": site.comment
     });
     Future.delayed(
-        Duration(milliseconds: globals.milisecondWait), () => getSiteList());
+        Duration(milliseconds: globals.milisecondWait), () => searchSite());
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
         mySnackBar(const Text('Les modifications ont été enregistrées')));
@@ -793,7 +759,7 @@ class _SiteListState extends State<SiteList>
                       });
                       Future.delayed(
                           Duration(milliseconds: globals.milisecondWait),
-                          () => getSiteList());
+                          () => searchSite());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -829,7 +795,7 @@ class _SiteListState extends State<SiteList>
                             });
                             Future.delayed(
                                 Duration(milliseconds: globals.milisecondWait),
-                                () => getSiteList());
+                                () => searchSite());
                           },
                         ),
                       );
@@ -849,7 +815,6 @@ class _SiteListState extends State<SiteList>
   void onAddSite(Site site) {
     String phpUriAddSite = Env.urlPrefix + 'Sites/add_site.php';
     http.post(Uri.parse(phpUriAddSite), body: {
-      "code": site.code.toString(),
       "libelle": site.libelle,
       "correspondant": site.correspondant,
       "adress": site.adress,
@@ -862,17 +827,14 @@ class _SiteListState extends State<SiteList>
     });
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
-      Text('Le site n° ' + site.code.toString() + ' a bien été ajouté'),
+      Text('Le site  ' + site.libelle + ' a bien été ajouté'),
     ));
-    Future.delayed(
-        Duration(milliseconds: globals.milisecondWait), () => getMaxSite());
     Future.delayed(
         Duration(milliseconds: globals.milisecondWait), () => getSiteList());
   }
 
   void showAddPageSite() {
     const TextStyle textStyle = TextStyle(fontSize: 16);
-    TextEditingController codeController = TextEditingController();
     TextEditingController libelleController = TextEditingController();
     TextEditingController correspondantController = TextEditingController();
     TextEditingController adressController = TextEditingController();
@@ -881,7 +843,7 @@ class _SiteListState extends State<SiteList>
     TextEditingController cityController = TextEditingController();
     TextEditingController commentController = TextEditingController();
     bool submited = false;
-    String codeValueCheck = 'Veuillez entrer une valeur';
+    String? errorLibelleText;
 
     showDialog(
         barrierColor: myBarrierColor,
@@ -916,44 +878,6 @@ class _SiteListState extends State<SiteList>
                                 TableRow(
                                   children: [
                                     const TableCell(
-                                        child: Text('Code site* : ',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16))),
-                                    TableCell(
-                                        child: SizedBox(
-                                            height: 55,
-                                            child: TextField(
-                                              textInputAction:
-                                                  TextInputAction.next,
-                                              controller: codeController,
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(
-                                                    4),
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly,
-                                              ],
-                                              decoration: InputDecoration(
-                                                  hintText: 'A partir de ' +
-                                                      (int.parse(maxSite!) + 1)
-                                                          .toString(),
-                                                  errorText: (codeController
-                                                                  .text
-                                                                  .isEmpty ||
-                                                              int.parse(
-                                                                      maxSite!) >=
-                                                                  int.parse(
-                                                                      codeController
-                                                                          .text)) &&
-                                                          submited
-                                                      ? codeValueCheck
-                                                      : null),
-                                            )))
-                                  ],
-                                ),
-                                TableRow(
-                                  children: [
-                                    const TableCell(
                                         child: Text('Libellé* : ',
                                             style: textStyle)),
                                     TableCell(
@@ -968,10 +892,11 @@ class _SiteListState extends State<SiteList>
                                                     35)
                                               ],
                                               decoration: InputDecoration(
-                                                  errorText: libelleController
-                                                              .text.isEmpty &&
-                                                          submited
-                                                      ? 'Veuillez entrer une valeur'
+                                                  errorText: submited
+                                                      ? libelleController
+                                                              .text.isEmpty
+                                                          ? 'Veuillez entrer une valeur'
+                                                          : errorLibelleText
                                                       : null),
                                             )))
                                   ],
@@ -1043,7 +968,7 @@ class _SiteListState extends State<SiteList>
                                 TableRow(
                                   children: [
                                     const TableCell(
-                                        child: Text('Code Postal* : ',
+                                        child: Text('Code Postal : ',
                                             style: textStyle)),
                                     TableCell(
                                         child: SizedBox(
@@ -1058,12 +983,6 @@ class _SiteListState extends State<SiteList>
                                                 FilteringTextInputFormatter
                                                     .digitsOnly
                                               ],
-                                              decoration: InputDecoration(
-                                                  errorText: cpController
-                                                              .text.isEmpty &&
-                                                          submited
-                                                      ? 'Veuillez entrer une valeur'
-                                                      : null),
                                             )))
                                   ],
                                 ),
@@ -1171,51 +1090,53 @@ class _SiteListState extends State<SiteList>
                                             setState(() {
                                               submited = true;
                                             });
-                                            if (codeController.text.isNotEmpty &&
-                                                libelleController
-                                                    .text.isNotEmpty &&
-                                                adressController
-                                                    .text.isNotEmpty &&
-                                                cityController
-                                                    .text.isNotEmpty &&
-                                                cpController.text.isNotEmpty &&
-                                                (int.parse(maxSite!) <
-                                                    int.parse(
-                                                        codeController.text))) {
-                                              onAddSite(Site(
-                                                  code: int.parse(
-                                                      codeController.text),
-                                                  libelle:
-                                                      libelleController.text,
-                                                  correspondant:
-                                                      correspondantController
+                                            isExistingSite(
+                                                    libelleController.text)
+                                                .then(((value) {
+                                              if (value) {
+                                                setState(
+                                                  () {
+                                                    errorLibelleText =
+                                                        'Site existant';
+                                                  },
+                                                );
+                                              } else {
+                                                setState(
+                                                  () {
+                                                    errorLibelleText = null;
+                                                  },
+                                                );
+                                                if (libelleController
+                                                        .text.isNotEmpty &&
+                                                    adressController
+                                                        .text.isNotEmpty &&
+                                                    cityController
+                                                        .text.isNotEmpty) {
+                                                  onAddSite(Site(
+                                                      libelle: libelleController
                                                           .text,
-                                                  adress: adressController.text,
-                                                  cpltAdress:
-                                                      cpltController.text,
-                                                  cp: int.parse(
-                                                      cpController.text),
-                                                  city: cityController.text,
-                                                  collectionSite:
-                                                      isCollectionSite,
-                                                  depositSite: isDepositSite,
-                                                  comment:
-                                                      commentController.text));
-                                            } else {
-                                              int code =
-                                                  codeController.text == ''
-                                                      ? 0
-                                                      : int.parse(
-                                                          codeController.text);
-                                              setState(() {
-                                                codeValueCheck = int.parse(
-                                                                maxSite!) <
-                                                            code ||
-                                                        code == 0
-                                                    ? 'Veuillez entrer une valeur'
-                                                    : 'Code site existant';
-                                              });
-                                            }
+                                                      correspondant:
+                                                          correspondantController
+                                                              .text,
+                                                      adress:
+                                                          adressController.text,
+                                                      cpltAdress:
+                                                          cpltController.text,
+                                                      cp: cpController
+                                                              .text.isNotEmpty
+                                                          ? int.parse(
+                                                              cpController.text)
+                                                          : null,
+                                                      city: cityController.text,
+                                                      collectionSite:
+                                                          isCollectionSite,
+                                                      depositSite:
+                                                          isDepositSite,
+                                                      comment: commentController
+                                                          .text));
+                                                }
+                                              }
+                                            }));
                                           },
                                           child: Row(children: const [
                                             Icon(Icons.check),
@@ -1259,21 +1180,23 @@ class _SiteListState extends State<SiteList>
                   flexibleSpace: FlexibleSpaceBar(
                       background: Column(children: [
                     Row(mainAxisSize: MainAxisSize.min, children: [
-                      DropdownButtonHideUnderline(
-                          child: DropdownButton(
-                              value: searchField,
-                              style: const TextStyle(fontSize: 14),
-                              items: searchFieldList.map((searchFieldList) {
-                                return DropdownMenuItem(
-                                    value: searchFieldList,
-                                    child: Text(searchFieldList));
-                              }).toList(),
-                              onChanged: (String? newsearchField) {
-                                setState(() {
-                                  searchField = newsearchField!;
-                                });
-                                searchSite();
-                              })),
+                      Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: DropdownButtonHideUnderline(
+                              child: DropdownButton(
+                                  value: searchField,
+                                  style: const TextStyle(fontSize: 14),
+                                  items: searchFieldList.map((searchFieldList) {
+                                    return DropdownMenuItem(
+                                        value: searchFieldList,
+                                        child: Text(searchFieldList));
+                                  }).toList(),
+                                  onChanged: (String? newsearchField) {
+                                    setState(() {
+                                      searchField = newsearchField!;
+                                    });
+                                    searchSite();
+                                  }))),
                       Expanded(
                           child: TextFormField(
                         controller: _searchTextController,
@@ -1334,7 +1257,6 @@ class _SiteListState extends State<SiteList>
                           onPressed: () {
                             setState(() {
                               getSiteList();
-                              getMaxSite();
                             });
                           },
                           icon: const Icon(Icons.sync),
@@ -1377,8 +1299,7 @@ class _SiteListState extends State<SiteList>
                           trailing:
                               globals.user.siteEditing ? popupMenu(site) : null,
                           isThreeLine: true,
-                          title:
-                              Text(site[searchFieldList.first.toUpperCase()]),
+                          title: Text(site['LIBELLE SITE']),
                           subtitle: Text(searchField +
                               ' : ' +
                               site[searchField

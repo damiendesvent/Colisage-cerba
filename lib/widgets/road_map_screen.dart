@@ -191,7 +191,7 @@ class _RoadMapListState extends State<RoadMapList>
                       });
                       Future.delayed(
                           Duration(milliseconds: globals.milisecondWait),
-                          () => getRoadMapList());
+                          () => searchRoadMap());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -231,6 +231,38 @@ class _RoadMapListState extends State<RoadMapList>
             ));
   }
 
+  void onGeneratePDAUpdate() {
+    String phpUriCreatePdaFile = Env.urlPrefix + 'Scripts/create_pda_files.php';
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: const Text('Confirmation', textAlign: TextAlign.center),
+              content: const Text(
+                  'Êtes-vous sûr de vouloir générer\nune mise à jour qui sera accessible\npour tous les PDA ?',
+                  textAlign: TextAlign.center),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      http.post(Uri.parse(phpUriCreatePdaFile), body: {
+                        'directory_path': globals.pdaTrackInDirectory
+                      });
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(mySnackBar(const Text(
+                        'La mise à jour a bien été envoyée au serveur PDA.',
+                        textAlign: TextAlign.center,
+                      )));
+                    },
+                    child: const Text('Oui')),
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Non'))
+              ],
+            ));
+  }
+
   void onDelete(RoadMap roadMap) {
     String phpUriRoadMapDelete =
         Env.urlPrefix + 'Road_maps/delete_road_map.php';
@@ -259,7 +291,7 @@ class _RoadMapListState extends State<RoadMapList>
                       });
                       Future.delayed(
                           Duration(milliseconds: globals.milisecondWait),
-                          () => getRoadMapList());
+                          () => searchRoadMap());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -295,7 +327,7 @@ class _RoadMapListState extends State<RoadMapList>
                             });
                             Future.delayed(
                                 Duration(milliseconds: globals.milisecondWait),
-                                () => getRoadMapList());
+                                () => searchRoadMap());
                           },
                         ),
                       );
@@ -652,6 +684,15 @@ class _RoadMapListState extends State<RoadMapList>
                               },
                               child:
                                   const Text('Ajouter une feuille de route')),
+                        const Spacer(),
+                        if (globals.user.roadMapEditing)
+                          ElevatedButton(
+                              style: myButtonStyle,
+                              onPressed: () {
+                                onGeneratePDAUpdate();
+                              },
+                              child: const Text('Générer une mise à jour PDA')),
+                        const Spacer(),
                         if (globals.user.roadMapEditing)
                           const Text('  Feuilles de route supprimées :'),
                         if (globals.user.roadMapEditing)

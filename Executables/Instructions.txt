@@ -1,23 +1,37 @@
----Instructions pour le programme Serveur Colisage des prélèvements---
+---Instructions pour le programme Serveur Colisage---
 
 Pour installer le serveur sur l'ordinateur actuel :
 	1) Extraire l'archive dans le dossier de votre choix
-	2) Lancer le raccourci "Serveur Colisage des prélèvements"
+	2) Lancer le raccourci "Serveur Colisage"
 	3) Cliquer sur le boutton "Installer le serveur"
 	4) Patientez, une autorisation du pare-feu peut parfois être demandée
 	5) Lorsque l'installation est achevé, un message de confirmation s'affiche
 
-Vous pouvez maintenant démarrer ou arrêter le serveur via les boutons présents sur le logiciel "Serveur Colisage des prélèvements".
+Vous pouvez maintenant démarrer ou arrêter le serveur via les boutons présents sur le logiciel "Serveur Colisage".
+
+
+Modifications des variables : 
+	Si vous avez besoin de modifier des variables comme les chemins d'accès par exemple. Editer le fichier 'variables.txt'
+	qui se trouve dans Package/dist/setup/bin/
 
 
 
----Informations sur le programme Serveur Colisage des prélèvements---
 
-Le programme "Serveur Colisage des prélèvements" a été créé en Python avec la libraire Tkinter et a été compilé par la librairie PyInstaller.
+---Informations sur le programme Serveur Colisage---
+
+Le programme "Serveur Colisage" a été créé en Python avec la libraire Tkinter et a été compilé par la librairie PyInstaller.
+Pour générer un éxecutable à partir du fichier setup.py, il faut avoir Ptyhon ajouté au Path de l'ordinateur et la librairie Tkinter
+d'installée (on peut l'installer via la commande "pip install pyinstaller"). Ouvrez une invite de commande à l'endroit où se trouve le fichier setup.py
+et tapez 'pyinstaller setup.exe --noconsole --add-binary "bin/;bin/"' (il est nécessaire que vous ayez sur votre ordinateur l'ensemble des libraires importées dans
+le programme, si ce n'est pas le cas : vous pouvez les installer via pip ex: pip install tkinter).
+
+Le fichier exe à cliquer est Package/dist/setup/setup.exe
+
 
 Le site web a été créé avec le framework Flutter version 3.0.
 
-L'appel du site à la base de données se fait via des fichiers PHP.
+
+L'appel du site à la base de données se fait via PHP.
 
 
 Chemins de différents éléments :
@@ -25,7 +39,7 @@ Chemins de différents éléments :
 	- Site web --> Package/dist/setup/MAMP/htdocs/ (code généré par build du projet flutter)
 	- Projet flutter du site web --> Package/dev/Site web
 	- Fichiers PHP de requêtes à la base de données --> Package/dist/setup/MAMP/htdocs/flutter_api/
-	- Fichier Python qui a créé le programme "Serveur Colisage des prélèvements" --> Package/dev/Serveur Colisage des prélèvements
+	- Fichier Python qui a créé le programme "Serveur Colisage" --> Package/dev/Serveur Colisage
 
  
 

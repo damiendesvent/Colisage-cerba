@@ -43,7 +43,7 @@ class Traca {
         correspondant: traca['CORRESPONDANT'] ?? '',
         registeringTime: traca['DATE HEURE ENREGISTREMENT'],
         synchronizingTime: traca['DATE HEURE SYNCHRONISATION'],
-        pgm: traca['ORIGINE PGM'],
+        pgm: traca['CODE ORIGINE'],
         lettrage: int.parse(traca['NUMERO LETTRAGE'] ?? '0'),
         car: int.parse(traca['CODE VOITURE'] ?? '0'),
         comment: traca['COMMENTAIRE'] ?? '');

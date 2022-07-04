@@ -287,7 +287,7 @@ class _TracaListState extends State<TracaList>
                             TableRow(
                               children: [
                                 const TableCell(
-                                    child: Text('Origine PGM : ',
+                                    child: Text('Origine : ',
                                         style: textStyle)),
                                 TableCell(
                                     child: SizedBox(

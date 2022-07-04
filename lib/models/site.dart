@@ -1,22 +1,22 @@
 class Site {
-  late final int code;
+  final int code;
   final String correspondant;
   final String libelle;
   final String adress;
   final String cpltAdress;
-  final int cp;
+  final int? cp;
   final String city;
   final bool collectionSite;
   final bool depositSite;
   final String comment;
 
   Site({
-    required this.code,
+    this.code = 0,
     required this.correspondant,
     required this.libelle,
     required this.adress,
     required this.cpltAdress,
-    required this.cp,
+    this.cp,
     required this.city,
     required this.collectionSite,
     required this.depositSite,

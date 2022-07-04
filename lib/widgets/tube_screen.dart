@@ -60,6 +60,7 @@ class _TubeListState extends State<TubeList> {
   final ScrollController _mainScrollController = ScrollController();
   final ScrollController _secondScrollController = ScrollController();
   String? boxErrorText;
+  var ip = '';
 
   void getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
@@ -129,7 +130,7 @@ class _TubeListState extends State<TubeList> {
       'registering': DateTime.now()
           .toString()
           .substring(0, DateTime.now().toString().length - 4),
-      'pgm': 'A',
+      'pgm': globals.ip.length > 15 ? globals.ip.substring(0, 15) : globals.ip,
     });
   }
 
@@ -714,6 +715,7 @@ class _TubeListState extends State<TubeList> {
                   onPressed: showBoxDialog
                       ? null
                       : () {
+                          print(ip);
                           setState(() {
                             submited = true;
                           });

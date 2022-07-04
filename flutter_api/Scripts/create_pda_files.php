@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 include "../db_cerba.php";
 
-$directory_path = 'C:/PDA_tracks/out'; //$_POST['directory_path'];
+$directory_path = $_POST['directory_path'];
 
 $accents_search     = array('á','à','â','ã','ª','ä','å','Á','À','Â','Ã','Ä','é','è',
 'ê','ë','É','È','Ê','Ë','í','ì','î','ï','Í','Ì','Î','Ï','œ','ò','ó','ô','õ','º','ø',

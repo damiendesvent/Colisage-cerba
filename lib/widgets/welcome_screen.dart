@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/variables/env.sample.dart';
 import 'package:flutter_application_1/variables/styles.dart';
 import '../variables/globals.dart' as globals;
 import 'tube_screen.dart';
 import 'traca_screen.dart';
 import 'management_screen.dart';
 import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
@@ -35,7 +38,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
 
   void initializeTimer() {
     timer?.cancel();
-    timer = Timer(const Duration(minutes: 15), handleTimeout);
+    timer = Timer(Duration(minutes: globals.inactivityTimeOut), handleTimeout);
   }
 
   void handleTimeout() {
@@ -53,6 +56,31 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
         .pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
   }
 
+  void getConstants() async {
+    String phpUriListConstants = Env.urlPrefix + 'Constants/list_constants.php';
+    http.Response res = await http.get(Uri.parse(phpUriListConstants));
+    if (res.body.isNotEmpty) {
+      List items = json.decode(res.body);
+      setState(() {
+        globals.shouldDisplaySyncButton = items[0]['Valeur'] == 'Oui';
+        globals.pdaTrackInDirectory = items[1]['Valeur'];
+        globals.milisecondWait = int.parse(items[2]['Valeur']);
+        globals.shouldKeepAlive = items[3]['Valeur'] == 'Oui';
+        globals.inactivityTimeOut = int.parse(items[4]['Valeur']);
+      });
+    }
+  }
+
+  void getIP() async {
+    String phpUriGetIP = Env.urlPrefix + 'Scripts/get_ip.php';
+    http.Response res = await http.get(Uri.parse(phpUriGetIP));
+    if (res.body.isNotEmpty) {
+      setState(() {
+        globals.ip = json.decode(res.body);
+      });
+    }
+  }
+
   @override
   void initState() {
     _tabController = TabController(
@@ -62,6 +90,8 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
         _widgetIndex = _tabController.index;
       });
     });
+    getConstants();
+    getIP();
     super.initState();
     initializeTimer();
   }

@@ -176,7 +176,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
       editingUser = null;
     });
     Future.delayed(
-        Duration(milliseconds: globals.milisecondWait), () => getUserList());
+        Duration(milliseconds: globals.milisecondWait), () => searchUser());
     ScaffoldMessenger.of(context).showSnackBar(
         mySnackBar(const Text('Les modifications ont été enregistrées')));
   }
@@ -210,7 +210,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                       });
                       Future.delayed(
                           Duration(milliseconds: globals.milisecondWait),
-                          () => getUserList());
+                          () => searchUser());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -248,7 +248,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                             });
                             Future.delayed(
                                 Duration(milliseconds: globals.milisecondWait),
-                                () => getUserList());
+                                () => searchUser());
                           },
                         ),
                       );
@@ -294,7 +294,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                       });
                       Future.delayed(
                           Duration(milliseconds: globals.milisecondWait),
-                          () => getUserList());
+                          () => searchUser());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),

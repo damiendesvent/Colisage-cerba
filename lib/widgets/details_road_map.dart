@@ -126,7 +126,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
       onCallStatus = null;
     });
     Future.delayed(Duration(milliseconds: globals.milisecondWait),
-        () => getDetailsRoadMapList());
+        () => searchDetailRoadMap());
     ScaffoldMessenger.of(context).showSnackBar(
         mySnackBar(const Text('Les modifications ont été enregistrées')));
   }
@@ -160,7 +160,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                       });
                       Future.delayed(
                           Duration(milliseconds: globals.milisecondWait),
-                          () => getDetailsRoadMapList());
+                          () => searchDetailRoadMap());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -198,7 +198,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                 });
                             Future.delayed(
                                 Duration(milliseconds: globals.milisecondWait),
-                                () => getDetailsRoadMapList());
+                                () => searchDetailRoadMap());
                           },
                         ),
                       );
@@ -244,7 +244,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                       });
                       Future.delayed(
                           Duration(milliseconds: globals.milisecondWait),
-                          () => getDetailsRoadMapList());
+                          () => searchDetailRoadMap());
                       final snackBar = SnackBar(
                         backgroundColor: Colors.green[800],
                         duration: const Duration(seconds: 10),
@@ -781,7 +781,8 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
       List<String> onCallList = ['Oui', 'Non'];
       TextEditingController timeController =
           TextEditingController(text: roadMapDetail['HEURE ARRIVEE']);
-      TextEditingController libelleController = TextEditingController();
+      TextEditingController libelleController =
+          TextEditingController(text: roadMapDetail['LIBELLE SITE']);
       TextEditingController commentController =
           TextEditingController(text: roadMapDetail['COMMENTAIRE']);
       return [
@@ -799,8 +800,6 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                 ),
               )
               .toList(),
-          initialValue:
-              SearchFieldListItem<Site>(roadMapDetail['LIBELLE SITE']),
         )),
         DataCell(TextField(controller: timeController)),
         DataCell(TextField(controller: commentController)),
