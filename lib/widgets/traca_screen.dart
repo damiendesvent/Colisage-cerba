@@ -31,6 +31,7 @@ class _TracaListState extends State<TracaList>
   final StreamController<List> _streamController = StreamController<List>();
   final _searchTextController = TextEditingController();
   final _advancedSearchTextController = TextEditingController();
+  final _secondAdvancedSearchTextController = TextEditingController();
   String phpUriTracaList = Env.urlPrefix + 'Tracas/list_traca.php';
   String phpUriTracaSearch = Env.urlPrefix + 'Tracas/search_traca.php';
   static const numberDisplayedList = [10, 25, 50, 100];
@@ -49,10 +50,11 @@ class _TracaListState extends State<TracaList>
   ];
   String searchField = searchFieldList.first;
   String advancedSearchField = searchFieldList[1];
+  String secondAdvancedSearchField = searchFieldList[2];
   bool _isAscending = false;
   int _currentSortColumn = 0;
   int i = 0;
-  bool isAdvancedResearch = false;
+  int isAdvancedResearch = 0;
 
   Future getTracaList() async {
     http.Response res = await http.post(Uri.parse(phpUriTracaList), body: {
@@ -77,9 +79,13 @@ class _TracaListState extends State<TracaList>
     http.Response res = await http.post(Uri.parse(phpUriTracaSearch), body: {
       "field": searchField.toUpperCase(),
       "advancedField": advancedSearchField.toUpperCase(),
+      "secondAdvancedField": secondAdvancedSearchField.toUpperCase(),
       "searchText": _searchTextController.text,
       "advancedSearchText":
-          isAdvancedResearch ? _advancedSearchTextController.text : '',
+          isAdvancedResearch > 0 ? _advancedSearchTextController.text : '',
+      "secondAdvancedSearchText": isAdvancedResearch > 1
+          ? _secondAdvancedSearchTextController.text
+          : '',
       "limit": numberDisplayedList.last.toString(),
       "order": searchFieldList[_currentSortColumn].toUpperCase(),
       "isAscending": _isAscending.toString(),
@@ -101,36 +107,118 @@ class _TracaListState extends State<TracaList>
   }
 
   advancedResearch() {
-    if (isAdvancedResearch) {
-      return [
-        DropdownButtonHideUnderline(
-            child: DropdownButton(
-                value: advancedSearchField,
-                style: const TextStyle(fontSize: 14),
-                items: searchFieldList.map((searchFieldList) {
-                  return DropdownMenuItem(
-                      value: searchFieldList,
-                      child: Text(searchFieldList.toString()));
-                }).toList(),
-                onChanged: (String? newAdvancedSearchField) {
-                  setState(() {
-                    advancedSearchField = newAdvancedSearchField!;
-                  });
-                  searchTraca();
-                })),
-        Expanded(
-            child: TextFormField(
-          controller: _advancedSearchTextController,
-          decoration:
-              const InputDecoration(hintText: 'Deuxième champ de recherche'),
-          onFieldSubmitted: (e) {
-            searchTraca();
-          },
-        )),
-        const Spacer(),
-      ];
-    } else {
-      return [const Spacer()];
+    switch (isAdvancedResearch) {
+      case 1:
+        return [
+          Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: DropdownButtonHideUnderline(
+                  child: DropdownButton(
+                      value: advancedSearchField,
+                      style: const TextStyle(fontSize: 14),
+                      items: searchFieldList.map((searchFieldList) {
+                        return DropdownMenuItem(
+                            value: searchFieldList,
+                            child: Text(searchFieldList.toString()));
+                      }).toList(),
+                      onChanged: (String? newAdvancedSearchField) {
+                        setState(() {
+                          advancedSearchField = newAdvancedSearchField!;
+                        });
+                        searchTraca();
+                      }))),
+          Expanded(
+              child: TextFormField(
+            controller: _advancedSearchTextController,
+            decoration:
+                const InputDecoration(hintText: 'Deuxième champ de recherche'),
+            onFieldSubmitted: (e) {
+              searchTraca();
+            },
+          )),
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  isAdvancedResearch = 2;
+                });
+              },
+              icon: const Icon(Icons.manage_search_outlined),
+              tooltip: 'Troisième champ de recherche'),
+          const Spacer(),
+        ];
+      case 2:
+        return [
+          Column(children: [
+            Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: DropdownButtonHideUnderline(
+                    child: DropdownButton(
+                        value: advancedSearchField,
+                        style: const TextStyle(fontSize: 14),
+                        items: searchFieldList.map((searchFieldList) {
+                          return DropdownMenuItem(
+                              value: searchFieldList,
+                              child: Text(searchFieldList.toString()));
+                        }).toList(),
+                        onChanged: (String? newAdvancedSearchField) {
+                          setState(() {
+                            advancedSearchField = newAdvancedSearchField!;
+                          });
+                          searchTraca();
+                        }))),
+            Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: DropdownButtonHideUnderline(
+                    child: DropdownButton(
+                        value: secondAdvancedSearchField,
+                        style: const TextStyle(fontSize: 14),
+                        items: searchFieldList.map((searchFieldList) {
+                          return DropdownMenuItem(
+                              value: searchFieldList,
+                              child: Text(searchFieldList.toString()));
+                        }).toList(),
+                        onChanged: (String? newAdvancedSearchField) {
+                          setState(() {
+                            secondAdvancedSearchField = newAdvancedSearchField!;
+                          });
+                          searchTraca();
+                        })))
+          ]),
+          Expanded(
+              child: Column(children: [
+            TextFormField(
+              controller: _advancedSearchTextController,
+              decoration: const InputDecoration(
+                  hintText: 'Deuxième champ de recherche'),
+              onFieldSubmitted: (e) {
+                searchTraca();
+              },
+            ),
+            TextFormField(
+              controller: _secondAdvancedSearchTextController,
+              decoration: const InputDecoration(
+                  hintText: 'Troisième champ de recherche'),
+              onFieldSubmitted: (e) {
+                searchTraca();
+              },
+            )
+          ])),
+          Padding(
+              padding: const EdgeInsets.only(top: 40),
+              child: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isAdvancedResearch = 1;
+                      _advancedSearchTextController.text = '';
+                    });
+                    searchTraca();
+                  },
+                  icon: const Icon(Icons.search_off_outlined),
+                  tooltip: 'Supprimer champ de recherche')),
+          const Spacer(),
+        ];
+      case 0:
+        return [const Spacer()];
     }
   }
 
@@ -287,8 +375,8 @@ class _TracaListState extends State<TracaList>
                             TableRow(
                               children: [
                                 const TableCell(
-                                    child: Text('Origine : ',
-                                        style: textStyle)),
+                                    child:
+                                        Text('Origine : ', style: textStyle)),
                                 TableCell(
                                     child: SizedBox(
                                         height: 40,
@@ -366,25 +454,29 @@ class _TracaListState extends State<TracaList>
             return Scaffold(
                 appBar: AppBar(
                     elevation: 8,
-                    toolbarHeight: isAdvancedResearch ? 100 : 55,
+                    toolbarHeight: 55.0 + 50 * isAdvancedResearch,
                     backgroundColor: Colors.grey[300],
                     flexibleSpace: FlexibleSpaceBar(
                         background: Column(children: [
                       Row(mainAxisSize: MainAxisSize.min, children: [
-                        DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                                value: searchField,
-                                style: const TextStyle(fontSize: 14),
-                                items: searchFieldList.map((searchFieldList) {
-                                  return DropdownMenuItem(
-                                      value: searchFieldList,
-                                      child: Text(searchFieldList.toString()));
-                                }).toList(),
-                                onChanged: (String? newsearchField) {
-                                  setState(() {
-                                    searchField = newsearchField!;
-                                  });
-                                })),
+                        Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: DropdownButtonHideUnderline(
+                                child: DropdownButton(
+                                    value: searchField,
+                                    style: const TextStyle(fontSize: 14),
+                                    items:
+                                        searchFieldList.map((searchFieldList) {
+                                      return DropdownMenuItem(
+                                          value: searchFieldList,
+                                          child:
+                                              Text(searchFieldList.toString()));
+                                    }).toList(),
+                                    onChanged: (String? newsearchField) {
+                                      setState(() {
+                                        searchField = newsearchField!;
+                                      });
+                                    }))),
                         Expanded(
                             child: TextFormField(
                           controller: _searchTextController,
@@ -400,21 +492,22 @@ class _TracaListState extends State<TracaList>
                             },
                             icon: const Icon(Icons.search_outlined),
                             tooltip: 'Rechercher'),
-                        if (!isAdvancedResearch)
+                        if (isAdvancedResearch == 0)
                           IconButton(
                               onPressed: () {
                                 setState(() {
-                                  isAdvancedResearch = true;
+                                  isAdvancedResearch = 1;
                                 });
                               },
                               icon: const Icon(Icons.manage_search_outlined),
                               tooltip: 'Recherche avancée'),
-                        if (isAdvancedResearch)
+                        if (isAdvancedResearch > 0)
                           IconButton(
                               onPressed: () {
                                 setState(() {
-                                  isAdvancedResearch = false;
+                                  isAdvancedResearch = 0;
                                   _advancedSearchTextController.text = '';
+                                  _secondAdvancedSearchTextController.text = '';
                                 });
                                 searchTraca();
                               },

@@ -92,7 +92,9 @@ class _RoadMapListState extends State<RoadMapList>
   advancedResearch() {
     if (isAdvancedResearch) {
       return [
-        DropdownButtonHideUnderline(
+        Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: DropdownButtonHideUnderline(
             child: DropdownButton(
                 value: advancedSearchField,
                 style: const TextStyle(fontSize: 14),
@@ -105,7 +107,7 @@ class _RoadMapListState extends State<RoadMapList>
                   setState(() {
                     advancedSearchField = newAdvancedSearchField!;
                   });
-                })),
+                }))),
         Expanded(
             child: TextFormField(
           controller: _advancedSearchTextController,
@@ -625,7 +627,9 @@ class _RoadMapListState extends State<RoadMapList>
                     flexibleSpace: FlexibleSpaceBar(
                         background: Column(children: [
                       Row(mainAxisSize: MainAxisSize.min, children: [
-                        DropdownButtonHideUnderline(
+                        Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: DropdownButtonHideUnderline(
                             child: DropdownButton(
                                 value: searchField,
                                 style: const TextStyle(fontSize: 14),
@@ -639,7 +643,7 @@ class _RoadMapListState extends State<RoadMapList>
                                     searchField = newsearchField!;
                                   });
                                   searchRoadMap();
-                                })),
+                                }))),
                         Expanded(
                             child: TextFormField(
                           controller: _searchTextController,
@@ -676,7 +680,7 @@ class _RoadMapListState extends State<RoadMapList>
                               icon: const Icon(Icons.search_off_outlined),
                               tooltip: 'Recherche simple'),
                         const Spacer(),
-                        if (globals.user.roadMapEditing)
+                        if (globals.user.roadMapRights > 1)
                           ElevatedButton(
                               style: myButtonStyle,
                               onPressed: () {
@@ -685,7 +689,7 @@ class _RoadMapListState extends State<RoadMapList>
                               child:
                                   const Text('Ajouter une feuille de route')),
                         const Spacer(),
-                        if (globals.user.roadMapEditing)
+                        if (globals.user.roadMapRights > 1)
                           ElevatedButton(
                               style: myButtonStyle,
                               onPressed: () {
@@ -693,9 +697,9 @@ class _RoadMapListState extends State<RoadMapList>
                               },
                               child: const Text('Générer une mise à jour PDA')),
                         const Spacer(),
-                        if (globals.user.roadMapEditing)
+                        if (globals.user.roadMapRights > 1)
                           const Text('  Feuilles de route supprimées :'),
-                        if (globals.user.roadMapEditing)
+                        if (globals.user.roadMapRights > 1)
                           Switch(
                               value: showDeleteRoadMap,
                               onChanged: (newValue) {
@@ -750,7 +754,7 @@ class _RoadMapListState extends State<RoadMapList>
                         Card(
                           child: ListTile(
                             leading: const Icon(Icons.map_outlined),
-                            trailing: globals.user.roadMapEditing
+                            trailing: globals.user.roadMapRights > 1
                                 ? popupMenu(roadMap)
                                 : null,
                             isThreeLine: true,

@@ -4,8 +4,10 @@ include "../db_cerba.php";
 
 $field = '`'.$_POST['field'].'`';
 $advancedField = '`'.$_POST['advancedField'].'`';
+$secondAdvancedField = '`'.$_POST['secondAdvancedField'].'`';
 $searchText = $_POST['searchText'];
 $advancedSearchText = $_POST['advancedSearchText'];
+$secondAdvancedSearchText = $_POST['secondAdvancedSearchText'];
 $numberLimit = $_POST['limit'];
 $order = $_POST['order'];
 $isAscending = $_POST['isAscending'] == 'true' ? 'ASC' : 'DESC';
@@ -15,9 +17,13 @@ $replace = array('A', 'A', 'A', 'A', 'A', 'A', 'C', 'E', 'E', 'E', 'E', 'I', 'I'
 
 $field = str_replace($search,$replace,$field);
 $advancedField = str_replace($search,$replace,$advancedField);
+$secondAdvancedField = str_replace($search, $replace, $secondAdvancedField);
 $order = str_replace($search,$replace,$order);
 
-$sqlQuery = 'SELECT * FROM tracabilite WHERE '.$field.' LIKE "%'.$searchText.'%" AND '.$advancedField.' LIKE "%'.$advancedSearchText.'%" ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
+$advancedSearch = strlen($advancedSearchText) > 0 ? ' AND '.$advancedField.' LIKE "%'.$advancedSearchText.'%"' : '';
+$secondAdvancedSearch = strlen($secondAdvancedSearchText) > 0 ? ' AND '.$secondAdvancedField.' LIKE "%'.$secondAdvancedSearchText.'%"' : '';
+
+$sqlQuery = 'SELECT * FROM tracabilite WHERE '.$field.' LIKE "%'.$searchText.'%"'.$advancedSearch.$secondAdvancedSearch.' ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
 

@@ -708,20 +708,22 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
   advancedResearch() {
     if (isAdvancedResearch) {
       return [
-        DropdownButtonHideUnderline(
-            child: DropdownButton(
-                value: advancedSearchField,
-                style: const TextStyle(fontSize: 14),
-                items: searchFieldList.map((searchFieldList) {
-                  return DropdownMenuItem(
-                      value: searchFieldList,
-                      child: Text(searchFieldList.toString()));
-                }).toList(),
-                onChanged: (String? newAdvancedSearchField) {
-                  setState(() {
-                    advancedSearchField = newAdvancedSearchField!;
-                  });
-                })),
+        Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                    value: advancedSearchField,
+                    style: const TextStyle(fontSize: 14),
+                    items: searchFieldList.map((searchFieldList) {
+                      return DropdownMenuItem(
+                          value: searchFieldList,
+                          child: Text(searchFieldList.toString()));
+                    }).toList(),
+                    onChanged: (String? newAdvancedSearchField) {
+                      setState(() {
+                        advancedSearchField = newAdvancedSearchField!;
+                      });
+                    }))),
         Expanded(
             child: TextFormField(
           controller: _advancedSearchTextController,
@@ -859,7 +861,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
         DataCell(SelectableText(roadMapDetail['COMMENTAIRE'])),
         DataCell(SelectableText(
             roadMapDetail['PASSAGE SUR APPEL'] == '1' ? 'Oui' : 'Non')),
-        if (globals.user.roadMapEditing)
+        if (globals.user.roadMapRights > 1)
           DataCell(Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -936,22 +938,24 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                           backgroundColor: Colors.grey[300],
                           flexibleSpace: Column(children: [
                             Row(mainAxisSize: MainAxisSize.min, children: [
-                              DropdownButtonHideUnderline(
-                                  child: DropdownButton(
-                                      value: searchField,
-                                      style: const TextStyle(fontSize: 14),
-                                      items: searchFieldList
-                                          .map((searchFieldList) {
-                                        return DropdownMenuItem(
-                                            value: searchFieldList,
-                                            child: Text(
-                                                searchFieldList.toString()));
-                                      }).toList(),
-                                      onChanged: (String? newsearchField) {
-                                        setState(() {
-                                          searchField = newsearchField!;
-                                        });
-                                      })),
+                              Padding(
+                                  padding: const EdgeInsets.only(left: 10),
+                                  child: DropdownButtonHideUnderline(
+                                      child: DropdownButton(
+                                          value: searchField,
+                                          style: const TextStyle(fontSize: 14),
+                                          items: searchFieldList
+                                              .map((searchFieldList) {
+                                            return DropdownMenuItem(
+                                                value: searchFieldList,
+                                                child: Text(searchFieldList
+                                                    .toString()));
+                                          }).toList(),
+                                          onChanged: (String? newsearchField) {
+                                            setState(() {
+                                              searchField = newsearchField!;
+                                            });
+                                          }))),
                               Expanded(
                                   child: TextFormField(
                                 controller: _searchTextController,
@@ -1069,7 +1073,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                                 textAlign: TextAlign.center),
                                             onSort:
                                                 sorting('PASSAGE SUR APPEL')),
-                                        if (globals.user.roadMapEditing)
+                                        if (globals.user.roadMapRights > 1)
                                           DataColumn(
                                               label: Column(children: [
                                             Padding(

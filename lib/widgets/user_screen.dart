@@ -46,28 +46,25 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   int _currentSortColumn = 0;
   late List users;
   String? editingUser;
-  String? editingSiteStatus;
-  String? editingRoadMapStatus;
-  String? editingBoxStatus;
-  String? editingUserStatus;
+  String? siteRights;
+  String? roadMapRights;
+  String? boxRights;
+  String? userRights;
   String? executeSqlStatus;
-
-  bool editingSiteValue = false;
-  bool editingRoadMapValue = false;
-  bool editingBoxValue = false;
-  bool editingUserValue = false;
-  bool executeSqlValue = false;
-
+  String? settingsAccessStatus;
+  final List<String> yesNoList = ['Oui', 'Non'];
+  final List<String> accessRightsList = ['Acun', 'Affichage', 'Gestion'];
   bool isAdvancedResearch = false;
   static const searchFieldList = [
     'Code utilisateur',
     'Nom',
     'Prénom',
     'Fonction',
-    'Edition site',
-    'Edition feuille de route',
-    'Edition boîte',
-    'Edition utilisateur',
+    'Droits site',
+    'Droits feuille de route',
+    'Droits boîte',
+    'Droits utilisateur',
+    'Accès paramètres',
     'Exécution SQL'
   ];
   String searchField = searchFieldList.first;
@@ -118,20 +115,22 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   advancedResearch() {
     if (isAdvancedResearch) {
       return [
-        DropdownButtonHideUnderline(
-            child: DropdownButton(
-                value: advancedSearchField,
-                style: const TextStyle(fontSize: 14),
-                items: searchFieldList.map((searchFieldList) {
-                  return DropdownMenuItem(
-                      value: searchFieldList,
-                      child: Text(searchFieldList.toString()));
-                }).toList(),
-                onChanged: (String? newAdvancedSearchField) {
-                  setState(() {
-                    advancedSearchField = newAdvancedSearchField!;
-                  });
-                })),
+        Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                    value: advancedSearchField,
+                    style: const TextStyle(fontSize: 14),
+                    items: searchFieldList.map((searchFieldList) {
+                      return DropdownMenuItem(
+                          value: searchFieldList,
+                          child: Text(searchFieldList.toString()));
+                    }).toList(),
+                    onChanged: (String? newAdvancedSearchField) {
+                      setState(() {
+                        advancedSearchField = newAdvancedSearchField!;
+                      });
+                    }))),
         Expanded(
             child: TextFormField(
           controller: _advancedSearchTextController,
@@ -165,15 +164,20 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
       "firstname": myUser.firstname,
       "lastname": myUser.lastname,
       "function": myUser.function,
-      "siteEditing": myUser.siteEditing ? 'true' : 'false',
-      "roadMapEditing": myUser.roadMapEditing ? 'true' : 'false',
-      "boxEditing": myUser.boxEditing ? 'true' : 'false',
-      "userEditing": myUser.userEditing ? 'true' : 'false',
+      "siteRights": myUser.siteRights.toString(),
+      "roadMapRights": myUser.roadMapRights.toString(),
+      "boxRights": myUser.boxRights.toString(),
+      "userRights": myUser.userRights.toString(),
       "sqlExecute": myUser.sqlExecute ? 'true' : 'false',
+      "settingsAccess": myUser.settingsRights ? 'true' : 'false',
       "searchCode": searchCode
     });
     setState(() {
       editingUser = null;
+      siteRights = null;
+      roadMapRights = null;
+      boxRights = null;
+      userRights = null;
     });
     Future.delayed(
         Duration(milliseconds: globals.milisecondWait), () => searchUser());
@@ -343,11 +347,12 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
       "firstname": user.firstname,
       "lastname": user.lastname,
       "function": user.function,
-      "siteEditing": user.siteEditing ? 'true' : 'false',
-      "roadMapEditing": user.roadMapEditing ? 'true' : 'false',
-      "boxEditing": user.boxEditing ? 'true' : 'false',
-      "userEditing": user.userEditing ? 'true' : 'false',
+      "siteRights": user.siteRights.toString(),
+      "roadMapRights": user.roadMapRights.toString(),
+      "boxRights": user.boxRights.toString(),
+      "userRights": user.userRights.toString(),
       "sqlExecute": user.sqlExecute ? 'true' : 'false',
+      "settingsAccess": user.settingsRights ? 'true' : 'false',
       "password": user.password
     });
     Navigator.of(context).pop();
@@ -370,10 +375,6 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
 
   void showAddPageUser() {
     const TextStyle textStyle = TextStyle(fontSize: 16);
-    const tableRowSpacer = TableRow(children: [
-      TableCell(child: SizedBox(height: 12)),
-      TableCell(child: SizedBox(height: 12))
-    ]);
     TextEditingController codeController = TextEditingController();
     TextEditingController firstnameController = TextEditingController();
     TextEditingController lastnameController = TextEditingController();
@@ -382,6 +383,12 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
     bool submited = false;
     String codeValueCheck = 'Veuillez entrer une valeur';
     bool codeExisting = true;
+    String siteRights = accessRightsList[0];
+    String roadMapRights = accessRightsList[0];
+    String boxRights = accessRightsList[0];
+    String userRights = accessRightsList[0];
+    String executeSqlStatus = yesNoList[1];
+    String settingsAccessStatus = yesNoList[1];
 
     showDialog(
         barrierColor: myBarrierColor,
@@ -395,7 +402,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                 child: Stack(alignment: Alignment.center, children: [
                   SizedBox(
                       width: 600,
-                      height: 700,
+                      height: 750,
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
                         Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -523,80 +530,142 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                 : null,
                                           ))))
                             ]),
-                            tableRowSpacer,
                             TableRow(children: [
                               const TableCell(
-                                  child: Text('Edition de sites :',
-                                      style: textStyle)),
+                                  child:
+                                      Text('Droits sites :', style: textStyle)),
                               TableCell(
-                                  child: Checkbox(
-                                value: editingSiteValue,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    editingSiteValue = value!;
-                                  });
-                                },
-                              ))
+                                  child: Center(
+                                      child: DropdownButtonHideUnderline(
+                                          child: DropdownButton(
+                                              value: siteRights,
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                              items:
+                                                  accessRightsList.map((value) {
+                                                return DropdownMenuItem(
+                                                    value: value,
+                                                    child: Text(value));
+                                              }).toList(),
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  siteRights = newValue!;
+                                                });
+                                              }))))
                             ]),
-                            tableRowSpacer,
                             TableRow(children: [
                               const TableCell(
-                                  child: Text('Edition de feuilles de route :',
+                                  child: Text('Droits feuilles de route :',
                                       style: textStyle)),
                               TableCell(
-                                  child: Checkbox(
-                                value: editingRoadMapValue,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    editingRoadMapValue = value!;
-                                  });
-                                },
-                              ))
+                                  child: Center(
+                                      child: DropdownButtonHideUnderline(
+                                          child: DropdownButton(
+                                              value: roadMapRights,
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                              items:
+                                                  accessRightsList.map((value) {
+                                                return DropdownMenuItem(
+                                                    value: value,
+                                                    child: Text(value));
+                                              }).toList(),
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  roadMapRights = newValue!;
+                                                });
+                                              }))))
                             ]),
-                            tableRowSpacer,
                             TableRow(children: [
                               const TableCell(
-                                  child: Text('Edition de boîtes :',
+                                  child: Text('Droits boîtes :',
                                       style: textStyle)),
                               TableCell(
-                                  child: Checkbox(
-                                value: editingBoxValue,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    editingBoxValue = value!;
-                                  });
-                                },
-                              ))
+                                  child: Center(
+                                      child: DropdownButtonHideUnderline(
+                                          child: DropdownButton(
+                                              value: boxRights,
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                              items:
+                                                  accessRightsList.map((value) {
+                                                return DropdownMenuItem(
+                                                    value: value,
+                                                    child: Text(value));
+                                              }).toList(),
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  boxRights = newValue!;
+                                                });
+                                              }))))
                             ]),
-                            tableRowSpacer,
                             TableRow(children: [
                               const TableCell(
-                                  child: Text('Edition d\'utilisateurs :',
+                                  child: Text('Droits utilisateurs :',
                                       style: textStyle)),
                               TableCell(
-                                  child: Checkbox(
-                                value: editingUserValue,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    editingUserValue = value!;
-                                  });
-                                },
-                              ))
+                                  child: Center(
+                                      child: DropdownButtonHideUnderline(
+                                          child: DropdownButton(
+                                              value: userRights,
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                              items:
+                                                  accessRightsList.map((value) {
+                                                return DropdownMenuItem(
+                                                    value: value,
+                                                    child: Text(value));
+                                              }).toList(),
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  userRights = newValue!;
+                                                });
+                                              }))))
                             ]),
-                            tableRowSpacer,
                             TableRow(children: [
                               const TableCell(
                                   child: Text('Accès au panneau SQL :',
                                       style: textStyle)),
                               TableCell(
-                                  child: Checkbox(
-                                value: executeSqlValue,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    executeSqlValue = value!;
-                                  });
-                                },
-                              ))
+                                  child: Center(
+                                      child: DropdownButtonHideUnderline(
+                                          child: DropdownButton(
+                                              value: executeSqlStatus,
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                              items: yesNoList.map((value) {
+                                                return DropdownMenuItem(
+                                                    value: value,
+                                                    child: Text(value));
+                                              }).toList(),
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  executeSqlStatus = newValue!;
+                                                });
+                                              }))))
+                            ]),
+                            TableRow(children: [
+                              const TableCell(
+                                  child: Text('Accès aux paramètres :',
+                                      style: textStyle)),
+                              TableCell(
+                                  child: Center(
+                                      child: DropdownButtonHideUnderline(
+                                          child: DropdownButton(
+                                              value: settingsAccessStatus,
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                              items: yesNoList.map((value) {
+                                                return DropdownMenuItem(
+                                                    value: value,
+                                                    child: Text(value));
+                                              }).toList(),
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  settingsAccessStatus =
+                                                      newValue!;
+                                                });
+                                              }))))
                             ]),
                           ],
                         ),
@@ -651,23 +720,30 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                           firstname:
                                                               firstnameController
                                                                   .text,
-                                                          lastname: lastnameController
-                                                              .text,
-                                                          function: functionController
-                                                              .text,
+                                                          lastname:
+                                                              lastnameController
+                                                                  .text,
+                                                          function:
+                                                              functionController
+                                                                  .text,
                                                           password:
                                                               passwordController
                                                                   .text,
-                                                          siteEditing:
-                                                              editingSiteValue,
-                                                          roadMapEditing:
-                                                              editingRoadMapValue,
-                                                          boxEditing:
-                                                              editingBoxValue,
-                                                          userEditing:
-                                                              editingUserValue,
+                                                          siteRights: accessRightsList.indexOf(
+                                                              siteRights),
+                                                          roadMapRights:
+                                                              accessRightsList.indexOf(
+                                                                  roadMapRights),
+                                                          boxRights: accessRightsList.indexOf(
+                                                              boxRights),
+                                                          userRights: accessRightsList.indexOf(
+                                                              userRights),
                                                           sqlExecute:
-                                                              executeSqlValue));
+                                                              executeSqlStatus ==
+                                                                  'Oui',
+                                                          settingsRights:
+                                                              settingsAccessStatus ==
+                                                                  'Oui'));
                                                     }
                                                   }));
                                         },
@@ -827,13 +903,14 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
 
   List<DataCell> dataCells(Map<dynamic, dynamic> user) {
     if (user['CODE UTILISATEUR'] == editingUser) {
-      editingSiteStatus ??= user['EDITION SITE'] == '1' ? 'Oui' : 'Non';
-      editingRoadMapStatus ??=
-          user['EDITION FEUILLE DE ROUTE'] == '1' ? 'Oui' : 'Non';
-      editingBoxStatus ??= user['EDITION BOITE'] == '1' ? 'Oui' : 'Non';
-      editingUserStatus ??= user['EDITION UTILISATEUR'] == '1' ? 'Oui' : 'Non';
+      siteRights ??= accessRightsList[int.parse(user['DROITS SITE'])];
+      roadMapRights ??=
+          accessRightsList[int.parse(user['DROITS FEUILLE DE ROUTE'])];
+      boxRights ??= accessRightsList[int.parse(user['DROITS BOITE'])];
+      userRights ??= accessRightsList[int.parse(user['DROITS UTILISATEUR'])];
       executeSqlStatus ??= user['EXECUTION SQL'] == '1' ? 'Oui' : 'Non';
-      const List<String> yesNoList = ['Oui', 'Non'];
+      settingsAccessStatus ??= user['ACCES PARAMETRES'] == '1' ? 'Oui' : 'Non';
+
       TextEditingController codeController =
           TextEditingController(text: user['CODE UTILISATEUR']);
       TextEditingController lastnameController =
@@ -847,61 +924,78 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         DataCell(TextField(controller: lastnameController)),
         DataCell(TextField(controller: firstnameController)),
         DataCell(TextField(controller: functionController)),
-        DataCell(DropdownButton(
-            value: editingSiteStatus,
-            style: const TextStyle(fontSize: 14),
-            items: yesNoList.map((value) {
-              return DropdownMenuItem(value: value, child: Text(value));
-            }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                editingSiteStatus = newValue!;
-              });
-            })),
-        DataCell(DropdownButton(
-            value: editingRoadMapStatus,
-            style: const TextStyle(fontSize: 14),
-            items: yesNoList.map((value) {
-              return DropdownMenuItem(value: value, child: Text(value));
-            }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                editingRoadMapStatus = newValue!;
-              });
-            })),
-        DataCell(DropdownButton(
-            value: editingBoxStatus,
-            style: const TextStyle(fontSize: 14),
-            items: yesNoList.map((value) {
-              return DropdownMenuItem(value: value, child: Text(value));
-            }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                editingBoxStatus = newValue!;
-              });
-            })),
-        DataCell(DropdownButton(
-            value: editingUserStatus,
-            style: const TextStyle(fontSize: 14),
-            items: yesNoList.map((value) {
-              return DropdownMenuItem(value: value, child: Text(value));
-            }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                editingUserStatus = newValue!;
-              });
-            })),
-        DataCell(DropdownButton(
-            value: executeSqlStatus,
-            style: const TextStyle(fontSize: 14),
-            items: yesNoList.map((value) {
-              return DropdownMenuItem(value: value, child: Text(value));
-            }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                executeSqlStatus = newValue!;
-              });
-            })),
+        DataCell(Center(
+            child: DropdownButton(
+                value: siteRights,
+                style: const TextStyle(fontSize: 14),
+                items: accessRightsList.map((value) {
+                  return DropdownMenuItem(value: value, child: Text(value));
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    siteRights = newValue!;
+                  });
+                }))),
+        DataCell(Center(
+            child: DropdownButton(
+                value: roadMapRights,
+                style: const TextStyle(fontSize: 14),
+                items: accessRightsList.map((value) {
+                  return DropdownMenuItem(value: value, child: Text(value));
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    roadMapRights = newValue!;
+                  });
+                }))),
+        DataCell(Center(
+            child: DropdownButton(
+                value: boxRights,
+                style: const TextStyle(fontSize: 14),
+                items: accessRightsList.map((value) {
+                  return DropdownMenuItem(value: value, child: Text(value));
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    boxRights = newValue!;
+                  });
+                }))),
+        DataCell(Center(
+            child: DropdownButton(
+                value: userRights,
+                style: const TextStyle(fontSize: 14),
+                items: accessRightsList.map((value) {
+                  return DropdownMenuItem(value: value, child: Text(value));
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    userRights = newValue!;
+                  });
+                }))),
+        DataCell(Center(
+            child: DropdownButton(
+                value: executeSqlStatus,
+                style: const TextStyle(fontSize: 14),
+                items: yesNoList.map((value) {
+                  return DropdownMenuItem(value: value, child: Text(value));
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    executeSqlStatus = newValue!;
+                  });
+                }))),
+        DataCell(Center(
+            child: DropdownButton(
+                value: settingsAccessStatus,
+                style: const TextStyle(fontSize: 14),
+                items: yesNoList.map((value) {
+                  return DropdownMenuItem(value: value, child: Text(value));
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    settingsAccessStatus = newValue!;
+                  });
+                }))),
         DataCell(Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -917,11 +1011,13 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                             lastname: lastnameController.text,
                             function: functionController.text,
                             password: '',
-                            siteEditing: editingSiteStatus == 'Oui',
-                            roadMapEditing: editingRoadMapStatus == 'Oui',
-                            boxEditing: editingBoxStatus == 'Oui',
-                            userEditing: editingUserStatus == 'Oui',
-                            sqlExecute: executeSqlStatus == 'Oui'),
+                            siteRights: accessRightsList.indexOf(siteRights!),
+                            roadMapRights:
+                                accessRightsList.indexOf(roadMapRights!),
+                            boxRights: accessRightsList.indexOf(boxRights!),
+                            userRights: accessRightsList.indexOf(userRights!),
+                            sqlExecute: executeSqlStatus == 'Oui',
+                            settingsRights: settingsAccessStatus == 'Oui'),
                         user['CODE UTILISATEUR']);
                   }
                 },
@@ -930,10 +1026,10 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                 onPressed: () {
                   setState(() {
                     editingUser = null;
-                    editingSiteStatus = null;
-                    editingRoadMapStatus = null;
-                    editingBoxStatus = null;
-                    editingUserStatus = null;
+                    siteRights = null;
+                    roadMapRights = null;
+                    boxRights = null;
+                    userRights = null;
                     executeSqlStatus = null;
                   });
                 },
@@ -948,20 +1044,23 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         DataCell(SelectableText(user['PRENOM'])),
         DataCell(SelectableText(user['FONCTION'])),
         DataCell(Center(
-            child:
-                SelectableText(user['EDITION SITE'] == '1' ? 'Oui' : 'Non'))),
+            child: SelectableText(
+                accessRightsList[int.parse(user['DROITS SITE'])]))),
         DataCell(Center(
             child: SelectableText(
-                user['EDITION FEUILLE DE ROUTE'] == '1' ? 'Oui' : 'Non'))),
-        DataCell(Center(
-            child:
-                SelectableText(user['EDITION BOITE'] == '1' ? 'Oui' : 'Non'))),
+                accessRightsList[int.parse(user['DROITS FEUILLE DE ROUTE'])]))),
         DataCell(Center(
             child: SelectableText(
-                user['EDITION UTILISATEUR'] == '1' ? 'Oui' : 'Non'))),
+                accessRightsList[int.parse(user['DROITS BOITE'])]))),
+        DataCell(Center(
+            child: SelectableText(
+                accessRightsList[int.parse(user['DROITS UTILISATEUR'])]))),
         DataCell(Center(
             child:
                 SelectableText(user['EXECUTION SQL'] == '1' ? 'Oui' : 'Non'))),
+        DataCell(Center(
+            child: SelectableText(
+                user['ACCES PARAMETRES'] == '1' ? 'Oui' : 'Non'))),
         DataCell(Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -1022,20 +1121,24 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                     flexibleSpace: FlexibleSpaceBar(
                         background: Column(children: [
                       Row(mainAxisSize: MainAxisSize.min, children: [
-                        DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                                value: searchField,
-                                style: const TextStyle(fontSize: 14),
-                                items: searchFieldList.map((searchFieldList) {
-                                  return DropdownMenuItem(
-                                      value: searchFieldList,
-                                      child: Text(searchFieldList.toString()));
-                                }).toList(),
-                                onChanged: (String? newsearchField) {
-                                  setState(() {
-                                    searchField = newsearchField!;
-                                  });
-                                })),
+                        Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: DropdownButtonHideUnderline(
+                                child: DropdownButton(
+                                    value: searchField,
+                                    style: const TextStyle(fontSize: 14),
+                                    items:
+                                        searchFieldList.map((searchFieldList) {
+                                      return DropdownMenuItem(
+                                          value: searchFieldList,
+                                          child:
+                                              Text(searchFieldList.toString()));
+                                    }).toList(),
+                                    onChanged: (String? newsearchField) {
+                                      setState(() {
+                                        searchField = newsearchField!;
+                                      });
+                                    }))),
                         Expanded(
                             child: TextFormField(
                           controller: _searchTextController,
@@ -1165,8 +1268,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                                 MainAxisAlignment
                                                                     .center,
                                                             children: const [
-                                                          Text(
-                                                              'Edition\nde sites',
+                                                          Text('Droits\nsites',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center)
@@ -1181,13 +1283,27 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                                     .center,
                                                             children: const [
                                                           Text(
-                                                              'Edition\nde feuilles de route',
+                                                              'Droits\nfeuilles de route',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center)
                                                         ])),
                                                     onSort: sorting(
-                                                        'EDITION FEUILLE DE ROUTE')),
+                                                        'DROITS FEUILLE DE ROUTE')),
+                                                DataColumn(
+                                                    label: Expanded(
+                                                        child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: const [
+                                                          Text('Droits\nboîtes',
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center)
+                                                        ])),
+                                                    onSort: sorting(
+                                                        'DROITS BOITE')),
                                                 DataColumn(
                                                     label: Expanded(
                                                         child: Row(
@@ -1196,13 +1312,13 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                                     .center,
                                                             children: const [
                                                           Text(
-                                                              'Edition\nde boîtes',
+                                                              'Droits\nutilisateurs',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center)
                                                         ])),
                                                     onSort: sorting(
-                                                        'EDITION BOITE')),
+                                                        'DROITS UTILISATEUR')),
                                                 DataColumn(
                                                     label: Expanded(
                                                         child: Row(
@@ -1211,28 +1327,28 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                                     .center,
                                                             children: const [
                                                           Text(
-                                                              'Edition\ndes utilisateurs',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center)
-                                                        ])),
-                                                    onSort: sorting(
-                                                        'EDITION UTILISATEUR')),
-                                                DataColumn(
-                                                    label: Expanded(
-                                                        child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: const [
-                                                          Text(
-                                                              'Accès au\npanneau SQL',
+                                                              'Accès\npanneau SQL',
                                                               textAlign:
                                                                   TextAlign
                                                                       .center)
                                                         ])),
                                                     onSort: sorting(
                                                         'EXECUTION SQL')),
+                                                DataColumn(
+                                                    label: Expanded(
+                                                        child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: const [
+                                                          Text(
+                                                              'Accès\nparamètres',
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center)
+                                                        ])),
+                                                    onSort: sorting(
+                                                        'ACCES PARAMETRES')),
                                                 DataColumn(
                                                     label: Column(children: [
                                                   Padding(
@@ -1249,7 +1365,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                   const Spacer(),
                                                   Row(children: [
                                                     const Text(
-                                                        'Utilisateurs supprimées :'),
+                                                        'Utilisateurs\nsupprimées :'),
                                                     Switch(
                                                         value: showDeleteUser,
                                                         onChanged: (newValue) {

@@ -5,6 +5,15 @@ import 'package:http/http.dart' as http;
 import '../variables/globals.dart' as globals;
 import '../variables/env.sample.dart';
 import '../models/user.dart';
+import 'site_screen.dart';
+import 'user_screen.dart';
+import 'road_map_screen.dart';
+import 'boxes_print_screen.dart';
+import 'sql_screen.dart';
+import 'settings_screen.dart';
+import 'tube_screen.dart';
+import 'traca_screen.dart';
+import 'management_screen.dart';
 
 class LogInScreen extends StatelessWidget {
   const LogInScreen({Key? key}) : super(key: key);
@@ -40,6 +49,25 @@ class _LogInFormState extends State<LogInForm> {
       if (res.body != 'false') {
         setState(() {
           globals.user = User.fromSnapshot(json.decode(res.body));
+          globals.mainWidgetTabs = [
+            const TracaScreen(),
+            const TubeScreen(),
+            if (globals.user.siteRights +
+                    globals.user.roadMapRights +
+                    globals.user.boxRights +
+                    (globals.user.settingsRights ? 1 : 0) +
+                    (globals.user.sqlExecute ? 1 : 0) >
+                0)
+              const ManagementScreen(),
+          ];
+          globals.managementWidgetTabs = [
+            if (globals.user.userRights > 0) const UserScreen(),
+            if (globals.user.boxRights > 0) const BoxesPrintScreen(),
+            if (globals.user.siteRights > 0) const SiteScreen(),
+            if (globals.user.roadMapRights > 0) const RoadMapScreen(),
+            if (globals.user.settingsRights) const SettingScreen(),
+            if (globals.user.sqlExecute) const SqlScreen()
+          ];
           globals.isAuthentified = true;
           Navigator.of(context).pushNamedAndRemoveUntil(
               '/welcome', (Route<dynamic> route) => false);

@@ -4,11 +4,12 @@ class User {
   final String firstname;
   final String function;
   final String password;
-  final bool siteEditing;
-  final bool roadMapEditing;
-  final bool boxEditing;
+  final int siteRights;
+  final int roadMapRights;
+  final int boxRights;
+  final int userRights;
   final bool sqlExecute;
-  final bool userEditing;
+  final bool settingsRights;
 
   User(
       {required this.code,
@@ -16,11 +17,12 @@ class User {
       required this.firstname,
       required this.function,
       required this.password,
-      required this.siteEditing,
-      required this.roadMapEditing,
-      required this.boxEditing,
+      required this.siteRights,
+      required this.roadMapRights,
+      required this.boxRights,
       required this.sqlExecute,
-      required this.userEditing});
+      required this.userRights,
+      required this.settingsRights});
 
   factory User.fromSnapshot(Map<dynamic, dynamic> user) {
     return User(
@@ -29,10 +31,11 @@ class User {
         firstname: user['PRENOM'],
         function: user['FONCTION'],
         password: user['MOT DE PASSE'] ?? '',
-        siteEditing: user['EDITION SITE'] == '1',
-        roadMapEditing: user['EDITION FEUILLE DE ROUTE'] == '1',
-        boxEditing: user['EDITION BOITE'] == '1',
+        siteRights: int.parse(user['DROITS SITE']),
+        roadMapRights: int.parse(user['DROITS FEUILLE DE ROUTE']),
+        boxRights: int.parse(user['DROITS BOITE']),
         sqlExecute: user['EXECUTION SQL'] == '1',
-        userEditing: user['EDITION UTILISATEUR'] == '1');
+        userRights: int.parse(user['DROITS UTILISATEUR']),
+        settingsRights: user['ACCES PARAMETRES'] == '1');
   }
 }

@@ -103,20 +103,22 @@ class _SiteListState extends State<SiteList>
   advancedResearch() {
     if (isAdvancedResearch) {
       return [
-        DropdownButtonHideUnderline(
-            child: DropdownButton(
-                value: advancedSearchField,
-                style: const TextStyle(fontSize: 14),
-                items: searchFieldList.map((searchFieldList) {
-                  return DropdownMenuItem(
-                      value: searchFieldList,
-                      child: Text(searchFieldList.toString()));
-                }).toList(),
-                onChanged: (String? newAdvancedSearchField) {
-                  setState(() {
-                    advancedSearchField = newAdvancedSearchField!;
-                  });
-                })),
+        Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                    value: advancedSearchField,
+                    style: const TextStyle(fontSize: 14),
+                    items: searchFieldList.map((searchFieldList) {
+                      return DropdownMenuItem(
+                          value: searchFieldList,
+                          child: Text(searchFieldList.toString()));
+                    }).toList(),
+                    onChanged: (String? newAdvancedSearchField) {
+                      setState(() {
+                        advancedSearchField = newAdvancedSearchField!;
+                      });
+                    }))),
         Expanded(
             child: TextFormField(
           controller: _advancedSearchTextController,
@@ -1233,16 +1235,16 @@ class _SiteListState extends State<SiteList>
                             icon: const Icon(Icons.search_off_outlined),
                             tooltip: 'Recherche simple'),
                       const Spacer(),
-                      if (globals.user.siteEditing)
+                      if (globals.user.siteRights > 1)
                         ElevatedButton(
                             style: myButtonStyle,
                             onPressed: () {
                               showAddPageSite();
                             },
                             child: const Text('Ajouter un site')),
-                      if (globals.user.siteEditing)
+                      if (globals.user.siteRights > 1)
                         const Text('  Sites supprimés :'),
-                      if (globals.user.siteEditing)
+                      if (globals.user.siteRights > 1)
                         Switch(
                             value: showDeleteSite,
                             onChanged: (newValue) {
@@ -1296,8 +1298,9 @@ class _SiteListState extends State<SiteList>
                       Card(
                         child: ListTile(
                           leading: const Icon(Icons.location_on_outlined),
-                          trailing:
-                              globals.user.siteEditing ? popupMenu(site) : null,
+                          trailing: globals.user.siteRights > 1
+                              ? popupMenu(site)
+                              : null,
                           isThreeLine: true,
                           title: Text(site['LIBELLE SITE']),
                           subtitle: Text(searchField +

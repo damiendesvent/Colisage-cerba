@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/variables/env.sample.dart';
 import 'package:flutter_application_1/variables/styles.dart';
 import '../variables/globals.dart' as globals;
-import 'tube_screen.dart';
-import 'traca_screen.dart';
-import 'management_screen.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -28,11 +25,6 @@ class Welcome extends StatefulWidget {
 class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
   Timer? timer;
   int minTabWidth = 800;
-  List<Widget> widgetTabs = [
-    const TracaScreen(),
-    const TubeScreen(),
-    const ManagementScreen(),
-  ];
   int _widgetIndex = 1;
   late TabController _tabController;
 
@@ -84,7 +76,9 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     _tabController = TabController(
-        length: widgetTabs.length, vsync: this, initialIndex: _widgetIndex);
+        length: globals.mainWidgetTabs.length,
+        vsync: this,
+        initialIndex: _widgetIndex);
     _tabController.addListener(() {
       setState(() {
         _widgetIndex = _tabController.index;
@@ -172,24 +166,27 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                                   const Text(" Gestion tubes")
                               ],
                             ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.tune),
-                                if (MediaQuery.of(context).size.width >
-                                    minTabWidth)
-                                  const Text(" Gestion colisage")
-                              ],
-                            ),
+                            if (globals.user.siteRights +
+                                    globals.user.roadMapRights +
+                                    globals.user.boxRights +
+                                    (globals.user.settingsRights ? 1 : 0) +
+                                    (globals.user.sqlExecute ? 1 : 0) >
+                                0)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.tune),
+                                  if (MediaQuery.of(context).size.width >
+                                      minTabWidth)
+                                    const Text(" Gestion colisage")
+                                ],
+                              ),
                           ],
                         ),
                       ),
-                      body: /*IndexedStack(
-                        index: _widgetIndex,
-                        children: widgetTabs,
-                      ),*/
-                          TabBarView(
-                              controller: _tabController, children: widgetTabs))
+                      body: TabBarView(
+                          controller: _tabController,
+                          children: globals.mainWidgetTabs))
                   : Column(
                       //si la variable isAuthentified est égale à false, on affiche un message d'erreur
                       mainAxisSize: MainAxisSize.min,

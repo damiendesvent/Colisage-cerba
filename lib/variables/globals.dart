@@ -1,5 +1,6 @@
 library flutter_application_test_log_in.globals;
 
+import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../models/site.dart';
 import '../models/road_map.dart';
@@ -20,11 +21,12 @@ User user = User(
     firstname: '',
     function: '',
     password: '',
-    siteEditing: false,
-    roadMapEditing: false,
-    boxEditing: false,
+    siteRights: 0,
+    roadMapRights: 0,
+    boxRights: 0,
     sqlExecute: false,
-    userEditing: false);
+    userRights: 0,
+    settingsRights: false);
 
 Site detailedSite = Site(
     code: 0,
@@ -56,3 +58,6 @@ Traca detailedTraca = Traca(
     lettrage: 0,
     car: 0,
     comment: '');
+
+List<Widget> mainWidgetTabs = [];
+List<Widget> managementWidgetTabs = [];

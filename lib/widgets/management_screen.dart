@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/variables/styles.dart';
 import '../variables/globals.dart' as globals;
-import 'site_screen.dart';
-import 'user_screen.dart';
-import 'road_map_screen.dart';
-import 'boxes_print_screen.dart';
-import 'sql_screen.dart';
-import 'settings_screen.dart';
 
 class ManagementScreen extends StatelessWidget {
   const ManagementScreen({Key? key}) : super(key: key);
@@ -27,15 +21,7 @@ class Management extends StatefulWidget {
 class _ManagementState extends State<Management>
     with SingleTickerProviderStateMixin {
   int minTabWidth = 1130;
-  List<Widget> widgetTabs = [
-    if (globals.user.userEditing) const UserScreen(),
-    if (globals.user.boxEditing) const BoxesPrintScreen(),
-    const SiteScreen(),
-    const RoadMapScreen(),
-    const SettingScreen(),
-    if (globals.user.sqlExecute) const SqlScreen()
-  ];
-  int _widgetIndex = 1;
+  int _widgetIndex = globals.managementWidgetTabs.length ~/ 2;
   late TabController _tabController;
 
   void logOut(BuildContext context) {
@@ -47,14 +33,16 @@ class _ManagementState extends State<Management>
   @override
   void initState() {
     _tabController = TabController(
-        length: widgetTabs.length, vsync: this, initialIndex: _widgetIndex);
+        length: globals.managementWidgetTabs.length,
+        vsync: this,
+        initialIndex: _widgetIndex);
     _tabController.addListener(() {
       setState(() {
         _widgetIndex = _tabController.index;
       });
     });
     setState(() {
-      _widgetIndex = widgetTabs.length ~/ 2;
+      _widgetIndex = globals.managementWidgetTabs.length ~/ 2;
     });
     super.initState();
   }
@@ -83,7 +71,7 @@ class _ManagementState extends State<Management>
                   unselectedLabelColor: Colors.white,
                   labelStyle: const TextStyle(fontSize: 16),
                   tabs: <Widget>[
-                    if (globals.user.userEditing)
+                    if (globals.user.userRights > 0)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -92,7 +80,7 @@ class _ManagementState extends State<Management>
                             const Text(" Utilisateurs")
                         ],
                       ),
-                    if (globals.user.boxEditing)
+                    if (globals.user.boxRights > 0)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -101,30 +89,33 @@ class _ManagementState extends State<Management>
                             const Text(" Etiquettes")
                         ],
                       ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.track_changes_outlined),
-                        if (MediaQuery.of(context).size.width > minTabWidth)
-                          const Text(" Sites")
-                      ],
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.fact_check_outlined),
-                        if (MediaQuery.of(context).size.width > minTabWidth)
-                          const Text(" Feuilles de route")
-                      ],
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.settings),
-                        if (MediaQuery.of(context).size.width > minTabWidth)
-                          const Text(" Paramètres")
-                      ],
-                    ),
+                    if (globals.user.siteRights > 0)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.track_changes_outlined),
+                          if (MediaQuery.of(context).size.width > minTabWidth)
+                            const Text(" Sites")
+                        ],
+                      ),
+                    if (globals.user.roadMapRights > 0)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.fact_check_outlined),
+                          if (MediaQuery.of(context).size.width > minTabWidth)
+                            const Text(" Feuilles de route")
+                        ],
+                      ),
+                    if (globals.user.settingsRights)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.settings),
+                          if (MediaQuery.of(context).size.width > minTabWidth)
+                            const Text(" Paramètres")
+                        ],
+                      ),
                     if (globals.user.sqlExecute)
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -137,12 +128,9 @@ class _ManagementState extends State<Management>
                   ],
                 ),
               ),
-              body: /*IndexedStack(
-                        index: _widgetIndex,
-                        children: widgetTabs,
-                      ),*/
-                  TabBarView(
-                      controller: _tabController, children: widgetTabs))),
+              body: TabBarView(
+                  controller: _tabController,
+                  children: globals.managementWidgetTabs))),
     );
   }
 }
