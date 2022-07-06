@@ -39,6 +39,7 @@ dependencies:
   printing: ^5.9.1
   dropdown_search: ^5.0.2
   searchfield: ^0.6.5
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:

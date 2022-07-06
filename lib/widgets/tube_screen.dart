@@ -567,46 +567,60 @@ class _TubeListState extends State<TubeList> {
                                             siteController.text,
                                             style: textStyle,
                                           ))
-                                      : SearchField(
-                                          searchStyle: textStyle,
-                                          onSubmit: (_) {
-                                            formKey.currentState!.validate();
-                                          },
-                                          textInputAction: TextInputAction.none,
-                                          initialValue:
-                                              SearchFieldListItem<String>(
-                                                  sites[4]),
-                                          controller: siteController,
-                                          validator: (x) {
-                                            if (!sites.contains(x) ||
-                                                x!.isEmpty) {
-                                              return 'Veuillez entrer un site valide';
-                                            }
-                                            return null;
-                                          },
-                                          emptyWidget: Text('Aucun site trouvé',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                  color: Colors.red.shade900,
-                                                  fontSize: 15)),
-                                          searchInputDecoration:
-                                              InputDecoration(
-                                            errorText: (siteController
-                                                        .text.isEmpty &&
-                                                    submited
-                                                ? 'Veuillez entrer une valeur'
-                                                : null),
-                                          ),
-                                          suggestions: sites
-                                              .map(
-                                                (e) =>
-                                                    SearchFieldListItem<String>(
-                                                  e,
-                                                  item: e,
-                                                ),
-                                              )
-                                              .toList(),
-                                        )))
+                                      : globals.user.settingsRights
+                                          ? SearchField(
+                                              searchStyle: textStyle,
+                                              onSubmit: (_) {
+                                                formKey.currentState!
+                                                    .validate();
+                                              },
+                                              textInputAction:
+                                                  TextInputAction.none,
+                                              initialValue:
+                                                  SearchFieldListItem<String>(
+                                                      sites[4]),
+                                              controller: siteController,
+                                              validator: (x) {
+                                                if (!sites.contains(x) ||
+                                                    x!.isEmpty) {
+                                                  return 'Veuillez entrer un site valide';
+                                                }
+                                                return null;
+                                              },
+                                              emptyWidget: Text(
+                                                  'Aucun site trouvé',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      color:
+                                                          Colors.red.shade900,
+                                                      fontSize: 15)),
+                                              searchInputDecoration:
+                                                  InputDecoration(
+                                                errorText: (siteController
+                                                            .text.isEmpty &&
+                                                        submited
+                                                    ? 'Veuillez entrer une valeur'
+                                                    : null),
+                                              ),
+                                              suggestions: sites
+                                                  .map(
+                                                    (e) => SearchFieldListItem<
+                                                        String>(
+                                                      e,
+                                                      item: e,
+                                                    ),
+                                                  )
+                                                  .toList(),
+                                            )
+                                          : Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0, 14, 0, 0),
+                                              child: Text(
+                                                siteController.text =
+                                                    globals.currentSite,
+                                                style: textStyle,
+                                              ))))
                         ],
                       ),
                       TableRow(
@@ -627,47 +641,62 @@ class _TubeListState extends State<TubeList> {
                                             userController.text,
                                             style: textStyle,
                                           ))
-                                      : SearchField(
-                                          searchStyle: textStyle,
-                                          initialValue:
-                                              SearchFieldListItem<String>(
+                                      : globals.user.settingsRights
+                                          ? SearchField(
+                                              searchStyle: textStyle,
+                                              initialValue: SearchFieldListItem<
+                                                      String>(
                                                   globals.user.code +
                                                       ' : ' +
                                                       globals.user.firstname +
                                                       ' ' +
                                                       globals.user.lastname),
-                                          controller: userController,
-                                          validator: (x) {
-                                            if (!users.contains(x) ||
-                                                x!.isEmpty) {
-                                              return 'Veuillez entrer un utilisateur valide';
-                                            }
-                                            return null;
-                                          },
-                                          emptyWidget: Text(
-                                              'Aucun utilisateur trouvé',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                  color: Colors.red.shade900,
-                                                  fontSize: 15)),
-                                          searchInputDecoration:
-                                              InputDecoration(
-                                            errorText: (userController
-                                                        .text.isEmpty &&
-                                                    submited
-                                                ? 'Veuillez entrer une valeur'
-                                                : null),
-                                          ),
-                                          suggestions: users
-                                              .map(
-                                                (e) =>
-                                                    SearchFieldListItem<String>(
-                                                  e,
-                                                  item: e,
-                                                ),
-                                              )
-                                              .toList(),
-                                        )))
+                                              controller: userController,
+                                              validator: (x) {
+                                                if (!users.contains(x) ||
+                                                    x!.isEmpty) {
+                                                  return 'Veuillez entrer un utilisateur valide';
+                                                }
+                                                return null;
+                                              },
+                                              emptyWidget: Text(
+                                                  'Aucun utilisateur trouvé',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      color:
+                                                          Colors.red.shade900,
+                                                      fontSize: 15)),
+                                              searchInputDecoration:
+                                                  InputDecoration(
+                                                errorText: (userController
+                                                            .text.isEmpty &&
+                                                        submited
+                                                    ? 'Veuillez entrer une valeur'
+                                                    : null),
+                                              ),
+                                              suggestions: users
+                                                  .map(
+                                                    (e) => SearchFieldListItem<
+                                                        String>(
+                                                      e,
+                                                      item: e,
+                                                    ),
+                                                  )
+                                                  .toList(),
+                                            )
+                                          : Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0, 14, 0, 0),
+                                              child: Text(
+                                                userController.text =
+                                                    globals.user.code +
+                                                        ' : ' +
+                                                        globals.user.firstname +
+                                                        ' ' +
+                                                        globals.user.lastname,
+                                                style: textStyle,
+                                              ))))
                         ],
                       ),
                       TableRow(

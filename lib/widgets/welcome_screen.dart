@@ -63,12 +63,14 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
     }
   }
 
-  void getIP() async {
+  void getIPandSite() async {
     String phpUriGetIP = Env.urlPrefix + 'Scripts/get_ip.php';
     http.Response res = await http.get(Uri.parse(phpUriGetIP));
     if (res.body.isNotEmpty) {
+      var items = json.decode(res.body);
       setState(() {
-        globals.ip = json.decode(res.body);
+        globals.ip = items['ip'];
+        globals.currentSite = items['site'];
       });
     }
   }
@@ -85,7 +87,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
       });
     });
     getConstants();
-    getIP();
+    getIPandSite();
     super.initState();
     initializeTimer();
   }

@@ -1,6 +1,7 @@
 from msilib.schema import Error
 import os
 import shutil
+from sys import prefix
 import tkinter as tk
 from tkinter import messagebox
 from ctypes import windll
@@ -10,7 +11,7 @@ import socket
 import subprocess
 import mysql.connector
 from apscheduler.schedulers.background import BackgroundScheduler
-from pytz import timezone
+#from pytz import timezone
 import glob
 
 
@@ -35,22 +36,26 @@ with open('bin/variables.txt') as variables_file :
     php_file_path = variableDict['php_file_path']
     pda_track_in_directory = variableDict['pda_track_in_directory']
     pda_track_out_directory = variableDict['pda_track_out_directory']
-    minute_synchro_1 = int(variableDict['minute_synchro_1'])
-    minute_synchro_2 = int(variableDict['minute_synchro_2'])
+    minute_synchro_pda_1 = int(variableDict['minute_synchro_pda_1'])
+    minute_synchro_pda_2 = int(variableDict['minute_synchro_pda_2'])
+    backup_path = variableDict['backup_directory']
+    backup_prefix = variableDict['backup_name_prefix']
+    type_backup_frequence = variableDict['type_backup_frequence']
+    interval_backup_time = int(variableDict['backup_frequence'])
 
 
 # cette fonction sert de switch au service PDA en activant ou désactivant la tache planifiée + en mettant à jour l'affichage
 def start_stop_pda() :
-    global pda_connexion
-    pda_connexion = not pda_connexion
-    if pda_connexion :
+    global pda_status
+    pda_status = not pda_status
+    if pda_status :
         canvas1.itemconfigure(led_pda_signal, fill='green')
-        canvas1.itemconfigure(displayed_pda_signal, text='Service PDA\nen marche\nDernière synchronisation :\n', fill='green')
-        scheduler.start()
+        canvas1.itemconfigure(displayed_pda_signal, text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\n\nService PDA en marche\nDernière synchronisation :\n', fill='green')
+        pda_scheduler.start()
     else :
         canvas1.itemconfigure(led_pda_signal, fill='red')
-        canvas1.itemconfigure(displayed_pda_signal, text='Service PDA\nà l\'arrêt', fill='red')
-        scheduler.stop()
+        canvas1.itemconfigure(displayed_pda_signal, text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\n\nService PDA à l\'arrêt', fill='red')
+        pda_scheduler.shutdown()
 
 
 # cette fonction est celle utilisée en tache planifiée pour le service PDA
@@ -92,14 +97,32 @@ def import_traca_pda() :
         mycursor.close()
         mydb.close()
         
-        canvas1.itemconfigure(displayed_pda_signal, text='Service PDA\nen marche\nDernière synchronisation :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
+        canvas1.itemconfigure(displayed_pda_signal, text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\n\nService PDA en marche\nDernière synchronisation :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
 
     except Exception as e:
-        canvas1.itemconfigure(displayed_pda_signal, text= 'Erreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
+        canvas1.itemconfigure(displayed_pda_signal, text= 'Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\n\nErreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
 
 
-    
+def backup() :
+    try :
+        subprocess.run('powershell mysqldump --add-drop-table -u root -proot cerba > ' + backup_path + '/' + backup_prefix + datetime.now().strftime('%Y-%m-%d_%H.%M.%S') + '.sql', shell=True) 
+        canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nen marche\nDernière sauvegarde :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
 
+    except Exception as e:
+        canvas1.itemconfigure(displayed_backup_signal, text= 'Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nErreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
+
+# cette fonction sert de switch au service backup en activant ou désactivant la tache planifiée + en mettant à jour l'affichage
+def start_stop_backup() :
+    global backup_status
+    backup_status = not backup_status
+    if backup_status :
+        canvas1.itemconfigure(led_backup_signal, fill='green')
+        canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nen marche\nDernière sauvegarde :\n', fill='green')
+        backup_scheduler.start()
+    else :
+        canvas1.itemconfigure(led_backup_signal, fill='red')
+        canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nà l\'arrêt', fill='red')
+        backup_scheduler.shutdown()
 
 
 def install() :
@@ -175,21 +198,28 @@ def uninstall() :
 
 
 def quit() :
-    stop_server()
+    stop_all()
     root.destroy()
 
 
 def disable_event() :
     pass
 
+def start_stop_web_server() :
+    global web_server_status
+    web_server_status = not web_server_status
+    if (web_server_status) :
+        launch_server()
+    else :
+        stop_server()
 
 def launch_server() :
     if os.path.isfile(extract_folder + '/MAMP.exe') :
         try : 
             subprocess.call('powershell Start-Process -FilePath ' + extract_folder + '/MAMP.exe -WindowStyle Minimized', creationflags=subprocess.CREATE_NO_WINDOW) 
-            canvas1.itemconfigure(led_signal, fill='green')
+            canvas1.itemconfigure(led_web_signal, fill='green')
             success_text = 'Serveur démarré le ' + datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\nà l\'adresse ' + ip
-            canvas1.itemconfigure(displayed_signal, text=success_text, fill='green')
+            canvas1.itemconfigure(displayed_web_signal, text=success_text, fill='green')
 
         except ValueError: 
             messagebox.showerror('Impossible de lancer le serveur', 'Impossible de lancer le serveur.\nVeuillez réessayer ou appuyer sur Réparer')
@@ -200,8 +230,8 @@ def launch_server() :
 
 def stop_server() :
     subprocess.call('powershell if (get-process mamp -ErrorAction SilentlyContinue){(get-process mamp).closeMainWindow()}', creationflags=subprocess.CREATE_NO_WINDOW)
-    canvas1.itemconfigure(led_signal, fill='red')
-    canvas1.itemconfigure(displayed_signal, text='Serveur à l\'arrêt', fill='red')
+    canvas1.itemconfigure(led_web_signal, fill='red')
+    canvas1.itemconfigure(displayed_web_signal, text='Serveur web à l\'arrêt', fill='red')
 
 
 def open_website() :
@@ -212,56 +242,117 @@ def open_website() :
         messagebox.showerror('Serveur non démarré', 'Le serveur n\'est pas démarré,\nappuyez d\'abord sur Démarrer le serveur')
 
 
+def launch_all() :
+    global pda_status
+    if not pda_status : start_stop_pda()
+    global web_server_status
+    if not web_server_status : start_stop_web_server()
+    global backup_status
+    if not backup_status : start_stop_backup()
+
+
+def stop_all() :
+    global pda_status
+    if pda_status : start_stop_pda()
+    global web_server_status
+    if web_server_status : start_stop_web_server()
+    global backup_status
+    if backup_status : start_stop_backup()
+
+
+def stop_process() :
+    subprocess.run('taskkill /IM httpd.exe /IM mysqld.exe /F')
+
 path = os.getcwd()
 path_w_slash = path.replace('\\','/')
 global ip
 ip = socket.gethostbyname(socket.gethostname())
 
-global pda_connexion
-pda_connexion = False
+global pda_status
+pda_status = False
 
+global web_server_status
+web_server_status = False
 
-scheduler = BackgroundScheduler()
-scheduler.add_job(import_traca_pda, 'cron', minute=minute_synchro_1, timezone='Europe/Berlin')
-scheduler.add_job(import_traca_pda, 'cron', minute=minute_synchro_2, timezone='Europe/Berlin')
+global backup_status
+backup_status = False
 
+pda_scheduler = BackgroundScheduler()
+pda_scheduler.add_job(import_traca_pda, 'cron', minute=minute_synchro_pda_1, timezone='Europe/Berlin')
+pda_scheduler.add_job(import_traca_pda, 'cron', minute=minute_synchro_pda_2, timezone='Europe/Berlin')
+
+backup_scheduler = BackgroundScheduler()
+if (type_backup_frequence == 'seconde') :
+    backup_scheduler.add_job(backup, 'interval', seconds=interval_backup_time, timezone='Europe/Berlin')
+elif (type_backup_frequence == 'minute') :
+    backup_scheduler.add_job(backup, 'interval', minutes=interval_backup_time, timezone='Europe/Berlin')
+elif (type_backup_frequence == 'heure') :
+    backup_scheduler.add_job(backup, 'interval', hours=interval_backup_time, timezone='Europe/Berlin')
+elif (type_backup_frequence == 'jour') :
+    backup_scheduler.add_job(backup, 'interval', days=interval_backup_time, timezone='Europe/Berlin')    
 
 root= tk.Tk(className='Serveur de colisage')
 root.protocol('WM_DELETE_WINDOW', disable_event) # désactive la croix de fermeture Windows
 root.iconbitmap('bin/Cerba.ico')
-canvas1 = tk.Canvas(root, width = 500, height = 400)
+canvas1 = tk.Canvas(root, width = 800, height = 500)
 canvas1.pack()
 
 windll.shcore.SetProcessDpiAwareness(1)
 
-install_button = tk.Button(text='Installer le serveur',command=install, bg='green',fg='white')
-canvas1.create_window(100, 350, window=install_button)
-
-repair_button = tk.Button(text='Réparer le serveur', command=repair, bg='brown', fg='white')
-canvas1.create_window(250, 350, window=repair_button)
-
-uninstall_button = tk.Button(text='Désinstaller le serveur', command=uninstall, bg='red', fg='white')
-canvas1.create_window(400, 350, window=uninstall_button)
-
-quit_button = tk.Button(text='Quitter', command=quit, bg='grey', fg='white')
-canvas1.create_window(470,20, window=quit_button)
-
-run_server_button = tk.Button(text='Démarrer \nle serveur', command=launch_server, bg='green', fg='white')
-canvas1.create_window(100, 150, window=run_server_button)
-
-stop_server_button = tk.Button(text='Arrêter \nle serveur', command=stop_server, bg='brown', fg='white')
-canvas1.create_window(400, 150, window=stop_server_button)
+launch_all_button = tk.Button(text='Démarrer tous\nles services', command=launch_all, bg='green', fg='white')
+canvas1.create_window(100,100, window=launch_all_button)
 
 open_website_button = tk.Button(text='Accéder\nau\nsite web', command=open_website, bg='blue', fg='white')
-canvas1.create_window(250, 150, window=open_website_button)
+canvas1.create_window(400, 100, window=open_website_button)
 
-led_signal = canvas1.create_oval(50,20,70,40, fill='red')
-displayed_signal = canvas1.create_text(90,30, anchor= 'w', text='Serveur à l\'arrêt', fill='red')
+stop_all_button = tk.Button(text='Arrêter tous\nles services', command=stop_all, bg='brown', fg='white')
+canvas1.create_window(700,100, window=stop_all_button)
 
-led_pda_signal = canvas1.create_oval(60,220,80,240, fill='red')
-displayed_pda_signal = canvas1.create_text(30,280, anchor= 'w', text='Service PDA\nà l\'arrêt', fill='red')
+quit_button = tk.Button(text='Quitter', command=quit, bg='grey', fg='white')
+canvas1.create_window(770,20, window=quit_button)
 
-pda_button = tk.Button(text='Activer/Désactiver l\'envoi et la\nréception des fichiers PDA', command=start_stop_pda, bg='grey', fg='white')
-pda_window = canvas1.create_window(250, 250, window=pda_button)
+canvas1.create_line(50,150,750,150) # première ligne horizontale
+
+led_pda_signal = canvas1.create_oval(20,190,40,210, fill='red')
+displayed_pda_signal = canvas1.create_text(20,270, anchor= 'w', text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\n\nService PDA à l\'arrêt', fill='red')
+
+pda_button = tk.Button(text='Activer/Désactiver la\nréception des fichiers PDA', command=start_stop_pda, bg='grey', fg='white')
+pda_window = canvas1.create_window(130, 380, window=pda_button)
+
+canvas1.create_line(266,180,266,400) # première ligne verticale
+
+led_web_signal = canvas1.create_oval(280,190,300,210, fill='red')
+displayed_web_signal = canvas1.create_text(280,270, anchor= 'w', text='Serveur web à l\'arrêt', fill='red')
+
+web_server_button = tk.Button(text='Démarrer/Arrêter \nle serveur web', command=start_stop_web_server, bg='grey', fg='white')
+canvas1.create_window(350, 380, window=web_server_button)
+
+stop_process_button = tk.Button(text='Stopper les\nprocessus', command=stop_process, bg='brown', fg='white')
+canvas1.create_window(450,380,window=stop_process_button)
+
+canvas1.create_line(533,180,533,400) # deuxième ligne verticale
+
+led_backup_signal = canvas1.create_oval(580,190,600,210, fill='red')
+displayed_backup_signal = canvas1.create_text(580,270, anchor= 'w', text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService sauvegarde à l\'arrêt', fill='red')
+
+backup_button = tk.Button(text='Activer/Désactiver la\nsauvegarde automatique', command=start_stop_backup, bg='grey', fg='white')
+canvas1.create_window(650,380, window=backup_button)
+
+canvas1.create_line(50,420,750,420) # deuxième ligne horizontale
+
+install_button = tk.Button(text='Installer le serveur',command=install, bg='green',fg='white')
+canvas1.create_window(100, 460, window=install_button)
+
+repair_button = tk.Button(text='Réparer le serveur', command=repair, bg='brown', fg='white')
+canvas1.create_window(400, 460, window=repair_button)
+
+uninstall_button = tk.Button(text='Désinstaller le serveur', command=uninstall, bg='red', fg='white')
+canvas1.create_window(700, 460, window=uninstall_button)
+
+
+
+
+
+
 
 root.mainloop()

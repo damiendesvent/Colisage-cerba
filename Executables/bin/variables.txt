@@ -1,0 +1,23 @@
+# Après chaque modification des variables, il faut lancer une réparation
+# du serveur pour que les mises à jour soient effectives
+
+zip_file = MAMP.zip
+extract_folder = C:/MAMP/MAMP
+conf_file_path = MAMP/conf/apache/httpd.conf
+default_path = directoryPathSlash
+default_antislash_path = directoryPathAntiSlash
+main_file_path = MAMP/htdocs/main.dart.js
+default_ip = default_ip
+my_file_path = MAMP/conf/mysql/my.ini
+php_file_path = MAMP/conf/php7.4.1/php.ini
+
+pda_track_in_directory = C:/PDA_tracks/in
+pda_track_out_directory = C:/PDA_tracks/out
+minute_synchro_pda_1 = 15
+minute_synchro_pda_2 = 45
+
+backup_directory = C:/Backup
+backup_name_prefix = colisage_
+# Pour le paramètre suivant, vous devez écrire : seconde, minute, heure ou jour
+type_backup_frequence = minute
+backup_frequence = 5

@@ -6,6 +6,7 @@ import '../variables/styles.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class TracaScreen extends StatelessWidget {
   const TracaScreen({Key? key}) : super(key: key);
@@ -55,6 +56,8 @@ class _TracaListState extends State<TracaList>
   int _currentSortColumn = 0;
   int i = 0;
   int isAdvancedResearch = 0;
+  String beginDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  String endDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   Future getTracaList() async {
     http.Response res = await http.post(Uri.parse(phpUriTracaList), body: {
@@ -477,15 +480,65 @@ class _TracaListState extends State<TracaList>
                                         searchField = newsearchField!;
                                       });
                                     }))),
-                        Expanded(
-                            child: TextFormField(
-                          controller: _searchTextController,
-                          decoration:
-                              const InputDecoration(hintText: 'Recherche'),
-                          onFieldSubmitted: (e) {
-                            searchTraca();
-                          },
-                        )),
+                        SizedBox(
+                            width: 600,
+                            child: searchField.contains('Date')
+                                ? Row(
+                                    children: [
+                                      const Text(' De : '),
+                                      SizedBox(
+                                          width: 120,
+                                          child: TextFormField(
+                                              initialValue: beginDate,
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  beginDate = newValue;
+                                                });
+                                              })),
+                                      IconButton(
+                                          icon:
+                                              const Icon(Icons.calendar_month),
+                                          onPressed: () {
+                                            showDatePicker(
+                                                    context: context,
+                                                    initialDate: DateTime.now(),
+                                                    firstDate: DateTime(2010),
+                                                    lastDate: DateTime.now())
+                                                .then((value) => setState(() {
+                                                      beginDate = DateFormat(
+                                                              'yyyy-MM-dd')
+                                                          .format(value ??
+                                                              DateTime.now());
+                                                    }));
+                                          }),
+                                      SizedBox(width: 60, child: TextField()),
+                                      IconButton(
+                                          icon: const Icon(Icons.schedule),
+                                          onPressed: () {
+                                            showTimePicker(
+                                                context: context,
+                                                initialTime: TimeOfDay.now());
+                                          }),
+                                      Text(' à : '),
+                                      SizedBox(width: 120, child: TextField()),
+                                      IconButton(
+                                        icon: Icon(Icons.calendar_month),
+                                        onPressed: () {},
+                                      ),
+                                      SizedBox(width: 60, child: TextField()),
+                                      IconButton(
+                                          icon: const Icon(Icons.schedule),
+                                          onPressed: () {}),
+                                    ],
+                                  )
+                                : TextFormField(
+                                    controller: _searchTextController,
+                                    decoration: const InputDecoration(
+                                        hintText: 'Recherche'),
+                                    onFieldSubmitted: (e) {
+                                      searchTraca();
+                                    },
+                                  )),
                         IconButton(
                             onPressed: () {
                               searchTraca();

@@ -14,6 +14,7 @@ bool shouldDisplaySyncButton = false;
 String pdaTrackInDirectory = '/';
 int inactivityTimeOut = 15;
 String ip = '';
+String currentSite = '';
 
 User user = User(
     code: '',
