@@ -24,6 +24,14 @@ class TracaList extends StatefulWidget {
   _TracaListState createState() => _TracaListState();
 }
 
+extension TimeOfDayConverter on TimeOfDay {
+  String to24hours() {
+    final hour = this.hour.toString().padLeft(2, "0");
+    final min = this.minute.toString().padLeft(2, "0");
+    return "$hour:$min";
+  }
+}
+
 class _TracaListState extends State<TracaList>
     with AutomaticKeepAliveClientMixin {
   @override
@@ -58,6 +66,8 @@ class _TracaListState extends State<TracaList>
   int isAdvancedResearch = 0;
   String beginDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   String endDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  String beginTime = '';
+  String endTime = '';
 
   Future getTracaList() async {
     http.Response res = await http.post(Uri.parse(phpUriTracaList), body: {
@@ -83,11 +93,18 @@ class _TracaListState extends State<TracaList>
       "field": searchField.toUpperCase(),
       "advancedField": advancedSearchField.toUpperCase(),
       "secondAdvancedField": secondAdvancedSearchField.toUpperCase(),
-      "searchText": _searchTextController.text,
-      "advancedSearchText":
-          isAdvancedResearch > 0 ? _advancedSearchTextController.text : '',
+      "searchText": searchField.contains('Date')
+          ? beginDate + ' ' + beginTime + '__' + endDate + ' ' + endTime
+          : _searchTextController.text,
+      "advancedSearchText": isAdvancedResearch > 0
+          ? (advancedSearchField.contains('Date')
+              ? beginDate + ' ' + beginTime + '__' + endDate + ' ' + endTime
+              : _advancedSearchTextController.text)
+          : '',
       "secondAdvancedSearchText": isAdvancedResearch > 1
-          ? _secondAdvancedSearchTextController.text
+          ? (secondAdvancedSearchField.contains('Date')
+              ? beginDate + ' ' + beginTime + '__' + endDate + ' ' + endTime
+              : _secondAdvancedSearchTextController.text)
           : '',
       "limit": numberDisplayedList.last.toString(),
       "order": searchFieldList[_currentSortColumn].toUpperCase(),
@@ -130,15 +147,68 @@ class _TracaListState extends State<TracaList>
                         });
                         searchTraca();
                       }))),
-          Expanded(
-              child: TextFormField(
-            controller: _advancedSearchTextController,
-            decoration:
-                const InputDecoration(hintText: 'Deuxième champ de recherche'),
-            onFieldSubmitted: (e) {
-              searchTraca();
-            },
-          )),
+          SizedBox(
+              width: 550,
+              child: advancedSearchField.contains('Date')
+                  ? Row(
+                      children: [
+                        const Text(' De : '),
+                        SizedBox(
+                            width: 120,
+                            child: TextFormField(
+                                textAlign: TextAlign.center,
+                                initialValue: beginDate,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    beginDate = newValue;
+                                  });
+                                })),
+                        const Text(' : '),
+                        SizedBox(
+                            width: 60,
+                            child: TextFormField(
+                              textAlign: TextAlign.center,
+                              initialValue: beginTime,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  beginTime = newValue;
+                                });
+                              },
+                            )),
+                        const Text(' à : '),
+                        SizedBox(
+                            width: 120,
+                            child: TextFormField(
+                              textAlign: TextAlign.center,
+                              initialValue: endDate,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  endDate = newValue;
+                                });
+                              },
+                            )),
+                        const Text(' : '),
+                        SizedBox(
+                            width: 60,
+                            child: TextFormField(
+                              textAlign: TextAlign.center,
+                              initialValue: endTime,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  endTime = newValue;
+                                });
+                              },
+                            )),
+                      ],
+                    )
+                  : TextFormField(
+                      controller: _advancedSearchTextController,
+                      decoration: const InputDecoration(
+                          hintText: 'Deuxième champ de recherche'),
+                      onFieldSubmitted: (e) {
+                        searchTraca();
+                      },
+                    )),
           IconButton(
               onPressed: () {
                 setState(() {
@@ -187,25 +257,130 @@ class _TracaListState extends State<TracaList>
                           searchTraca();
                         })))
           ]),
-          Expanded(
+          SizedBox(
+              width: 550,
               child: Column(children: [
-            TextFormField(
-              controller: _advancedSearchTextController,
-              decoration: const InputDecoration(
-                  hintText: 'Deuxième champ de recherche'),
-              onFieldSubmitted: (e) {
-                searchTraca();
-              },
-            ),
-            TextFormField(
-              controller: _secondAdvancedSearchTextController,
-              decoration: const InputDecoration(
-                  hintText: 'Troisième champ de recherche'),
-              onFieldSubmitted: (e) {
-                searchTraca();
-              },
-            )
-          ])),
+                advancedSearchField.contains('Date')
+                    ? Row(
+                        children: [
+                          const Text(' De : '),
+                          SizedBox(
+                              width: 120,
+                              child: TextFormField(
+                                  textAlign: TextAlign.center,
+                                  initialValue: beginDate,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      beginDate = newValue;
+                                    });
+                                  })),
+                          const Text(' : '),
+                          SizedBox(
+                              width: 60,
+                              child: TextFormField(
+                                textAlign: TextAlign.center,
+                                initialValue: beginTime,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    beginTime = newValue;
+                                  });
+                                },
+                              )),
+                          const Text(' à : '),
+                          SizedBox(
+                              width: 120,
+                              child: TextFormField(
+                                textAlign: TextAlign.center,
+                                initialValue: endDate,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    endDate = newValue;
+                                  });
+                                },
+                              )),
+                          const Text(' : '),
+                          SizedBox(
+                              width: 60,
+                              child: TextFormField(
+                                textAlign: TextAlign.center,
+                                initialValue: endTime,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    endTime = newValue;
+                                  });
+                                },
+                              )),
+                        ],
+                      )
+                    : TextFormField(
+                        controller: _advancedSearchTextController,
+                        decoration: const InputDecoration(
+                            hintText: 'Deuxième champ de recherche'),
+                        onFieldSubmitted: (e) {
+                          searchTraca();
+                        },
+                      ),
+                secondAdvancedSearchField.contains('Date')
+                    ? Row(
+                        children: [
+                          const Text(' De : '),
+                          SizedBox(
+                              width: 120,
+                              child: TextFormField(
+                                  textAlign: TextAlign.center,
+                                  initialValue: beginDate,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      beginDate = newValue;
+                                    });
+                                  })),
+                          const Text(' : '),
+                          SizedBox(
+                              width: 60,
+                              child: TextFormField(
+                                textAlign: TextAlign.center,
+                                initialValue: beginTime,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    beginTime = newValue;
+                                  });
+                                },
+                              )),
+                          const Text(' à : '),
+                          SizedBox(
+                              width: 120,
+                              child: TextFormField(
+                                textAlign: TextAlign.center,
+                                initialValue: endDate,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    endDate = newValue;
+                                  });
+                                },
+                              )),
+                          const Text(' : '),
+                          SizedBox(
+                              width: 60,
+                              child: TextFormField(
+                                textAlign: TextAlign.center,
+                                initialValue: endTime,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    endTime = newValue;
+                                  });
+                                },
+                              )),
+                        ],
+                      )
+                    : TextFormField(
+                        controller: _secondAdvancedSearchTextController,
+                        decoration: const InputDecoration(
+                            hintText: 'Troisième champ de recherche'),
+                        onFieldSubmitted: (e) {
+                          searchTraca();
+                        },
+                      )
+              ])),
           Padding(
               padding: const EdgeInsets.only(top: 40),
               child: IconButton(
@@ -450,6 +625,8 @@ class _TracaListState extends State<TracaList>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    beginTime = TimeOfDay.now().to24hours();
+    endTime = TimeOfDay.now().to24hours();
     return StreamBuilder<List>(
         stream: _streamController.stream,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -481,7 +658,7 @@ class _TracaListState extends State<TracaList>
                                       });
                                     }))),
                         SizedBox(
-                            width: 600,
+                            width: 550,
                             child: searchField.contains('Date')
                                 ? Row(
                                     children: [
@@ -489,46 +666,49 @@ class _TracaListState extends State<TracaList>
                                       SizedBox(
                                           width: 120,
                                           child: TextFormField(
+                                              textAlign: TextAlign.center,
                                               initialValue: beginDate,
                                               onChanged: (newValue) {
                                                 setState(() {
                                                   beginDate = newValue;
                                                 });
                                               })),
-                                      IconButton(
-                                          icon:
-                                              const Icon(Icons.calendar_month),
-                                          onPressed: () {
-                                            showDatePicker(
-                                                    context: context,
-                                                    initialDate: DateTime.now(),
-                                                    firstDate: DateTime(2010),
-                                                    lastDate: DateTime.now())
-                                                .then((value) => setState(() {
-                                                      beginDate = DateFormat(
-                                                              'yyyy-MM-dd')
-                                                          .format(value ??
-                                                              DateTime.now());
-                                                    }));
-                                          }),
-                                      SizedBox(width: 60, child: TextField()),
-                                      IconButton(
-                                          icon: const Icon(Icons.schedule),
-                                          onPressed: () {
-                                            showTimePicker(
-                                                context: context,
-                                                initialTime: TimeOfDay.now());
-                                          }),
-                                      Text(' à : '),
-                                      SizedBox(width: 120, child: TextField()),
-                                      IconButton(
-                                        icon: Icon(Icons.calendar_month),
-                                        onPressed: () {},
-                                      ),
-                                      SizedBox(width: 60, child: TextField()),
-                                      IconButton(
-                                          icon: const Icon(Icons.schedule),
-                                          onPressed: () {}),
+                                      const Text(' : '),
+                                      SizedBox(
+                                          width: 60,
+                                          child: TextFormField(
+                                            textAlign: TextAlign.center,
+                                            initialValue: beginTime,
+                                            onChanged: (newValue) {
+                                              setState(() {
+                                                beginTime = newValue;
+                                              });
+                                            },
+                                          )),
+                                      const Text(' à : '),
+                                      SizedBox(
+                                          width: 120,
+                                          child: TextFormField(
+                                            textAlign: TextAlign.center,
+                                            initialValue: endDate,
+                                            onChanged: (newValue) {
+                                              setState(() {
+                                                endDate = newValue;
+                                              });
+                                            },
+                                          )),
+                                      const Text(' : '),
+                                      SizedBox(
+                                          width: 60,
+                                          child: TextFormField(
+                                            textAlign: TextAlign.center,
+                                            initialValue: endTime,
+                                            onChanged: (newValue) {
+                                              setState(() {
+                                                endTime = newValue;
+                                              });
+                                            },
+                                          )),
                                     ],
                                   )
                                 : TextFormField(

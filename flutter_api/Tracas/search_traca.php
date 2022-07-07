@@ -20,10 +20,11 @@ $advancedField = str_replace($search,$replace,$advancedField);
 $secondAdvancedField = str_replace($search, $replace, $secondAdvancedField);
 $order = str_replace($search,$replace,$order);
 
-$advancedSearch = strlen($advancedSearchText) > 0 ? ' AND '.$advancedField.' LIKE "%'.$advancedSearchText.'%"' : '';
-$secondAdvancedSearch = strlen($secondAdvancedSearchText) > 0 ? ' AND '.$secondAdvancedField.' LIKE "%'.$secondAdvancedSearchText.'%"' : '';
+$search = strpos($searchText, '__') === false ? ' LIKE "%'.$searchText.'%"' : ' BETWEEN "'.explode('__',$searchText)[0].'" AND "'.explode('__', $searchText)[1].'"';
+$advancedSearch = strlen($advancedSearchText) > 0 ? ' AND '.$advancedField.(strpos($advancedSearchText, '__') === false ? ' LIKE "%'.$advancedSearchText.'%"' : ' BETWEEN "'.explode('__',$advancedSearchText)[0].'" AND "'.explode('__', $advancedSearchText)[1].'"') : '';
+$secondAdvancedSearch = strlen($secondAdvancedSearchText) > 0 ? ' AND '.$secondAdvancedField.(strpos($secondAdvancedSearchText, '__') === false ? ' LIKE "%'.$secondAdvancedSearchText.'%"' : ' BETWEEN "'.explode('__',$secondAdvancedSearchText)[0].'" AND "'.explode('__', $secondAdvancedSearchText)[1].'"') : '';
 
-$sqlQuery = 'SELECT * FROM tracabilite WHERE '.$field.' LIKE "%'.$searchText.'%"'.$advancedSearch.$secondAdvancedSearch.' ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
+$sqlQuery = 'SELECT * FROM tracabilite WHERE '.$field.$search.$advancedSearch.$secondAdvancedSearch.' ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
 

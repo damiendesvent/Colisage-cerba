@@ -22,7 +22,7 @@ Modifications des variables :
 Le programme "Serveur Colisage" a été créé en Python avec la libraire Tkinter et a été compilé par la librairie PyInstaller.
 Pour générer un éxecutable à partir du fichier setup.py, il faut avoir Ptyhon ajouté au Path de l'ordinateur et la librairie Tkinter
 d'installée (on peut l'installer via la commande "pip install pyinstaller"). Ouvrez une invite de commande à l'endroit où se trouve le fichier setup.py
-et tapez 'pyinstaller setup.exe --noconsole --add-binary "bin/;bin/"' (il est nécessaire que vous ayez sur votre ordinateur l'ensemble des libraires importées dans
+et tapez 'pyinstaller setup.py --noconsole --add-binary "bin/;bin/"' (il est nécessaire que vous ayez sur votre ordinateur l'ensemble des libraires importées dans
 le programme, si ce n'est pas le cas : vous pouvez les installer via pip ex: pip install tkinter).
 
 Le fichier exe à cliquer est Package/dist/setup/setup.exe

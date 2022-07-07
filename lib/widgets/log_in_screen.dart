@@ -13,6 +13,7 @@ import 'sql_screen.dart';
 import 'settings_screen.dart';
 import 'tube_screen.dart';
 import 'traca_screen.dart';
+import 'receipt_tube_screen.dart';
 import 'management_screen.dart';
 
 class LogInScreen extends StatelessWidget {
@@ -52,6 +53,7 @@ class _LogInFormState extends State<LogInForm> {
           globals.mainWidgetTabs = [
             const TracaScreen(),
             const TubeScreen(),
+            const ReceiptTubeScreen(),
             if (globals.user.siteRights +
                     globals.user.roadMapRights +
                     globals.user.boxRights +

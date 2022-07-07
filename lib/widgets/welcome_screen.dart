@@ -168,6 +168,15 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                                   const Text(" Gestion tubes")
                               ],
                             ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.receipt),
+                                if (MediaQuery.of(context).size.width >
+                                    minTabWidth)
+                                  const Text(" Réception tube")
+                              ],
+                            ),
                             if (globals.user.siteRights +
                                     globals.user.roadMapRights +
                                     globals.user.boxRights +

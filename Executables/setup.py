@@ -27,7 +27,7 @@ with open('bin/variables.txt') as variables_file :
 
     zip_file = variableDict['zip_file']
     extract_folder = variableDict['extract_folder']
-    conf_file_path = variableDict['conf_file_path']
+    apache_file_path = variableDict['apache_file_path']
     default_path = variableDict['default_path']
     default_antislash_path = variableDict['default_antislash_path']
     main_file_path = variableDict['main_file_path']
@@ -126,59 +126,67 @@ def start_stop_backup() :
 
 
 def install() :
-    if not os.path.isdir(extract_folder) :
-        if os.path.isfile(zip_file) :
-            shutil.unpack_archive(zip_file, extract_folder) # On extrait l'archive du serveur
-
-            # Cette partie modifie le fichier conf du serveur apache pour adapter les chemins d'accès
-            with open(conf_file_path, 'r') as conf_file :
-                conf_file_data = conf_file.read()
+    if os.path.isdir(extract_folder) :
+        if not os.listdir(extract_folder) :
+            if os.path.isfile(zip_file) :
+                shutil.unpack_archive(zip_file, extract_folder) # On extrait l'archive du serveur
                 
-            conf_file_data = conf_file_data.replace(default_path, path_w_slash)   # On remplace les chemins d'accès
-            conf_file_data = conf_file_data.replace(default_antislash_path, path) # par ceux de l'ordinateur
+                os.chdir(extract_folder)
+                path = os.getcwd()
+                path_w_slash = path.replace('\\','/')
+                # Cette partie modifie le fichier conf du serveur apache pour adapter les chemins d'accès
+                with open(apache_file_path, 'r') as conf_file :
+                    conf_file_data = conf_file.read()
+                    
+                conf_file_data = conf_file_data.replace(default_path, path_w_slash)   # On remplace les chemins d'accès
+                conf_file_data = conf_file_data.replace(default_antislash_path, path) # par ceux de l'ordinateur
 
-            with open(conf_file_path, 'w') as conf_file :
-                conf_file.write(conf_file_data)
-            
-            # Cette partie modifie le fichier main du site pour adapter l'IP 
-            with open(main_file_path, 'r') as main_file :
-                main_file_data = main_file.read()
+                with open(apache_file_path, 'w') as conf_file :
+                    conf_file.write(conf_file_data)
                 
-            main_file_data = main_file_data.replace(default_ip, ip)   # On remplace l'IP defaut par l'IP locale de l'ordinateur
+                # Cette partie modifie le fichier main du site pour adapter l'IP 
+                with open(main_file_path, 'r') as main_file :
+                    main_file_data = main_file.read()
+                    
+                main_file_data = main_file_data.replace(default_ip, ip)   # On remplace l'IP defaut par l'IP locale de l'ordinateur
 
-            with open(main_file_path, 'w') as main_file :
-                main_file.write(main_file_data)
+                with open(main_file_path, 'w') as main_file :
+                    main_file.write(main_file_data)
 
-            # Cette partie modifie le fichier conf du serveur mysql pour adapter les chemins d'accès
-            with open(my_file_path, 'r') as my_file :
-                my_file_data = my_file.read()
+                # Cette partie modifie le fichier conf du serveur mysql pour adapter les chemins d'accès
+                with open(my_file_path, 'r') as my_file :
+                    my_file_data = my_file.read()
 
-            my_file_data = my_file_data.replace(default_path, path_w_slash)
+                my_file_data = my_file_data.replace(default_path, path_w_slash)
 
-            with open(my_file_path, 'w') as my_file :
-                my_file.write(my_file_data)
+                with open(my_file_path, 'w') as my_file :
+                    my_file.write(my_file_data)
 
-            # Cette partie modifie le fichier conf du serveur php pour adapter les chemins d'accès
-            with open(php_file_path, 'r') as php_file :
-                php_file_data = php_file.read()
+                # Cette partie modifie le fichier conf du serveur php pour adapter les chemins d'accès
+                with open(php_file_path, 'r') as php_file :
+                    php_file_data = php_file.read()
 
-            php_file_data = php_file_data.replace(default_path, path_w_slash)
-            php_file_data = php_file_data.replace(default_antislash_path, path)
+                php_file_data = php_file_data.replace(default_path, path_w_slash)
+                php_file_data = php_file_data.replace(default_antislash_path, path)
+                
+                with open(php_file_path, 'w') as php_file :
+                    php_file.write(php_file_data)
 
-            with open(php_file_path, 'w') as php_file :
-                php_file.write(php_file_data)
+                messagebox.showinfo('Installation réussie','Le serveur est désormais installé')
 
-            messagebox.showinfo('Installation réussie','Le serveur est désormais installé')
-
-            installed_label = tk.Label(root, text= 'Installation réussie du serveur le ' + datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fg='green', font=('helvetica', 10))
-            installed_message = canvas1.create_window(250, 300, window=installed_label)
-            root.after(16000, canvas1.delete, installed_message)
+                installed_label = tk.Label(root, text= 'Installation réussie du serveur le ' + datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fg='green', font=('helvetica', 10))
+                installed_message = canvas1.create_window(250, 50, window=installed_label)
+                root.after(16000, canvas1.delete, installed_message)
         
-        else :
-            messagebox.showerror('Problème de fichier', 'Le fichier MAMP.zip est introuvable,\nVérifiez qu\'il est bien présent.')
+            else :
+                messagebox.showerror('Problème de fichier', 'Le fichier MAMP.zip est introuvable,\nVérifiez qu\'il est bien présent.')
 
+        else :
+            messagebox.showerror('Serveur déjà installé', 'Le serveur est déjà installé, \ns\'il ne fonctionne pas corectement, appuyez sur Réparer')
     else :
-        messagebox.showerror('Serveur déjà installé', 'Le serveur est déjà installé, \ns\'il ne fonctionne pas corectement, appuyez sur Réparer')
+        print(extract_folder)
+        os.mkdir(extract_folder)
+        install()
 
 
 def repair() :
@@ -193,7 +201,7 @@ def uninstall() :
         if os.path.isdir(extract_folder) :
             shutil.rmtree(extract_folder)
         uninstalled_label = tk.Label(root, text= 'Désinstallation réussie du serveur le ' + datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fg='brown', font=('helvetica', 10))
-        uninstalled_message = canvas1.create_window(250,300,window=uninstalled_label)
+        uninstalled_message = canvas1.create_window(250,50,window=uninstalled_label)
         root.after(8000, canvas1.delete, uninstalled_message)
 
 
@@ -263,8 +271,9 @@ def stop_all() :
 def stop_process() :
     subprocess.run('taskkill /IM httpd.exe /IM mysqld.exe /F')
 
-path = os.getcwd()
-path_w_slash = path.replace('\\','/')
+def open_variables_file() :
+    subprocess.run('powershell start bin/variables.txt')
+
 global ip
 ip = socket.gethostbyname(socket.gethostname())
 
@@ -303,7 +312,10 @@ launch_all_button = tk.Button(text='Démarrer tous\nles services', command=launc
 canvas1.create_window(100,100, window=launch_all_button)
 
 open_website_button = tk.Button(text='Accéder\nau\nsite web', command=open_website, bg='blue', fg='white')
-canvas1.create_window(400, 100, window=open_website_button)
+canvas1.create_window(300, 100, window=open_website_button)
+
+open_website_button = tk.Button(text='Ouvrir\nle fichier\nconfig', command=open_variables_file, bg='grey', fg='white')
+canvas1.create_window(500, 100, window=open_website_button)
 
 stop_all_button = tk.Button(text='Arrêter tous\nles services', command=stop_all, bg='brown', fg='white')
 canvas1.create_window(700,100, window=stop_all_button)

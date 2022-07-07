@@ -1,15 +1,17 @@
-# Après chaque modification des variables, il faut lancer une réparation
-# du serveur pour que les mises à jour soient effectives
+# Après chaque modification des variables, il faut relancer
+# le serveur pour que les mises à jour soient effectives
 
 zip_file = MAMP.zip
-extract_folder = C:/MAMP/MAMP
-conf_file_path = MAMP/conf/apache/httpd.conf
-default_path = directoryPathSlash
-default_antislash_path = directoryPathAntiSlash
-main_file_path = MAMP/htdocs/main.dart.js
-default_ip = default_ip
-my_file_path = MAMP/conf/mysql/my.ini
-php_file_path = MAMP/conf/php7.4.1/php.ini
+default_path = C:/MAMP
+default_antislash_path = C:\MAMP
+main_file_path = htdocs/main.dart.js
+default_ip = 192.5.60.197
+apache_file_path = conf/apache/httpd.conf
+my_file_path = conf/mysql/my.ini
+php_file_path = conf/php7.4.1/php.ini
+
+# Indiquez où vous souhaitez que le serveur soit installé
+extract_folder = C:/Serveur_colisage
 
 pda_track_in_directory = C:/PDA_tracks/in
 pda_track_out_directory = C:/PDA_tracks/out
