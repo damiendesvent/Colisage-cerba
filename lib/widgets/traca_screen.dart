@@ -37,14 +37,13 @@ class _TracaListState extends State<TracaList>
   @override
   bool get wantKeepAlive => globals.shouldKeepAlive;
 
-  final StreamController<List> _streamController = StreamController<List>();
   final _searchTextController = TextEditingController();
   final _advancedSearchTextController = TextEditingController();
   final _secondAdvancedSearchTextController = TextEditingController();
   String phpUriTracaList = Env.urlPrefix + 'Tracas/list_traca.php';
   String phpUriTracaSearch = Env.urlPrefix + 'Tracas/search_traca.php';
-  static const numberDisplayedList = [10, 25, 50, 100];
-  int numberDisplayed = 25;
+  static const numberDisplayedList = [15, 25, 50, 100, 250];
+  int numberDisplayed = numberDisplayedList.first;
   static const searchFieldList = [
     'Code tracabilité',
     'Utilisateur',
@@ -68,6 +67,7 @@ class _TracaListState extends State<TracaList>
   String endDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   String beginTime = '';
   String endTime = '';
+  List<dynamic> tracas = [];
 
   Future getTracaList() async {
     http.Response res = await http.post(Uri.parse(phpUriTracaList), body: {
@@ -77,7 +77,10 @@ class _TracaListState extends State<TracaList>
     });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
-      _streamController.add(items);
+      //_streamController.add(items);
+      setState(() {
+        tracas = items;
+      });
     }
   }
 
@@ -112,7 +115,9 @@ class _TracaListState extends State<TracaList>
     });
     if (res.body.isNotEmpty) {
       List itemsSearch = json.decode(res.body);
-      _streamController.add(itemsSearch);
+      setState(() {
+        tracas = itemsSearch;
+      });
     }
   }
 
@@ -401,6 +406,7 @@ class _TracaListState extends State<TracaList>
   }
 
   void showDetailTraca(Traca traca) {
+    //Traca? traca = globals.detailedTraca;
     const TextStyle textStyle = TextStyle(fontSize: 18);
     showDialog(
         barrierColor: myBarrierColor,
@@ -532,9 +538,7 @@ class _TracaListState extends State<TracaList>
                                 TableCell(
                                     child: SizedBox(
                                         height: 40,
-                                        child: Text(
-                                            globals
-                                                .detailedTraca.registeringTime,
+                                        child: Text(traca.registeringTime,
                                             style: textStyle)))
                               ],
                             ),
@@ -627,273 +631,267 @@ class _TracaListState extends State<TracaList>
     super.build(context);
     beginTime = TimeOfDay.now().to24hours();
     endTime = TimeOfDay.now().to24hours();
-    return StreamBuilder<List>(
-        stream: _streamController.stream,
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            return Scaffold(
-                appBar: AppBar(
-                    elevation: 8,
-                    toolbarHeight: 55.0 + 50 * isAdvancedResearch,
-                    backgroundColor: Colors.grey[300],
-                    flexibleSpace: FlexibleSpaceBar(
-                        background: Column(children: [
-                      Row(mainAxisSize: MainAxisSize.min, children: [
-                        Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: DropdownButtonHideUnderline(
-                                child: DropdownButton(
-                                    value: searchField,
-                                    style: const TextStyle(fontSize: 14),
-                                    items:
-                                        searchFieldList.map((searchFieldList) {
-                                      return DropdownMenuItem(
-                                          value: searchFieldList,
-                                          child:
-                                              Text(searchFieldList.toString()));
-                                    }).toList(),
-                                    onChanged: (String? newsearchField) {
+    DataTableSource tracaData =
+        TracaData((traca) => showDetailTraca(traca), tracas);
+    TextStyle titleStyle =
+        const TextStyle(fontWeight: FontWeight.bold, fontSize: 16);
+    return Scaffold(
+        appBar: AppBar(
+            elevation: 8,
+            toolbarHeight: 55.0 + 50 * isAdvancedResearch,
+            backgroundColor: Colors.grey[300],
+            flexibleSpace: FlexibleSpaceBar(
+                background: Column(children: [
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: DropdownButtonHideUnderline(
+                        child: DropdownButton(
+                            value: searchField,
+                            style: const TextStyle(fontSize: 14),
+                            items: searchFieldList.map((searchFieldList) {
+                              return DropdownMenuItem(
+                                  value: searchFieldList,
+                                  child: Text(searchFieldList.toString()));
+                            }).toList(),
+                            onChanged: (String? newsearchField) {
+                              setState(() {
+                                searchField = newsearchField!;
+                              });
+                            }))),
+                SizedBox(
+                    width: 550,
+                    child: searchField.contains('Date')
+                        ? Row(
+                            children: [
+                              const Text(' De : '),
+                              SizedBox(
+                                  width: 120,
+                                  child: TextFormField(
+                                      textAlign: TextAlign.center,
+                                      initialValue: beginDate,
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          beginDate = newValue;
+                                        });
+                                      })),
+                              const Text(' : '),
+                              SizedBox(
+                                  width: 60,
+                                  child: TextFormField(
+                                    textAlign: TextAlign.center,
+                                    initialValue: beginTime,
+                                    onChanged: (newValue) {
                                       setState(() {
-                                        searchField = newsearchField!;
+                                        beginTime = newValue;
                                       });
-                                    }))),
-                        SizedBox(
-                            width: 550,
-                            child: searchField.contains('Date')
-                                ? Row(
-                                    children: [
-                                      const Text(' De : '),
-                                      SizedBox(
-                                          width: 120,
-                                          child: TextFormField(
-                                              textAlign: TextAlign.center,
-                                              initialValue: beginDate,
-                                              onChanged: (newValue) {
-                                                setState(() {
-                                                  beginDate = newValue;
-                                                });
-                                              })),
-                                      const Text(' : '),
-                                      SizedBox(
-                                          width: 60,
-                                          child: TextFormField(
-                                            textAlign: TextAlign.center,
-                                            initialValue: beginTime,
-                                            onChanged: (newValue) {
-                                              setState(() {
-                                                beginTime = newValue;
-                                              });
-                                            },
-                                          )),
-                                      const Text(' à : '),
-                                      SizedBox(
-                                          width: 120,
-                                          child: TextFormField(
-                                            textAlign: TextAlign.center,
-                                            initialValue: endDate,
-                                            onChanged: (newValue) {
-                                              setState(() {
-                                                endDate = newValue;
-                                              });
-                                            },
-                                          )),
-                                      const Text(' : '),
-                                      SizedBox(
-                                          width: 60,
-                                          child: TextFormField(
-                                            textAlign: TextAlign.center,
-                                            initialValue: endTime,
-                                            onChanged: (newValue) {
-                                              setState(() {
-                                                endTime = newValue;
-                                              });
-                                            },
-                                          )),
-                                    ],
-                                  )
-                                : TextFormField(
-                                    controller: _searchTextController,
-                                    decoration: const InputDecoration(
-                                        hintText: 'Recherche'),
-                                    onFieldSubmitted: (e) {
-                                      searchTraca();
                                     },
                                   )),
-                        IconButton(
-                            onPressed: () {
+                              const Text(' à : '),
+                              SizedBox(
+                                  width: 120,
+                                  child: TextFormField(
+                                    textAlign: TextAlign.center,
+                                    initialValue: endDate,
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        endDate = newValue;
+                                      });
+                                    },
+                                  )),
+                              const Text(' : '),
+                              SizedBox(
+                                  width: 60,
+                                  child: TextFormField(
+                                    textAlign: TextAlign.center,
+                                    initialValue: endTime,
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        endTime = newValue;
+                                      });
+                                    },
+                                  )),
+                            ],
+                          )
+                        : TextFormField(
+                            controller: _searchTextController,
+                            decoration:
+                                const InputDecoration(hintText: 'Recherche'),
+                            onFieldSubmitted: (e) {
                               searchTraca();
                             },
-                            icon: const Icon(Icons.search_outlined),
-                            tooltip: 'Rechercher'),
-                        if (isAdvancedResearch == 0)
-                          IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isAdvancedResearch = 1;
-                                });
-                              },
-                              icon: const Icon(Icons.manage_search_outlined),
-                              tooltip: 'Recherche avancée'),
-                        if (isAdvancedResearch > 0)
-                          IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isAdvancedResearch = 0;
-                                  _advancedSearchTextController.text = '';
-                                  _secondAdvancedSearchTextController.text = '';
-                                });
-                                searchTraca();
-                              },
-                              icon: const Icon(Icons.search_off_outlined),
-                              tooltip: 'Recherche simple'),
-                        const Spacer(),
-                        if (globals.shouldDisplaySyncButton)
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                getTracaList();
-                              });
-                            },
-                            icon: const Icon(Icons.sync),
-                            tooltip: 'Actualiser l\'onglet',
-                          ),
-                        const Spacer(),
-                        const Text('Nombre de lignes affichées : '),
-                        DropdownButton(
-                            value: numberDisplayed,
-                            items:
-                                numberDisplayedList.map((numberDisplayedList) {
-                              return DropdownMenuItem(
-                                  value: numberDisplayedList,
-                                  child: Text(numberDisplayedList.toString()));
-                            }).toList(),
-                            onChanged: (int? newNumberDisplayed) {
-                              setState(() {
-                                numberDisplayed = newNumberDisplayed!;
-                              });
-                            })
-                      ]),
-                      Row(
-                        children: advancedResearch(),
-                      )
-                    ]))),
-                body: snapshot.data.isEmpty
-                    ? const Center(
-                        child: Text(
-                            'Aucune traçabilité ne correspond à votre recherche.'))
-                    : Row(children: <Widget>[
-                        Expanded(
-                            child: Scrollbar(
-                                controller: _scrollController,
-                                thumbVisibility: true,
-                                trackVisibility: true,
-                                child: SingleChildScrollView(
-                                    controller: _scrollController,
-                                    child: DataTable(
-                                      headingRowColor: MaterialStateProperty
-                                          .resolveWith<Color?>(
-                                              (Set<MaterialState> states) {
-                                        return Colors.grey.withOpacity(0.2);
-                                      }),
-                                      showCheckboxColumn: false,
-                                      sortColumnIndex: _currentSortColumn,
-                                      sortAscending: _isAscending,
-                                      headingTextStyle: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16),
-                                      columns: [
-                                        DataColumn(
-                                            label:
-                                                const Text('Code tracabilité'),
-                                            onSort:
-                                                sorting('CODE TRACABILITE')),
-                                        DataColumn(
-                                            label: const Text('Utilisateur'),
-                                            onSort: sorting('UTILISATEUR')),
-                                        DataColumn(
-                                            label: const Text('Code tournée'),
-                                            onSort: sorting('CODE TOURNEE')),
-                                        DataColumn(
-                                            label: const Text('Code site'),
-                                            onSort: sorting('CODE SITE')),
-                                        DataColumn(
-                                            label: const Text('Boite'),
-                                            onSort: sorting('BOITE')),
-                                        DataColumn(
-                                            label: const Text('Tube'),
-                                            onSort: sorting('TUBE')),
-                                        DataColumn(
-                                            label: const Text('Action'),
-                                            onSort: sorting('ACTION')),
-                                        DataColumn(
-                                            label: const Text('Code voiture'),
-                                            onSort: sorting('CODE VOITURE')),
-                                        DataColumn(
-                                            label: const Text('Enregistrement'),
-                                            onSort: sorting(
-                                                'DATE HEURE ENREGISTREMENT')),
-                                        DataColumn(
-                                            label:
-                                                const Text('Synchronisation'),
-                                            onSort: sorting(
-                                                'DATE HEURE SYNCHRONISATION')),
-                                      ],
-                                      rows: [
-                                        for (Map traca in snapshot.data
-                                            .take(numberDisplayed))
-                                          DataRow(
-                                              color: MaterialStateProperty
-                                                  .resolveWith<Color?>(
-                                                      (Set<MaterialState>
-                                                          states) {
-                                                if (states.contains(
-                                                    MaterialState.selected)) {
-                                                  return Colors.grey
-                                                      .withOpacity(0.08);
-                                                }
-                                                if ((i += 1).isEven) {
-                                                  return backgroundColor;
-                                                }
-                                                return null; // alterne les couleurs des lignes
-                                              }),
-                                              onSelectChanged:
-                                                  (bool? selected) {
-                                                if (selected!) {
-                                                  showDetailTraca(
-                                                      Traca.fromSnapshot(
-                                                          traca));
-                                                }
-                                              },
-                                              cells: [
-                                                DataCell(SelectableText(
-                                                  traca['CODE TRACABILITE'],
-                                                )),
-                                                DataCell(SelectableText(
-                                                    traca['UTILISATEUR'])),
-                                                DataCell(SelectableText(
-                                                    traca['CODE TOURNEE'] ??
-                                                        '')),
-                                                DataCell(SelectableText(
-                                                    traca['CODE SITE'])),
-                                                DataCell(SelectableText(
-                                                    traca['BOITE'] ?? '')),
-                                                DataCell(SelectableText(
-                                                    traca['TUBE'] ?? '')),
-                                                DataCell(SelectableText(
-                                                    traca['ACTION'])),
-                                                DataCell(SelectableText(
-                                                    traca['CODE VOITURE'] ??
-                                                        '')),
-                                                DataCell(SelectableText(traca[
-                                                    'DATE HEURE ENREGISTREMENT'])),
-                                                DataCell(SelectableText(traca[
-                                                    'DATE HEURE SYNCHRONISATION'])),
-                                              ])
-                                      ],
-                                    ))))
-                      ]));
-          }
-          return const Center(child: CircularProgressIndicator());
-        });
+                          )),
+                IconButton(
+                    onPressed: () {
+                      searchTraca();
+                    },
+                    icon: const Icon(Icons.search_outlined),
+                    tooltip: 'Rechercher'),
+                if (isAdvancedResearch == 0)
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isAdvancedResearch = 1;
+                        });
+                      },
+                      icon: const Icon(Icons.manage_search_outlined),
+                      tooltip: 'Recherche avancée'),
+                if (isAdvancedResearch > 0)
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isAdvancedResearch = 0;
+                          _advancedSearchTextController.text = '';
+                          _secondAdvancedSearchTextController.text = '';
+                        });
+                        searchTraca();
+                      },
+                      icon: const Icon(Icons.search_off_outlined),
+                      tooltip: 'Recherche simple'),
+                const Spacer(),
+                if (globals.shouldDisplaySyncButton)
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        getTracaList();
+                      });
+                    },
+                    icon: const Icon(Icons.sync),
+                    tooltip: 'Actualiser l\'onglet',
+                  ),
+                const Spacer(),
+                const Text('Nombre de lignes affichées : '),
+                DropdownButton(
+                    value: numberDisplayed,
+                    items: numberDisplayedList.map((numberDisplayedList) {
+                      return DropdownMenuItem(
+                          value: numberDisplayedList,
+                          child: Text(numberDisplayedList.toString()));
+                    }).toList(),
+                    onChanged: (int? newNumberDisplayed) {
+                      setState(() {
+                        numberDisplayed = newNumberDisplayed!;
+                      });
+                    })
+              ]),
+              Row(
+                children: advancedResearch(),
+              )
+            ]))),
+        body: tracaData.rowCount != 0
+            ? Row(children: <Widget>[
+                Expanded(
+                    child: Scrollbar(
+                        controller: _scrollController,
+                        thumbVisibility: true,
+                        trackVisibility: true,
+                        child: SingleChildScrollView(
+                            controller: _scrollController,
+                            child: PaginatedDataTable(
+                                rowsPerPage: numberDisplayed,
+                                showFirstLastButtons: true,
+                                showCheckboxColumn: false,
+                                columnSpacing: 0,
+                                sortColumnIndex: _currentSortColumn,
+                                sortAscending: _isAscending,
+                                columns: [
+                                  DataColumn(
+                                      label: Text(
+                                        'Code\ntracabilité',
+                                        textAlign: TextAlign.center,
+                                        style: titleStyle,
+                                      ),
+                                      onSort: sorting('CODE TRACABILITE')),
+                                  DataColumn(
+                                      label: Text('Utilisateur',
+                                          style: titleStyle),
+                                      onSort: sorting('UTILISATEUR')),
+                                  DataColumn(
+                                      label: Text('Code\ntournée',
+                                          textAlign: TextAlign.center,
+                                          style: titleStyle),
+                                      onSort: sorting('CODE TOURNEE')),
+                                  DataColumn(
+                                      label: Text('Code\nsite',
+                                          textAlign: TextAlign.center,
+                                          style: titleStyle),
+                                      onSort: sorting('CODE SITE')),
+                                  DataColumn(
+                                      label: Text('Boite', style: titleStyle),
+                                      onSort: sorting('BOITE')),
+                                  DataColumn(
+                                      label: Text('Tube', style: titleStyle),
+                                      onSort: sorting('TUBE')),
+                                  DataColumn(
+                                      label: Text('Action', style: titleStyle),
+                                      onSort: sorting('ACTION')),
+                                  DataColumn(
+                                      label: Text('Code\nvoiture',
+                                          textAlign: TextAlign.center,
+                                          style: titleStyle),
+                                      onSort: sorting('CODE VOITURE')),
+                                  DataColumn(
+                                      label: Text('Enregistrement',
+                                          style: titleStyle),
+                                      onSort:
+                                          sorting('DATE HEURE ENREGISTREMENT')),
+                                  DataColumn(
+                                      label: Text('Synchronisation',
+                                          style: titleStyle),
+                                      onSort: sorting(
+                                          'DATE HEURE SYNCHRONISATION')),
+                                ],
+                                source: tracaData))))
+              ])
+            : const Center(
+                child: Text('Aucun élément ne correspond à votre recherche')));
   }
+}
+
+class TracaData extends DataTableSource {
+  List<dynamic> data;
+  final Function onRowSelected;
+  TracaData(this.onRowSelected, this.data);
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => data.length;
+  @override
+  int get selectedRowCount => 0;
+  @override
+  DataRow getRow(int index) {
+    return DataRow(
+        color: MaterialStateProperty.resolveWith<Color?>(
+            (Set<MaterialState> states) {
+          if (states.contains(MaterialState.selected)) {
+            return Colors.grey.withOpacity(0.1);
+          } else if (index.isEven) {
+            return backgroundColor;
+          }
+          return null; // alterne les couleurs des lignes
+        }),
+        onSelectChanged: (bool? selected) {
+          if (selected!) {
+            onRowSelected(Traca.fromSnapshot(data[index]));
+            //notifyListeners();
+          }
+        },
+        cells: [
+          DataCell(SelectableText(data[index]['CODE TRACABILITE'])),
+          DataCell(SelectableText(data[index]['UTILISATEUR'])),
+          DataCell(SelectableText(data[index]['CODE TOURNEE'] ?? '')),
+          DataCell(SelectableText(data[index]['CODE SITE'])),
+          DataCell(SelectableText(data[index]['BOITE'] ?? '')),
+          DataCell(SelectableText(data[index]['TUBE'] ?? '')),
+          DataCell(SelectableText(data[index]['ACTION'])),
+          DataCell(SelectableText(data[index]['CODE VOITURE'] ?? '')),
+          DataCell(SelectableText(DateFormat("HH'h'mm:ss le dd/MM/yyyy").format(
+              DateTime.parse(data[index]['DATE HEURE ENREGISTREMENT'])))),
+          DataCell(SelectableText(DateFormat("HH'h'mm:ss le dd/MM/yyyy").format(
+              DateTime.parse(data[index]['DATE HEURE SYNCHRONISATION'])))),
+        ]);
+  }
+
+  onRowSelect() {}
 }

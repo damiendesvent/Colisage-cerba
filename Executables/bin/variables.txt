@@ -10,7 +10,7 @@ apache_file_path = conf/apache/httpd.conf
 my_file_path = conf/mysql/my.ini
 php_file_path = conf/php7.4.1/php.ini
 
-# Indiquez où vous souhaitez que le serveur soit installé
+# Indiquez où vous souhaitez que le serveur soit installé (prennez un chemin sans espace)
 extract_folder = C:/Serveur_colisage
 
 pda_track_in_directory = C:/PDA_tracks/in

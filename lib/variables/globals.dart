@@ -44,21 +44,6 @@ Site detailedSite = Site(
 RoadMap detailedRoadMap =
     RoadMap(code: 0, libelle: '', tel: '', comment: '', sortingNumer: 0);
 
-Traca detailedTraca = Traca(
-    code: 0,
-    user: '',
-    tournee: 0,
-    site: 0,
-    box: '',
-    tube: '',
-    action: '',
-    correspondant: '',
-    registeringTime: '',
-    synchronizingTime: '',
-    pgm: '',
-    lettrage: 0,
-    car: 0,
-    comment: '');
-
 List<Widget> mainWidgetTabs = [];
 List<Widget> managementWidgetTabs = [];
+

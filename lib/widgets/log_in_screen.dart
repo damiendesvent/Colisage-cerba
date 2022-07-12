@@ -40,43 +40,51 @@ class _LogInFormState extends State<LogInForm> {
   final _passwordTextController = TextEditingController();
   bool login = false;
   bool submited = false;
+  bool error = false;
   double _formProgress = 0;
 
   void tryConnecting(String code, String password) async {
     String phpUriUserDetail = Env.urlPrefix + 'Users/detail_user.php';
-    http.Response res = await http.post(Uri.parse(phpUriUserDetail),
-        body: {"code": code.toUpperCase(), "password": password});
-    if (res.body.isNotEmpty) {
-      if (res.body != 'false') {
+    try {
+      http.Response res = await http.post(Uri.parse(phpUriUserDetail),
+          body: {"code": code.toUpperCase(), "password": password});
+      if (res.body.isNotEmpty) {
+        if (res.body != 'false') {
+          setState(() {
+            globals.user = User.fromSnapshot(json.decode(res.body));
+            globals.mainWidgetTabs = [
+              const TracaScreen(),
+              const TubeScreen(),
+              const ReceiptTubeScreen(),
+              if (globals.user.siteRights +
+                      globals.user.roadMapRights +
+                      globals.user.boxRights +
+                      (globals.user.settingsRights ? 1 : 0) +
+                      (globals.user.sqlExecute ? 1 : 0) >
+                  0)
+                const ManagementScreen(),
+            ];
+            globals.managementWidgetTabs = [
+              if (globals.user.userRights > 0) const UserScreen(),
+              if (globals.user.boxRights > 0) const BoxesPrintScreen(),
+              if (globals.user.siteRights > 0) const SiteScreen(),
+              if (globals.user.roadMapRights > 0) const RoadMapScreen(),
+              if (globals.user.settingsRights) const SettingScreen(),
+              if (globals.user.sqlExecute) const SqlScreen()
+            ];
+            globals.isAuthentified = true;
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                '/welcome', (Route<dynamic> route) => false);
+          });
+        }
         setState(() {
-          globals.user = User.fromSnapshot(json.decode(res.body));
-          globals.mainWidgetTabs = [
-            const TracaScreen(),
-            const TubeScreen(),
-            const ReceiptTubeScreen(),
-            if (globals.user.siteRights +
-                    globals.user.roadMapRights +
-                    globals.user.boxRights +
-                    (globals.user.settingsRights ? 1 : 0) +
-                    (globals.user.sqlExecute ? 1 : 0) >
-                0)
-              const ManagementScreen(),
-          ];
-          globals.managementWidgetTabs = [
-            if (globals.user.userRights > 0) const UserScreen(),
-            if (globals.user.boxRights > 0) const BoxesPrintScreen(),
-            if (globals.user.siteRights > 0) const SiteScreen(),
-            if (globals.user.roadMapRights > 0) const RoadMapScreen(),
-            if (globals.user.settingsRights) const SettingScreen(),
-            if (globals.user.sqlExecute) const SqlScreen()
-          ];
-          globals.isAuthentified = true;
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              '/welcome', (Route<dynamic> route) => false);
+          login = true;
+          error = false;
         });
       }
+    } catch (_) {
       setState(() {
-        login = true;
+        error = true;
       });
     }
   }
@@ -203,7 +211,18 @@ class _LogInFormState extends State<LogInForm> {
                   'Veuillez vérifier qu\'il n\'y a pas d\'erreur.',
                   textAlign: TextAlign.center,
                 ),
-              )
+              ),
+            if (error)
+              const ListTile(
+                title: Text(
+                  'Problème de connexion au serveur',
+                  textAlign: TextAlign.center,
+                ),
+                subtitle: Text(
+                  'Veuillez vérifier qu\'il n\'y a pas de problème de connexion.',
+                  textAlign: TextAlign.center,
+                ),
+              ),
           ]),
         ),
       ),

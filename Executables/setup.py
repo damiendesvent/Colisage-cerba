@@ -1,9 +1,11 @@
+from email import message
 from msilib.schema import Error
 import os
 import shutil
 from sys import prefix
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import filedialog as fd
 from ctypes import windll
 from datetime import datetime
 import webbrowser
@@ -11,7 +13,6 @@ import socket
 import subprocess
 import mysql.connector
 from apscheduler.schedulers.background import BackgroundScheduler
-#from pytz import timezone
 import glob
 
 
@@ -35,27 +36,33 @@ with open('bin/variables.txt') as variables_file :
     my_file_path = variableDict['my_file_path']
     php_file_path = variableDict['php_file_path']
     pda_track_in_directory = variableDict['pda_track_in_directory']
-    pda_track_out_directory = variableDict['pda_track_out_directory']
     minute_synchro_pda_1 = int(variableDict['minute_synchro_pda_1'])
     minute_synchro_pda_2 = int(variableDict['minute_synchro_pda_2'])
     backup_path = variableDict['backup_directory']
     backup_prefix = variableDict['backup_name_prefix']
     type_backup_frequence = variableDict['type_backup_frequence']
     interval_backup_time = int(variableDict['backup_frequence'])
+    last_reception_in_directory = variableDict['last_reception_in_directory']
+    last_reception_out_directory = variableDict['last_reception_out_directory']
+    type_reception_frequence = variableDict['type_reception_frequence']
+    reception_frequence = int(variableDict['reception_frequence'])
 
 
 # cette fonction sert de switch au service PDA en activant ou désactivant la tache planifiée + en mettant à jour l'affichage
 def start_stop_pda() :
     global pda_status
-    pda_status = not pda_status
-    if pda_status :
-        canvas1.itemconfigure(led_pda_signal, fill='green')
-        canvas1.itemconfigure(displayed_pda_signal, text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\n\nService PDA en marche\nDernière synchronisation :\n', fill='green')
-        pda_scheduler.start()
+    if (web_server_status or pda_status) :
+        pda_status = not pda_status
+        if pda_status :
+            canvas1.itemconfigure(led_pda_signal, fill='green')
+            canvas1.itemconfigure(displayed_pda_signal, text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\nService PDA en marche\nDernière synchronisation :\n', fill='green')
+            pda_scheduler.resume()
+        else :
+            canvas1.itemconfigure(led_pda_signal, fill='red')
+            canvas1.itemconfigure(displayed_pda_signal, text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\nService PDA à l\'arrêt', fill='red')
+            pda_scheduler.pause()
     else :
-        canvas1.itemconfigure(led_pda_signal, fill='red')
-        canvas1.itemconfigure(displayed_pda_signal, text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\n\nService PDA à l\'arrêt', fill='red')
-        pda_scheduler.shutdown()
+        messagebox.showerror(title='Serveur web éteint', message='Veuillez allumer le serveur web\npour activer la réception des fichiers PDA')
 
 
 # cette fonction est celle utilisée en tache planifiée pour le service PDA
@@ -97,16 +104,16 @@ def import_traca_pda() :
         mycursor.close()
         mydb.close()
         
-        canvas1.itemconfigure(displayed_pda_signal, text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\n\nService PDA en marche\nDernière synchronisation :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
+        canvas1.itemconfigure(displayed_pda_signal, text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\nService PDA en marche\nDernière synchronisation :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
 
     except Exception as e:
-        canvas1.itemconfigure(displayed_pda_signal, text= 'Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\n\nErreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
+        canvas1.itemconfigure(displayed_pda_signal, text= 'Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\nErreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
 
 
-def backup() :
+def backup(changeDisplay = True) :
     try :
-        subprocess.run('powershell mysqldump --add-drop-table -u root -proot cerba > ' + backup_path + '/' + backup_prefix + datetime.now().strftime('%Y-%m-%d_%H.%M.%S') + '.sql', shell=True) 
-        canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nen marche\nDernière sauvegarde :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
+        subprocess.run('powershell ' + extract_folder + '/bin/mysql/bin/mysqldump --add-drop-table -u root -proot cerba > ' + backup_path + '/' + backup_prefix + datetime.now().strftime('%Y-%m-%d_%H.%M.%S') + '.sql', shell=True) 
+        if changeDisplay : canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nen marche\nDernière sauvegarde :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
 
     except Exception as e:
         canvas1.itemconfigure(displayed_backup_signal, text= 'Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nErreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
@@ -114,15 +121,18 @@ def backup() :
 # cette fonction sert de switch au service backup en activant ou désactivant la tache planifiée + en mettant à jour l'affichage
 def start_stop_backup() :
     global backup_status
-    backup_status = not backup_status
-    if backup_status :
-        canvas1.itemconfigure(led_backup_signal, fill='green')
-        canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nen marche\nDernière sauvegarde :\n', fill='green')
-        backup_scheduler.start()
+    if (backup_status or web_server_status) :
+        backup_status = not backup_status
+        if backup_status :
+            canvas1.itemconfigure(led_backup_signal, fill='green')
+            canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nen marche\nDernière sauvegarde :\n', fill='green')
+            backup_scheduler.resume()
+        else :
+            canvas1.itemconfigure(led_backup_signal, fill='red')
+            canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nà l\'arrêt', fill='red')
+            backup_scheduler.pause()
     else :
-        canvas1.itemconfigure(led_backup_signal, fill='red')
-        canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nà l\'arrêt', fill='red')
-        backup_scheduler.shutdown()
+        messagebox.showerror(title='Serveur web éteint', message='Veuillez allumer le serveur web\npour activer la sauvegarde automatique')
 
 
 def install() :
@@ -173,10 +183,6 @@ def install() :
                     php_file.write(php_file_data)
 
                 messagebox.showinfo('Installation réussie','Le serveur est désormais installé')
-
-                installed_label = tk.Label(root, text= 'Installation réussie du serveur le ' + datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fg='green', font=('helvetica', 10))
-                installed_message = canvas1.create_window(250, 50, window=installed_label)
-                root.after(16000, canvas1.delete, installed_message)
         
             else :
                 messagebox.showerror('Problème de fichier', 'Le fichier MAMP.zip est introuvable,\nVérifiez qu\'il est bien présent.')
@@ -184,7 +190,6 @@ def install() :
         else :
             messagebox.showerror('Serveur déjà installé', 'Le serveur est déjà installé, \ns\'il ne fonctionne pas corectement, appuyez sur Réparer')
     else :
-        print(extract_folder)
         os.mkdir(extract_folder)
         install()
 
@@ -220,6 +225,7 @@ def start_stop_web_server() :
         launch_server()
     else :
         stop_server()
+        stop_all()
 
 def launch_server() :
     if os.path.isfile(extract_folder + '/MAMP.exe') :
@@ -233,7 +239,7 @@ def launch_server() :
             messagebox.showerror('Impossible de lancer le serveur', 'Impossible de lancer le serveur.\nVeuillez réessayer ou appuyer sur Réparer')
 
     else :
-        messagebox.showerror('Impossible de lancer le serveur', 'Impossible de lancer le serveur.\nVeuillez réessayer ou appuyer sur Réparer')
+        messagebox.showerror('Impossible de lancer le serveur', 'Serveur introuvable.\nVeuillez réessayer ou appuyer sur Réparer')
 
 
 def stop_server() :
@@ -244,35 +250,115 @@ def stop_server() :
 
 def open_website() :
     if not subprocess.call('powershell get-process mamp -errorAction SilentlyContinue', creationflags=subprocess.CREATE_NO_WINDOW) :
-        webbrowser.open('http://' + ip)
+        webbrowser.open('https://' + ip)
+    
+    else :
+        messagebox.showerror('Serveur non démarré', 'Le serveur n\'est pas démarré,\nappuyez d\'abord sur Démarrer le serveur')
+
+
+def open_phpMyAdmin() :
+    if not subprocess.call('powershell get-process mamp -errorAction SilentlyContinue', creationflags=subprocess.CREATE_NO_WINDOW) :
+        webbrowser.open('https://localhost/phpMyAdmin/')
     
     else :
         messagebox.showerror('Serveur non démarré', 'Le serveur n\'est pas démarré,\nappuyez d\'abord sur Démarrer le serveur')
 
 
 def launch_all() :
-    global pda_status
-    if not pda_status : start_stop_pda()
     global web_server_status
     if not web_server_status : start_stop_web_server()
+    global pda_status
+    if not pda_status : start_stop_pda()
     global backup_status
     if not backup_status : start_stop_backup()
+    global reception_status
+    if not reception_status : start_stop_reception()
 
 
 def stop_all() :
     global pda_status
     if pda_status : start_stop_pda()
     global web_server_status
-    if web_server_status : start_stop_web_server()
+    if web_server_status : stop_server()
     global backup_status
     if backup_status : start_stop_backup()
+    global reception_status
+    if reception_status : start_stop_reception()
 
 
 def stop_process() :
-    subprocess.run('taskkill /IM httpd.exe /IM mysqld.exe /F')
+    global web_server_status
+    web_server_status = False
+    canvas1.itemconfigure(led_web_signal, fill='red')
+    canvas1.itemconfigure(displayed_web_signal, text='Serveur web à l\'arrêt', fill='red')
+    subprocess.run('taskkill /IM httpd.exe /IM mysqld.exe /IM MAMP.exe /F')
+
 
 def open_variables_file() :
-    subprocess.run('powershell start bin/variables.txt')
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    subprocess.run('powershell start bin/variables.txt', creationflags=subprocess.CREATE_NO_WINDOW)
+
+
+def import_backup() :
+    if (web_server_status) :
+        backup(changeDisplay=False)
+        filename = fd.askopenfilename(filetypes=(('fichier sql', '*.sql'),('tous les fichiers', '*.*')))
+        if (len(filename) > 0) :
+            try :
+                subprocess.run(extract_folder + '/bin/mysql/bin/mysql -u root -proot cerba < "' + filename + '"', shell=True)
+                messagebox.showinfo(title='Importation réussie', message='L\'importation du fichier ' + filename.split('/')[-1] + ' est terminée')
+            except Exception as e:
+                messagebox.showerror(title='Impossible d\'importer le fichier', message=str(e))
+    else :
+        messagebox.showerror(title='Serveur web éteint', message='Veuillez allumer le serveur web\npour importer la base de données')
+
+
+# cette fonction sert de switch au service reception en activant ou désactivant la tache planifiée + en mettant à jour l'affichage
+def start_stop_reception() :
+    global reception_status
+    if (web_server_status or reception_status) :
+        reception_status = not reception_status
+        if reception_status :
+            canvas1.itemconfigure(led_reception_signal, fill='green')
+            canvas1.itemconfigure(displayed_reception_signal, text='Intervalle : ' + type_reception_frequence + '\nFréquence : ' + str(reception_frequence) + '\nService réception en marche\nDernière synchronisation :\n', fill='green')
+            reception_scheduler.resume()
+        else :
+            canvas1.itemconfigure(led_reception_signal, fill='red')
+            canvas1.itemconfigure(displayed_reception_signal, text='Intervalle : ' + type_reception_frequence + '\nFréquence : ' + str(reception_frequence) + '\nService réception à l\'arrêt', fill='red')
+            reception_scheduler.pause()
+    else :
+        messagebox.showerror(title='Serveur web éteint', message='Veuillez allumer le serveur web\npour activer le service réception')
+
+
+# cette fonction est répétée périodiquement et réecrit un fichier contenant une boite par ligne en ajoutant la dernière réception de la boite
+def reception() :
+    mydb = mysql.connector.connect(host='localhost', user='root', password='root', database='cerba')
+    mycursor = mydb.cursor(buffered=True)
+    file_names = os.listdir(last_reception_in_directory)
+    try :
+        for file_name in file_names :
+            with open(last_reception_in_directory + '/' + file_name, 'r') as in_file :
+                with open(last_reception_out_directory + '/' + file_name, 'w') as out_file :
+                    file_data = in_file.read()
+                    file_data = file_data.splitlines()
+                    for data in file_data :
+                        box = data[20:]
+                        query = 'SELECT `DATE HEURE ENREGISTREMENT` FROM `tracabilite` WHERE `BOITE` = "' + box.strip() + '" AND `ACTION` = "VIT" ORDER BY `DATE HEURE ENREGISTREMENT` DESC LIMIT 1'
+                        mycursor.execute(query)
+                        registering_time = mycursor.fetchone()
+                        if registering_time is not None :
+                            result = registering_time[0].strftime('Heure de réception : %Hh%M le %d/%m/%Y')
+                            out_file.write(data.ljust(40) + result + '\n')
+                        else :
+                            out_file.write(data + '\n')
+                        canvas1.itemconfigure(displayed_reception_signal, text='Intervalle : ' + type_reception_frequence + '\nFréquence : ' + str(reception_frequence) + '\nService réception en marche\nDernière synchronisation :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
+            os.remove(last_reception_in_directory + '/' + file_name)
+    except Exception as e :
+        canvas1.itemconfigure(displayed_reception_signal, text= 'Intervalle : ' + type_reception_frequence + '\nFréquence : ' + str(reception_frequence) + '\nErreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
+
+    mycursor.close()
+    mydb.close()
+
 
 global ip
 ip = socket.gethostbyname(socket.gethostname())
@@ -286,9 +372,13 @@ web_server_status = False
 global backup_status
 backup_status = False
 
+global reception_status
+reception_status = False
+
 pda_scheduler = BackgroundScheduler()
 pda_scheduler.add_job(import_traca_pda, 'cron', minute=minute_synchro_pda_1, timezone='Europe/Berlin')
 pda_scheduler.add_job(import_traca_pda, 'cron', minute=minute_synchro_pda_2, timezone='Europe/Berlin')
+pda_scheduler.start(paused=True)
 
 backup_scheduler = BackgroundScheduler()
 if (type_backup_frequence == 'seconde') :
@@ -299,67 +389,102 @@ elif (type_backup_frequence == 'heure') :
     backup_scheduler.add_job(backup, 'interval', hours=interval_backup_time, timezone='Europe/Berlin')
 elif (type_backup_frequence == 'jour') :
     backup_scheduler.add_job(backup, 'interval', days=interval_backup_time, timezone='Europe/Berlin')    
+backup_scheduler.start(paused=True)
+
+reception_scheduler = BackgroundScheduler()
+if (type_reception_frequence == 'seconde') :
+    reception_scheduler.add_job(reception, 'interval', seconds=reception_frequence, timezone='Europe/Berlin')
+elif (type_reception_frequence == 'minute') :
+    reception_scheduler.add_job(reception, 'interval', minutes=reception_frequence, timezone='Europe/Berlin')
+elif (type_reception_frequence == 'heure') :
+    reception_scheduler.add_job(reception, 'interval', hours=reception_frequence, timezone='Europe/Berlin')
+elif (type_reception_frequence == 'jour') :
+    reception_scheduler.add_job(reception, 'interval', days=reception_frequence, timezone='Europe/Berlin')
+reception_scheduler.start(paused=True)   
+
 
 root= tk.Tk(className='Serveur de colisage')
 root.protocol('WM_DELETE_WINDOW', disable_event) # désactive la croix de fermeture Windows
 root.iconbitmap('bin/Cerba.ico')
-canvas1 = tk.Canvas(root, width = 800, height = 500)
+canvas1 = tk.Canvas(root, width = 900, height = 500, background= '#E1F5FE')
 canvas1.pack()
 
 windll.shcore.SetProcessDpiAwareness(1)
 
 launch_all_button = tk.Button(text='Démarrer tous\nles services', command=launch_all, bg='green', fg='white')
-canvas1.create_window(100,100, window=launch_all_button)
-
-open_website_button = tk.Button(text='Accéder\nau\nsite web', command=open_website, bg='blue', fg='white')
-canvas1.create_window(300, 100, window=open_website_button)
-
-open_website_button = tk.Button(text='Ouvrir\nle fichier\nconfig', command=open_variables_file, bg='grey', fg='white')
-canvas1.create_window(500, 100, window=open_website_button)
+canvas1.create_window(150,50, window=launch_all_button)
 
 stop_all_button = tk.Button(text='Arrêter tous\nles services', command=stop_all, bg='brown', fg='white')
-canvas1.create_window(700,100, window=stop_all_button)
+canvas1.create_window(150,100, window=stop_all_button)
 
-quit_button = tk.Button(text='Quitter', command=quit, bg='grey', fg='white')
-canvas1.create_window(770,20, window=quit_button)
+open_website_button = tk.Button(text='Accéder au\nsite web', command=open_website, bg='blue', fg='white')
+canvas1.create_window(450, 75, window=open_website_button)
 
-canvas1.create_line(50,150,750,150) # première ligne horizontale
+open_website_button = tk.Button(text='Ouvrir le fichier\nconfig', command=open_variables_file, bg='black', fg='white')
+canvas1.create_window(750, 50, window=open_website_button)
 
-led_pda_signal = canvas1.create_oval(20,190,40,210, fill='red')
-displayed_pda_signal = canvas1.create_text(20,270, anchor= 'w', text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\n\nService PDA à l\'arrêt', fill='red')
+open_phpMyAdmin_button = tk.Button(text='Administrer la\nbase de données', command=open_phpMyAdmin, bg='black', fg='white')
+canvas1.create_window(750, 100, window=open_phpMyAdmin_button)
 
-pda_button = tk.Button(text='Activer/Désactiver la\nréception des fichiers PDA', command=start_stop_pda, bg='grey', fg='white')
-pda_window = canvas1.create_window(130, 380, window=pda_button)
+quit_button = tk.Button(text='Quitter', command=quit, bg='brown', fg='white')
+canvas1.create_window(870,20, window=quit_button)
 
-canvas1.create_line(266,180,266,400) # première ligne verticale
+canvas1.create_line(50,150,850,150) # première ligne horizontale
 
-led_web_signal = canvas1.create_oval(280,190,300,210, fill='red')
-displayed_web_signal = canvas1.create_text(280,270, anchor= 'w', text='Serveur web à l\'arrêt', fill='red')
+pda_title = canvas1.create_text(110,170, anchor='center', text='Réception PDA', font='Helvetica 13 bold')
 
-web_server_button = tk.Button(text='Démarrer/Arrêter \nle serveur web', command=start_stop_web_server, bg='grey', fg='white')
-canvas1.create_window(350, 380, window=web_server_button)
+led_pda_signal = canvas1.create_oval(10,190,30,210, fill='red')
+displayed_pda_signal = canvas1.create_text(10,230, width=210, anchor= 'nw', text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\nService PDA à l\'arrêt', fill='red')
 
-stop_process_button = tk.Button(text='Stopper les\nprocessus', command=stop_process, bg='brown', fg='white')
-canvas1.create_window(450,380,window=stop_process_button)
+pda_button = tk.Button(text='Activer/Désactiver la\nréception des fichiers PDA', command=start_stop_pda, bg='black', fg='white')
+pda_window = canvas1.create_window(110, 380, window=pda_button)
 
-canvas1.create_line(533,180,533,400) # deuxième ligne verticale
+canvas1.create_line(225,180,225,400) # première ligne verticale
 
-led_backup_signal = canvas1.create_oval(580,190,600,210, fill='red')
-displayed_backup_signal = canvas1.create_text(580,270, anchor= 'w', text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService sauvegarde à l\'arrêt', fill='red')
+web_title = canvas1.create_text(325,170, anchor='center', text='Serveur web', font='Helvetica 13 bold')
 
-backup_button = tk.Button(text='Activer/Désactiver la\nsauvegarde automatique', command=start_stop_backup, bg='grey', fg='white')
-canvas1.create_window(650,380, window=backup_button)
+led_web_signal = canvas1.create_oval(235,190,255,210, fill='red')
+displayed_web_signal = canvas1.create_text(235,230, width=200, anchor= 'nw', text='Serveur web à l\'arrêt', fill='red')
 
-canvas1.create_line(50,420,750,420) # deuxième ligne horizontale
+web_server_button = tk.Button(text='Démarrer/Arrêter \nle serveur web', command=start_stop_web_server, bg='black', fg='white')
+canvas1.create_window(290, 380, window=web_server_button)
+
+stop_process_button = tk.Button(text='Arrêt forcé', command=stop_process, bg='brown', fg='white')
+canvas1.create_window(390,380,window=stop_process_button)
+
+canvas1.create_line(450,180,450,400) # deuxième ligne verticale
+
+backup_title = canvas1.create_text(560,170, anchor='center', text='Sauvegarde automatique', font='Helvetica 13 bold')
+
+led_backup_signal = canvas1.create_oval(460,190,480,210, fill='red')
+displayed_backup_signal = canvas1.create_text(460,230, width=200, anchor= 'nw', text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService sauvegarde à l\'arrêt', fill='red')
+
+backup_button = tk.Button(text='Activer/Désactiver\nla sauvegarde\nautomatique', command=start_stop_backup, bg='black', fg='white')
+canvas1.create_window(510,380, window=backup_button)
+
+database_button = tk.Button(text='Importer la \nbase de données', command=import_backup, bg='black', fg='white')
+canvas1.create_window(620,380, window=database_button)
+
+canvas1.create_line(675,180,675,400) # troisième ligne verticale
+
+reception_title = canvas1.create_text(770,170, anchor='center', text='Réception boites', font='Helvetica 13 bold')
+
+led_reception_signal = canvas1.create_oval(685,190,705,210, fill='red')
+displayed_reception_signal = canvas1.create_text(685,230, width=220, anchor= 'nw', text='Intervalle : ' + type_reception_frequence + '\nFréquence : ' + str(reception_frequence) + '\nService réception à l\'arrêt', fill='red')
+
+reception_button = tk.Button(text='Activer/Désactiver le\nservice réception', command=start_stop_reception, bg='black', fg='white')
+reception_window = canvas1.create_window(770, 380, window=reception_button)
+
+canvas1.create_line(50,420,850,420) # deuxième ligne horizontale
 
 install_button = tk.Button(text='Installer le serveur',command=install, bg='green',fg='white')
 canvas1.create_window(100, 460, window=install_button)
 
 repair_button = tk.Button(text='Réparer le serveur', command=repair, bg='brown', fg='white')
-canvas1.create_window(400, 460, window=repair_button)
+canvas1.create_window(450, 460, window=repair_button)
 
 uninstall_button = tk.Button(text='Désinstaller le serveur', command=uninstall, bg='red', fg='white')
-canvas1.create_window(700, 460, window=uninstall_button)
+canvas1.create_window(800, 460, window=uninstall_button)
 
 
 

@@ -39,15 +39,17 @@ class _TubeListState extends State<TubeList> {
   List sites = [];
   List users = [];
   static const List<String> actionsList = [
-    '1 : Ajouter un tube dans une boîte',
-    '2 : Enlever un tube d\'une boîte',
+    '1 : Ajouter un tube dans un sachet/boîte',
+    '2 : Enlever un tube d\'un sachet/boîte',
     '3 : Ramasser un sachet/boîte',
     '4 : Déposer un sachet/boîte',
-    '5 : Vider une boîte'
+    '5 : Vider un sachet/boîte',
+    '6 : Réceptionner un sachet/boîte'
   ];
   String action = actionsList.first;
   final formKey = GlobalKey<FormState>();
   bool showBoxDialog = false;
+  bool showBoxesDialog = false;
   bool showTubeDialog = false;
   bool showTourneeDialog = false;
   bool showCarDialog = false;
@@ -103,7 +105,10 @@ class _TubeListState extends State<TubeList> {
     });
   }
 
-  void getListTube(String code, {bool setTubes = false}) async {
+  void getListTube(String code,
+      {bool setTubes = false,
+      bool removeTubes = false,
+      bool resetStates = false}) async {
     String phpUriTubeList = Env.urlPrefix + 'Tubes/list_tube.php';
     http.Response res =
         await http.post(Uri.parse(phpUriTubeList), body: {'code': code});
@@ -114,18 +119,27 @@ class _TubeListState extends State<TubeList> {
         if (setTubes) {
           tubes = alreadyOnBoxTubes;
         }
+        if (removeTubes) {
+          for (String tube in alreadyOnBoxTubes) {
+            onRemoveTube(tube);
+          }
+          setState(() {
+            boxController.clear();
+          });
+          resetStates ? onResetStates() : null;
+        }
       });
     }
   }
 
-  void onAddTraca({required String action}) {
-    String phpUriAddTraca = Env.urlPrefix + 'Tracas/add_tracas.php';
+  void onAddTraca({required String action, String tube = ''}) {
+    String phpUriAddTraca = Env.urlPrefix + 'Tracas/add_traca.php';
     http.post(Uri.parse(phpUriAddTraca), body: {
       'user': userController.text
           .substring(0, userController.text.indexOf(':') - 1),
       'site': siteController.text,
       'box': boxController.text,
-      'tube': tubes.toString(),
+      'tube': tube,
       'action': action,
       'registering': DateTime.now()
           .toString()
@@ -134,10 +148,22 @@ class _TubeListState extends State<TubeList> {
     });
   }
 
+  void onRemoveLastTracaTube({required String tube}) {
+    String phpUriRemoveLastTracaTube =
+        Env.urlPrefix + 'Tracas/remove_tube_traca.php';
+    http.post(Uri.parse(phpUriRemoveLastTracaTube), body: {'tube': tube});
+    if (action[0] == '1') {
+      onRemoveTube(tube);
+    } else {
+      onAddTube(tube);
+    }
+  }
+
   void onResetStates() {
     setState(() {
       natureContent = 'Boîte/sachet';
       showBoxDialog = false;
+      showBoxesDialog = false;
       showTubeDialog = false;
       showTourneeDialog = false;
       showCarDialog = false;
@@ -152,22 +178,15 @@ class _TubeListState extends State<TubeList> {
     });
   }
 
-  void onAddTube() {
+  void onAddTube(String tube) {
     String phpUriTubeAddOrUpdate =
-        Env.urlPrefix + 'Tubes/add_or_update_tubes.php';
-    onAddTraca(action: 'AJT');
+        Env.urlPrefix + 'Tubes/add_or_update_tube.php';
+    onAddTraca(action: 'AJT', tube: tube);
     http.post(Uri.parse(phpUriTubeAddOrUpdate), body: {
-      'tube': tubes.toString(),
+      'tube': tube,
       'box': boxController.text,
       'site': siteController.text
     });
-    ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
-        Text(' ' +
-            tubes.length.toString() +
-            ' tubes ont bien été ajoutés à la boîte n° ' +
-            boxController.text),
-        duration: 8));
-    onResetStates();
   }
 
   void onAddBag() {
@@ -176,18 +195,10 @@ class _TubeListState extends State<TubeList> {
         body: {'box': boxController.text, 'type': 'SAC'});
   }
 
-  void onRemoveTube() {
-    String phpUriTubeRemoveBox = Env.urlPrefix + 'Tubes/remove_box_tubes.php';
-    onAddTraca(action: 'VIT');
-    http.post(Uri.parse(phpUriTubeRemoveBox),
-        body: {'tube': tubes.toString(), 'box': boxController.text});
-    ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
-        Text(' ' +
-            tubes.length.toString() +
-            ' tubes ont bien été enlevé de la boîte n° ' +
-            boxController.text),
-        duration: 8));
-    onResetStates();
+  void onRemoveTube(String tube) {
+    String phpUriTubeRemoveBox = Env.urlPrefix + 'Tubes/remove_box_tube.php';
+    onAddTraca(action: 'VIT', tube: tube);
+    http.post(Uri.parse(phpUriTubeRemoveBox), body: {'tube': tube});
   }
 
   void onPickUpBox() {
@@ -211,7 +222,9 @@ class _TubeListState extends State<TubeList> {
             ? 'La boîte ' + boxController.text + ' a bien été déposée'
             : 'Le sachet ' + boxController.text + ' a bien été déposé')));
     if (tubes.isNotEmpty) {
-      onRemoveTube();
+      for (String tube in tubes) {
+        onRemoveTube(tube);
+      }
       setState(() {
         tubes = [];
       });
@@ -267,21 +280,35 @@ class _TubeListState extends State<TubeList> {
     super.initState();
   }
 
+  int confirm = 0;
+
   String? tubeErrorText() {
     if (tubeController.text.isEmpty) {
       setState(() {});
       return 'Veuillez entrer une valeur';
     } else if (tubes.contains(tubeController.text)) {
-      setState(() {});
-      return 'Le tube a déjà été scanné';
+      setState(() {
+        confirm += 1;
+      });
+      if (confirm > 2) {
+        setState(() {
+          confirm = 0;
+        });
+        return null;
+      }
+      return 'Le tube a déjà été scanné, validez à nouveau pour confirmer';
     } else if (alreadyOnBoxTubes.contains(tubeController.text) &&
         action[0] == '1') {
-      setState(() {});
-      return 'Le tube est déjà présent';
-    } else if (!alreadyOnBoxTubes.contains(tubeController.text) &&
-        action[0] == '2') {
-      setState(() {});
-      return 'Le tube n\'est pas présent';
+      setState(() {
+        confirm += 1;
+      });
+      if (confirm > 2) {
+        setState(() {
+          confirm = 0;
+        });
+        return null;
+      }
+      return 'Le tube est déjà présent, validez à nouveau pour confirmer';
     } else if (alreadyOnBoxTubes.length + tubes.length >= 50) {
       setState(() {});
       return 'La boîte est pleine';
@@ -291,7 +318,7 @@ class _TubeListState extends State<TubeList> {
     }
   }
 
-  void checkBoxErrorText() {
+  /*void checkBoxErrorText() {
     checkLastBoxTraca().then((lastTracaBox) {
       if (boxController.text.isNotEmpty) {
         getNatureContent(boxController.text);
@@ -520,7 +547,7 @@ class _TubeListState extends State<TubeList> {
                 break;
               default:
                 setState(() {
-                  boxErrorText = 'Impossibles d\'éditer les tubes d\'un sachet';
+                  boxErrorText = 'Impossible d\'éditer les tubes d\'un sachet';
                 });
                 break;
             }
@@ -530,6 +557,145 @@ class _TubeListState extends State<TubeList> {
         setState(() {
           boxErrorText = 'Veuillez entrer une valeur';
         });
+      }
+    });
+  }*/
+
+  void checkBoxErrorText() {
+    checkLastBoxTraca().then((lastTracaBox) {
+      if (boxController.text.isNotEmpty) {
+        action[0] != '6' ? getNatureContent(boxController.text) : null;
+        switch (action[0]) {
+          case '1':
+            switch (lastTracaBox['action']) {
+              case 'AJT':
+                if (lastTracaBox['site'] == siteController.text) {
+                  getListTube(boxController.text);
+                  setState(() {
+                    showTubeDialog = true;
+                    boxErrorText = null;
+                    submited = false;
+                  });
+                } else {
+                  setState(() {
+                    boxErrorText =
+                        'La boîte contient des tubes d\'un autre site';
+                  });
+                }
+                break;
+              case 'VIT':
+                getSiteTubes().then((value) {
+                  if (value == siteController.text || value.isEmpty) {
+                    getListTube(boxController.text);
+                    setState(() {
+                      showTubeDialog = true;
+                      boxErrorText = null;
+                      submited = false;
+                    });
+                  } else {
+                    setState(() {
+                      boxErrorText =
+                          'La boîte contient des tubes d\'un autre site';
+                    });
+                  }
+                });
+                break;
+              default:
+                getListTube(boxController.text);
+                setState(() {
+                  boxErrorText = null;
+                  submited = false;
+                  showTubeDialog = true;
+                });
+                break;
+            }
+            break;
+          case '2':
+            getListTube(boxController.text);
+            setState(() {
+              boxErrorText = null;
+              submited = false;
+              showTubeDialog = true;
+            });
+            break;
+          case '3':
+            switch (lastTracaBox['action']) {
+              case 'DEP':
+                if (lastTracaBox['site'] == siteController.text) {
+                  setState(() {
+                    boxErrorText = null;
+                    submited = false;
+                    showTourneeDialog = true;
+                  });
+                } else {
+                  setState(() {
+                    boxErrorText = 'La boîte n\'est pas sur ce site';
+                  });
+                }
+                break;
+              case 'RAM':
+                setState(() {
+                  boxErrorText = 'Boîte déjà ramassée';
+                });
+                break;
+              default:
+                setState(() {
+                  boxErrorText = null;
+                  submited = false;
+                  showTourneeDialog = true;
+                });
+                break;
+            }
+            break;
+          case '4':
+            switch (lastTracaBox['action']) {
+              case '':
+                setState(() {
+                  boxErrorText = 'La boîte n\'a pas été ramassée';
+                });
+                break;
+              case 'DEP':
+                setState(() {
+                  boxErrorText = 'La boîte a déjà été déposée';
+                });
+                break;
+              case 'RAM':
+                isDepositSite().then((value) {
+                  if (value) {
+                    getListTube(boxController.text, setTubes: true);
+                  }
+                });
+                setState(() {
+                  showTourneeDialog = true;
+                });
+                break;
+            }
+            break;
+          case '5':
+            setState(() {
+              confirm += 1;
+            });
+            if (confirm > 1) {
+              setState(() {
+                confirm = 0;
+                boxErrorText = null;
+              });
+              getListTube(boxController.text,
+                  removeTubes: true, resetStates: true);
+            }
+            setState(() {
+              boxErrorText = 'Valider à nouveau pour vider tous les tubes';
+            });
+            break;
+          case '6':
+            getListTube(boxController.text, removeTubes: true);
+            onAddTraca(action: 'REC');
+            setState(() {
+              tubes.add(boxController.text);
+              boxErrorText = null;
+              showBoxesDialog = true;
+            });
+        }
       }
     });
   }
@@ -744,7 +910,6 @@ class _TubeListState extends State<TubeList> {
                   onPressed: showBoxDialog
                       ? null
                       : () {
-                          print(ip);
                           setState(() {
                             submited = true;
                           });
@@ -857,6 +1022,10 @@ class _TubeListState extends State<TubeList> {
                                           submited = true;
                                         });
                                         if (tubeErrorText() == null) {
+                                          action[0] == '1'
+                                              ? onAddTube(tubeController.text)
+                                              : onRemoveTube(
+                                                  tubeController.text);
                                           setState(() {
                                             submited = false;
                                             tubes.add(tubeController.text);
@@ -872,6 +1041,9 @@ class _TubeListState extends State<TubeList> {
                                     submited = true;
                                   });
                                   if (tubeErrorText() == null) {
+                                    action[0] == '1'
+                                        ? onAddTube(tubeController.text)
+                                        : onRemoveTube(tubeController.text);
                                     setState(() {
                                       submited = false;
                                       tubes.add(tubeController.text);
@@ -1130,7 +1302,7 @@ class _TubeListState extends State<TubeList> {
                   padding: const EdgeInsets.fromLTRB(0, 25, 0, 10),
                   child: ElevatedButton(
                     style: myButtonStyle,
-                    child: const Text('Annuler'),
+                    child: const Text('Fermer'),
                     onPressed: () {
                       onResetStates();
                     },
@@ -1138,7 +1310,7 @@ class _TubeListState extends State<TubeList> {
                 ),
             ]),
           )),
-      if (showTubeDialog)
+      if (showTubeDialog || showBoxesDialog)
         Dialog(
             insetPadding: const EdgeInsets.all(50),
             elevation: 8,
@@ -1158,13 +1330,76 @@ class _TubeListState extends State<TubeList> {
                                 Padding(
                                     padding: const EdgeInsets.all(20),
                                     child: Text(
-                                      natureContent +
-                                          ' n° ' +
-                                          boxController.text,
+                                      showBoxesDialog
+                                          ? 'Réception des sachets/boîtes :'
+                                          : natureContent +
+                                              ' n° ' +
+                                              boxController.text,
                                       style: TextStyle(
                                           fontSize: 18,
                                           color: Colors.grey.shade800),
                                     )),
+                                if (alreadyOnBoxTubes.isNotEmpty &&
+                                    !showBoxesDialog)
+                                  const Padding(
+                                    padding: EdgeInsets.fromLTRB(10, 0, 500, 5),
+                                    child: Text(
+                                      'Contenu :',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18),
+                                    ),
+                                  ),
+                                if (alreadyOnBoxTubes.isNotEmpty &&
+                                    !showBoxesDialog)
+                                  Table(
+                                      defaultVerticalAlignment:
+                                          TableCellVerticalAlignment.middle,
+                                      columnWidths: const {
+                                        0: FixedColumnWidth(80),
+                                        1: FractionColumnWidth(0.7),
+                                        2: FixedColumnWidth(80)
+                                      },
+                                      children: [
+                                        for (String i in alreadyOnBoxTubes)
+                                          TableRow(
+                                              decoration: alreadyOnBoxTubes
+                                                      .indexOf(i)
+                                                      .isEven
+                                                  ? BoxDecoration(
+                                                      color:
+                                                          Colors.grey.shade200)
+                                                  : null,
+                                              children: [
+                                                TableCell(
+                                                    child: Text(
+                                                  ' ' +
+                                                      (alreadyOnBoxTubes
+                                                                  .indexOf(i) +
+                                                              1)
+                                                          .toString(),
+                                                  style: textStyle,
+                                                )),
+                                                TableCell(
+                                                    child: Text('tube ' + i,
+                                                        style: textStyle)),
+                                                const TableCell(
+                                                    child: SizedBox(
+                                                  height: 40,
+                                                ))
+                                              ]),
+                                      ]),
+                                if (tubes.isNotEmpty)
+                                  const Padding(
+                                    padding:
+                                        EdgeInsets.fromLTRB(10, 20, 500, 5),
+                                    child: Text(
+                                      'Actions :',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18),
+                                    ),
+                                  ),
                                 Table(
                                     defaultVerticalAlignment:
                                         TableCellVerticalAlignment.middle,
@@ -1190,44 +1425,32 @@ class _TubeListState extends State<TubeList> {
                                               )),
                                               TableCell(
                                                   child: Text(
-                                                      (action[0] == '1'
-                                                              ? 'Ajout'
-                                                              : 'Enlèvement') +
-                                                          ' du tube ' +
-                                                          i,
+                                                      action[0] == '6'
+                                                          ? 'Réception du sachet/boîte ' +
+                                                              i
+                                                          : (action[0] == '1'
+                                                                  ? 'Ajout'
+                                                                  : 'Enlèvement') +
+                                                              ' du tube ' +
+                                                              i,
                                                       style: textStyle)),
                                               TableCell(
-                                                  child: IconButton(
-                                                icon: const Icon(Icons.clear),
-                                                onPressed: () {
-                                                  setState(() {
-                                                    tubes.remove(i);
-                                                  });
-                                                },
-                                              ))
+                                                  child: SizedBox(
+                                                      height: 40,
+                                                      child: IconButton(
+                                                        icon: const Icon(
+                                                            Icons.clear),
+                                                        onPressed: () {
+                                                          setState(() {
+                                                            tubes.remove(i);
+                                                          });
+                                                          onRemoveLastTracaTube(
+                                                              tube: i);
+                                                        },
+                                                      )))
                                             ]),
                                     ]),
                               ])))),
-                  if (tubes.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: ElevatedButton(
-                        style: myButtonStyle,
-                        child: const Text('Valider les changements'),
-                        onPressed: () {
-                          switch (action[0]) {
-                            case '1':
-                              onAddTube();
-                              break;
-                            case '2':
-                              onRemoveTube();
-                              break;
-                            case '5':
-                              onRemoveTube();
-                          }
-                        },
-                      ),
-                    ),
                 ])))
     ];
   }

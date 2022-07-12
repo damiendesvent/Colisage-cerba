@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../variables/globals.dart' as globals;
 import '../variables/env.sample.dart';
-import '../models/traca.dart';
 import '../variables/styles.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 class ReceiptTubeScreen extends StatelessWidget {
   const ReceiptTubeScreen({Key? key}) : super(key: key);
@@ -47,7 +47,7 @@ class _ReceiptTubeState extends State<ReceiptTube> {
         result = lastTracaTube == false
             ? 'Aucune donnée disponible pour le tube'
             : 'Heure de réception : ' +
-                lastTracaTube['DATE HEURE ENREGISTREMENT'];
+                DateFormat("HH'h'mm le dd/MM/yyyy").format(DateTime.parse(lastTracaTube['DATE HEURE ENREGISTREMENT']));
         showResult = true;
       });
     }
@@ -114,7 +114,13 @@ class _ReceiptTubeState extends State<ReceiptTube> {
                                       const Icon(Icons.subdirectory_arrow_left))
                             ],
                           )),
-                      if (showResult) SelectableText(result)
+                      if (showResult)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                          SelectableText(result),
+                          IconButton(onPressed: () => Clipboard.setData(ClipboardData(text: result)), icon: const Icon(Icons.copy), tooltip: 'Copier',)
+                        ])
                     ])))));
   }
 }
