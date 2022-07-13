@@ -667,7 +667,10 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                   ElevatedButton(
                                       style: myButtonStyle,
                                       onPressed: () {
-                                        Navigator.of(context).pop();
+                                        setState(() {
+                                          editing = false;
+                                        });
+                                        ;
                                       },
                                       child: Row(children: const [
                                         Icon(Icons.clear),
@@ -1024,8 +1027,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                             )
                           ])),
                     ]),
-                    preferredSize:
-                        Size(double.infinity, widget.editing ? 425 : 190)),
+                    preferredSize: Size(double.infinity, editing ? 425 : 190)),
                 body: Scrollbar(
                     controller: _scrollController,
                     thumbVisibility: true,
@@ -1044,6 +1046,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                           child: Text(
                                               'Aucune étape ne correspond à votre recherche.')))
                                   : DataTable(
+                                      columnSpacing: 0,
                                       headingRowHeight: 80,
                                       sortColumnIndex: _currentSortColumn,
                                       sortAscending: _isAscending,
@@ -1052,7 +1055,8 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                           fontSize: 16),
                                       columns: [
                                         DataColumn(
-                                            label: const Text('Code avancement',
+                                            label: const Text(
+                                                'Code\navancement',
                                                 textAlign: TextAlign.center),
                                             onSort: sorting('CODE AVANCEMENT')),
                                         DataColumn(
@@ -1060,7 +1064,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                                 textAlign: TextAlign.center),
                                             onSort: sorting('LIBELLE SITE')),
                                         DataColumn(
-                                            label: const Text('Heure arrivée',
+                                            label: const Text('Heure\narrivée',
                                                 textAlign: TextAlign.center),
                                             onSort: sorting('HEURE ARRIVEE')),
                                         DataColumn(
@@ -1069,7 +1073,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                             onSort: sorting('COMMENTAIRE')),
                                         DataColumn(
                                             label: const Text(
-                                                'Passage sur appel',
+                                                'Passage\nsur appel',
                                                 textAlign: TextAlign.center),
                                             onSort:
                                                 sorting('PASSAGE SUR APPEL')),

@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class TracaScreen extends StatelessWidget {
   const TracaScreen({Key? key}) : super(key: key);
@@ -47,8 +48,8 @@ class _TracaListState extends State<TracaList>
   static const searchFieldList = [
     'Code tracabilité',
     'Utilisateur',
-    'Code tournée',
-    'Code site',
+    'Libellé tournée',
+    'Libellé site',
     'Boite',
     'Tube',
     'Action',
@@ -406,7 +407,6 @@ class _TracaListState extends State<TracaList>
   }
 
   void showDetailTraca(Traca traca) {
-    //Traca? traca = globals.detailedTraca;
     const TextStyle textStyle = TextStyle(fontSize: 18);
     showDialog(
         barrierColor: myBarrierColor,
@@ -415,213 +415,214 @@ class _TracaListState extends State<TracaList>
             insetPadding:
                 const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
             elevation: 8,
-            child: Stack(alignment: Alignment.center, children: [
-              SizedBox(
-                  height: 700,
-                  width: 700,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Text(
-                            'Détails de traçabilité n° ' +
-                                traca.code.toString(),
-                            style: TextStyle(
-                                fontSize: 18, color: Colors.grey.shade700),
-                          )),
-                      const Spacer(),
-                      Table(
-                          defaultColumnWidth: const FractionColumnWidth(0.4),
-                          children: [
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Code : ',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16))),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child: Text(traca.code.toString(),
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16)))),
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Utilisateur : ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child:
-                                            Text(traca.user, style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child:
-                                        Text('Tournée : ', style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child: Text(traca.tournee.toString(),
-                                            style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Site : ', style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child: Text(traca.site.toString(),
-                                            style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Boite : ', style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child:
-                                            Text(traca.box, style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Tube : ', style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child:
-                                            Text(traca.tube, style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Action : ', style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child: Text(traca.action,
-                                            style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Correspondant : ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child: Text(traca.correspondant,
-                                            style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Enregistrement : ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child: Text(traca.registeringTime,
-                                            style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Synchronisation : ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child: Text(traca.synchronizingTime,
-                                            style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child:
-                                        Text('Origine : ', style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child:
-                                            Text(traca.pgm, style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child:
-                                        Text('Lettrage : ', style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child: Text(traca.lettrage.toString(),
-                                            style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Code voiture : ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child: Text(traca.car.toString(),
-                                            style: textStyle)))
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                const TableCell(
-                                    child: Text('Commentaire : ',
-                                        style: textStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 40,
-                                        child: Text(traca.comment,
-                                            style: textStyle)))
-                              ],
-                            ),
-                          ]),
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: SizedBox(
-                            width: 110,
-                            child: ElevatedButton(
-                              style: myButtonStyle,
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Row(children: const [
-                                Icon(Icons.clear),
-                                Text(' Annuler')
-                              ]),
+            child: SingleChildScrollView(
+                child: SizedBox(
+                    height: 700,
+                    width: 700,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Text(
+                              'Détails de traçabilité n° ' +
+                                  traca.code.toString(),
+                              style: TextStyle(
+                                  fontSize: 18, color: Colors.grey.shade700),
                             )),
-                      ),
-                      const Spacer()
-                    ],
-                  ))
-            ])));
+                        const Spacer(),
+                        Table(
+                            defaultColumnWidth: const FractionColumnWidth(0.4),
+                            children: [
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Code : ',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16))),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.code.toString(),
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16)))),
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Utilisateur : ',
+                                          style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.user,
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child:
+                                          Text('Tournée : ', style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.tournee,
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Site : ', style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.site,
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child:
+                                          Text('Boite : ', style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.box,
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Tube : ', style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.tube,
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child:
+                                          Text('Action : ', style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.action,
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Correspondant : ',
+                                          style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.correspondant,
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Enregistrement : ',
+                                          style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.registeringTime,
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Synchronisation : ',
+                                          style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.synchronizingTime,
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child:
+                                          Text('Origine : ', style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.pgm,
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Lettrage : ',
+                                          style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.lettrage.toString(),
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Code voiture : ',
+                                          style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.car.toString(),
+                                              style: textStyle)))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Commentaire : ',
+                                          style: textStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 40,
+                                          child: Text(traca.comment,
+                                              style: textStyle)))
+                                ],
+                              ),
+                            ]),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: SizedBox(
+                              width: 110,
+                              child: ElevatedButton(
+                                style: myButtonStyle,
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Row(children: const [
+                                  Icon(Icons.clear),
+                                  Text(' Annuler')
+                                ]),
+                              )),
+                        ),
+                        const Spacer()
+                      ],
+                    )))));
   }
 
   final ScrollController _scrollController = ScrollController();
@@ -760,7 +761,7 @@ class _TracaListState extends State<TracaList>
                     tooltip: 'Actualiser l\'onglet',
                   ),
                 const Spacer(),
-                const Text('Nombre de lignes affichées : '),
+                const Text('Nombre de\nlignes affichées : '),
                 DropdownButton(
                     value: numberDisplayed,
                     items: numberDisplayedList.map((numberDisplayedList) {
@@ -807,15 +808,11 @@ class _TracaListState extends State<TracaList>
                                           style: titleStyle),
                                       onSort: sorting('UTILISATEUR')),
                                   DataColumn(
-                                      label: Text('Code\ntournée',
-                                          textAlign: TextAlign.center,
-                                          style: titleStyle),
-                                      onSort: sorting('CODE TOURNEE')),
+                                      label: Text('Tournée', style: titleStyle),
+                                      onSort: sorting('LIBELLE TOURNEE')),
                                   DataColumn(
-                                      label: Text('Code\nsite',
-                                          textAlign: TextAlign.center,
-                                          style: titleStyle),
-                                      onSort: sorting('CODE SITE')),
+                                      label: Text('Site', style: titleStyle),
+                                      onSort: sorting('LIBELLE SITE')),
                                   DataColumn(
                                       label: Text('Boite', style: titleStyle),
                                       onSort: sorting('BOITE')),
@@ -880,15 +877,51 @@ class TracaData extends DataTableSource {
         cells: [
           DataCell(SelectableText(data[index]['CODE TRACABILITE'])),
           DataCell(SelectableText(data[index]['UTILISATEUR'])),
-          DataCell(SelectableText(data[index]['CODE TOURNEE'] ?? '')),
-          DataCell(SelectableText(data[index]['CODE SITE'])),
+          DataCell(SizedBox(
+              width: 150,
+              child: AutoSizeText(
+                data[index]['LIBELLE TOURNEE'] ?? '',
+                maxLines: 2,
+                minFontSize: 14,
+                overflowReplacement: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Tooltip(
+                        message: data[index]['LIBELLE TOURNEE'] ?? '',
+                        child: Text(
+                          data[index]['LIBELLE TOURNEE'] ?? '',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        )),
+                  ],
+                ),
+              ))),
+          DataCell(SizedBox(
+              width: 150,
+              child: AutoSizeText(
+                data[index]['LIBELLE SITE'],
+                maxLines: 3,
+                minFontSize: 14,
+                overflowReplacement: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Tooltip(
+                        message: data[index]['LIBELLE SITE'],
+                        child: Text(
+                          data[index]['LIBELLE SITE'],
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        )),
+                  ],
+                ),
+              ))),
           DataCell(SelectableText(data[index]['BOITE'] ?? '')),
           DataCell(SelectableText(data[index]['TUBE'] ?? '')),
           DataCell(SelectableText(data[index]['ACTION'])),
           DataCell(SelectableText(data[index]['CODE VOITURE'] ?? '')),
-          DataCell(SelectableText(DateFormat("HH'h'mm:ss le dd/MM/yyyy").format(
+          DataCell(SelectableText(DateFormat("HH'h'mm:ss\ndd/MM/yyyy").format(
               DateTime.parse(data[index]['DATE HEURE ENREGISTREMENT'])))),
-          DataCell(SelectableText(DateFormat("HH'h'mm:ss le dd/MM/yyyy").format(
+          DataCell(SelectableText(DateFormat("HH'h'mm:ss\ndd/MM/yyyy").format(
               DateTime.parse(data[index]['DATE HEURE SYNCHRONISATION'])))),
         ]);
   }

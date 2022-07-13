@@ -1,8 +1,8 @@
 class Traca {
   final int code;
   final String user;
-  final int tournee;
-  final int site;
+  final String tournee;
+  final String site;
   final String box;
   final String tube;
   final String action;
@@ -35,8 +35,8 @@ class Traca {
     return Traca(
         code: int.parse(traca['CODE TRACABILITE']),
         user: traca['UTILISATEUR'],
-        tournee: int.parse(traca['CODE TOURNEE'] ?? '0'),
-        site: int.parse(traca['CODE SITE']),
+        tournee: traca['LIBELLE TOURNEE'],
+        site: traca['LIBELLE SITE'],
         box: traca['BOITE'] ?? '',
         tube: traca['TUBE'] ?? '',
         action: traca['ACTION'],

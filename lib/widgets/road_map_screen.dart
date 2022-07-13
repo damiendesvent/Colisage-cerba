@@ -690,8 +690,10 @@ class _RoadMapListState extends State<RoadMapList>
                               onPressed: () {
                                 showAddPageRoadMap();
                               },
-                              child:
-                                  const Text('Ajouter une feuille de route')),
+                              child: const Text(
+                                'Ajouter une\nfeuille de route',
+                                textAlign: TextAlign.center,
+                              )),
                         const Spacer(),
                         if (globals.user.roadMapRights > 1)
                           ElevatedButton(
@@ -699,7 +701,8 @@ class _RoadMapListState extends State<RoadMapList>
                               onPressed: () {
                                 onGeneratePDAUpdate();
                               },
-                              child: const Text('Générer une mise à jour PDA')),
+                              child: const Text('Générer une\nmise à jour PDA',
+                                  textAlign: TextAlign.center)),
                         const Spacer(),
                         if (globals.user.roadMapRights > 1)
                           const Text('Feuilles de route\nsupprimées :'),

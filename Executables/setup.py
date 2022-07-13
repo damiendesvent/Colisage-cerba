@@ -351,8 +351,8 @@ def reception() :
                             out_file.write(data.ljust(40) + result + '\n')
                         else :
                             out_file.write(data + '\n')
-                        canvas1.itemconfigure(displayed_reception_signal, text='Intervalle : ' + type_reception_frequence + '\nFréquence : ' + str(reception_frequence) + '\nService réception en marche\nDernière synchronisation :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
             os.remove(last_reception_in_directory + '/' + file_name)
+        canvas1.itemconfigure(displayed_reception_signal, text='Intervalle : ' + type_reception_frequence + '\nFréquence : ' + str(reception_frequence) + '\nService réception en marche\nDernière synchronisation :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
     except Exception as e :
         canvas1.itemconfigure(displayed_reception_signal, text= 'Intervalle : ' + type_reception_frequence + '\nFréquence : ' + str(reception_frequence) + '\nErreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
 
