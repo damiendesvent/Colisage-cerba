@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_application_1/variables/styles.dart';
+import 'package:colisage_cerba/variables/styles.dart';
 import '../variables/globals.dart' as globals;
 import '../variables/env.sample.dart';
 import '../models/site.dart';
@@ -92,9 +92,14 @@ class _SiteListState extends State<SiteList>
     http.Response res = await http.post(Uri.parse(phpUriSiteSearch), body: {
       "field": searchField.toUpperCase(),
       "advancedField": advancedSearchField.toUpperCase(),
-      "searchText": _searchTextController.text,
-      "advancedSearchText":
-          isAdvancedResearch ? _advancedSearchTextController.text : '',
+      "searchText": searchField.startsWith('Site')
+          ? noYesList.indexOf(noYesValue).toString()
+          : _searchTextController.text,
+      "advancedSearchText": isAdvancedResearch
+          ? (advancedSearchField.startsWith('Site')
+              ? noYesList.indexOf(noYesValue).toString()
+              : _advancedSearchTextController.text)
+          : '',
       "limit": numberDisplayedList.last.toString(),
       "delete": showDeleteSite ? 'true' : 'false'
     });
@@ -123,15 +128,34 @@ class _SiteListState extends State<SiteList>
                         advancedSearchField = newAdvancedSearchField!;
                       });
                     }))),
-        Expanded(
-            child: TextFormField(
-          controller: _advancedSearchTextController,
-          decoration:
-              const InputDecoration(hintText: 'Deuxième champ de recherche'),
-          onFieldSubmitted: (e) {
-            searchSite();
-          },
-        )),
+        SizedBox(
+            width: 300,
+            child: advancedSearchField.startsWith('Site')
+                ? Center(
+                    child: SizedBox(
+                        width: 100,
+                        child: DropdownButton(
+                            isExpanded: true,
+                            alignment: AlignmentDirectional.center,
+                            value: noYesValue,
+                            items: noYesList.map((value) {
+                              return DropdownMenuItem(
+                                  value: value, child: Text(value));
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                noYesValue = newValue!;
+                              });
+                              searchSite();
+                            })))
+                : TextFormField(
+                    controller: _advancedSearchTextController,
+                    decoration: const InputDecoration(
+                        hintText: 'Deuxième champ de recherche'),
+                    onFieldSubmitted: (e) {
+                      searchSite();
+                    },
+                  )),
         const Spacer(),
       ];
     } else {
@@ -1203,20 +1227,28 @@ class _SiteListState extends State<SiteList>
                                     });
                                     searchSite();
                                   }))),
-                      Expanded(
+                      SizedBox(
+                          width: 300,
                           child: searchField.startsWith('Site')
-                              ? DropdownButton(
-                                  value: noYesValue,
-                                  items: noYesList.map((value) {
-                                    return DropdownMenuItem(
-                                        value: value, child: Text(value));
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      noYesValue = newValue!;
-                                    });
-                                    searchSite();
-                                  })
+                              ? Center(
+                                  child: SizedBox(
+                                      width: 100,
+                                      child: DropdownButton(
+                                          isExpanded: true,
+                                          alignment:
+                                              AlignmentDirectional.center,
+                                          value: noYesValue,
+                                          items: noYesList.map((value) {
+                                            return DropdownMenuItem(
+                                                value: value,
+                                                child: Text(value));
+                                          }).toList(),
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              noYesValue = newValue!;
+                                            });
+                                            searchSite();
+                                          })))
                               : TextFormField(
                                   controller: _searchTextController,
                                   decoration: const InputDecoration(
@@ -1259,8 +1291,9 @@ class _SiteListState extends State<SiteList>
                               showAddPageSite();
                             },
                             child: const Text('Ajouter un site')),
+                      const Spacer(),
                       if (globals.user.siteRights > 1)
-                        const Text('  Sites supprimés :'),
+                        const Text('Sites\nsupprimés :'),
                       if (globals.user.siteRights > 1)
                         Switch(
                             value: showDeleteSite,
@@ -1282,19 +1315,23 @@ class _SiteListState extends State<SiteList>
                           tooltip: 'Actualiser l\'onglet',
                         ),
                       const Spacer(),
-                      const Text('Nombre de lignes affichées : '),
-                      DropdownButton(
-                          value: numberDisplayed,
-                          items: numberDisplayedList.map((numberDisplayedList) {
-                            return DropdownMenuItem(
-                                value: numberDisplayedList,
-                                child: Text(numberDisplayedList.toString()));
-                          }).toList(),
-                          onChanged: (int? newNumberDisplayed) {
-                            setState(() {
-                              numberDisplayed = newNumberDisplayed!;
-                            });
-                          })
+                      const Text('Nombre de\nlignes affichées : '),
+                      Padding(
+                          padding: const EdgeInsets.only(right: 15),
+                          child: DropdownButton(
+                              value: numberDisplayed,
+                              items: numberDisplayedList
+                                  .map((numberDisplayedList) {
+                                return DropdownMenuItem(
+                                    value: numberDisplayedList,
+                                    child:
+                                        Text(numberDisplayedList.toString()));
+                              }).toList(),
+                              onChanged: (int? newNumberDisplayed) {
+                                setState(() {
+                                  numberDisplayed = newNumberDisplayed!;
+                                });
+                              }))
                     ]),
                     Row(
                       children: advancedResearch(),
@@ -1308,7 +1345,7 @@ class _SiteListState extends State<SiteList>
                         height: MediaQuery.of(context).size.height - 200,
                         child: const Center(
                             child: Text(
-                                'Aucun utilisateur ne correspond à votre recherche.')))
+                                'Aucun site ne correspond à votre recherche.')))
                   else
                     for (Map site in snapshot.data
                         .take(numberDisplayed)) //affiche la liste des sites
@@ -1318,21 +1355,42 @@ class _SiteListState extends State<SiteList>
                           trailing: globals.user.siteRights > 1
                               ? popupMenu(site)
                               : null,
-                          isThreeLine: true,
+                          isThreeLine: false,
                           title: Text(site['LIBELLE SITE']),
-                          subtitle: Text(searchField +
-                              ' : ' +
-                              site[searchField
-                                  .replaceAll('é', 'e')
-                                  .toUpperCase()] +
-                              '\n' +
-                              (isAdvancedResearch
-                                  ? advancedSearchField +
-                                      ' : ' +
-                                      site[advancedSearchField
-                                          .replaceAll('é', 'e')
-                                          .toUpperCase()]
-                                  : '')),
+                          subtitle: Row(children: [
+                            SizedBox(
+                                width: 400,
+                                child: Text(searchField +
+                                    ' : ' +
+                                    (searchField.startsWith('Site')
+                                        ? (site[searchField
+                                                    .replaceAll('é', 'e')
+                                                    .replaceAll('è', 'e')
+                                                    .replaceAll('ô', 'o')
+                                                    .toUpperCase()] ==
+                                                '1'
+                                            ? 'Oui'
+                                            : 'Non')
+                                        : site[searchField
+                                            .replaceAll('é', 'e')
+                                            .toUpperCase()]))),
+                            Text(isAdvancedResearch
+                                ? advancedSearchField +
+                                    ' : ' +
+                                    (advancedSearchField.startsWith('Site')
+                                        ? (site[advancedSearchField
+                                                    .replaceAll('é', 'e')
+                                                    .replaceAll('è', 'e')
+                                                    .replaceAll('ô', 'o')
+                                                    .toUpperCase()] ==
+                                                '1'
+                                            ? 'Oui'
+                                            : 'Non')
+                                        : site[advancedSearchField
+                                            .replaceAll('é', 'e')
+                                            .toUpperCase()])
+                                : '')
+                          ]),
                           onTap: () {
                             showDetailSite(Site.fromSnapshot(site));
                           },

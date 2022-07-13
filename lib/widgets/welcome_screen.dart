@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/variables/env.sample.dart';
-import 'package:flutter_application_1/variables/styles.dart';
+import 'package:colisage_cerba/variables/env.sample.dart';
+import 'package:colisage_cerba/variables/styles.dart';
 import '../variables/globals.dart' as globals;
 import 'dart:async';
 import 'package:http/http.dart' as http;

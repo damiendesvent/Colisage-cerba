@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/variables/env.sample.dart';
-import 'package:flutter_application_1/variables/globals.dart' as globals;
-import 'package:flutter_application_1/variables/styles.dart';
+import 'package:colisage_cerba/variables/env.sample.dart';
+import 'package:colisage_cerba/variables/globals.dart' as globals;
+import 'package:colisage_cerba/variables/styles.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:searchfield/searchfield.dart';

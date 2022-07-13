@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/variables/styles.dart';
+import 'package:colisage_cerba/variables/styles.dart';
 import '../variables/env.sample.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';

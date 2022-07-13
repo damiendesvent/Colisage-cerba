@@ -45,7 +45,7 @@ class _RoadMapListState extends State<RoadMapList>
     'Commentaire',
     'Ordre affichage PDA'
   ];
-  String searchField = searchFieldList[1];
+  String searchField = searchFieldList[4];
   String advancedSearchField = searchFieldList[0];
   bool isEditing = false;
   bool showDeleteRoadMap = false;
@@ -93,30 +93,31 @@ class _RoadMapListState extends State<RoadMapList>
     if (isAdvancedResearch) {
       return [
         Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: DropdownButtonHideUnderline(
-            child: DropdownButton(
-                value: advancedSearchField,
-                style: const TextStyle(fontSize: 14),
-                items: searchFieldList.map((searchFieldList) {
-                  return DropdownMenuItem(
-                      value: searchFieldList,
-                      child: Text(searchFieldList.toString()));
-                }).toList(),
-                onChanged: (String? newAdvancedSearchField) {
-                  setState(() {
-                    advancedSearchField = newAdvancedSearchField!;
-                  });
-                }))),
-        Expanded(
+            padding: const EdgeInsets.only(left: 10),
+            child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                    value: advancedSearchField,
+                    style: const TextStyle(fontSize: 14),
+                    items: searchFieldList.map((searchFieldList) {
+                      return DropdownMenuItem(
+                          value: searchFieldList,
+                          child: Text(searchFieldList.toString()));
+                    }).toList(),
+                    onChanged: (String? newAdvancedSearchField) {
+                      setState(() {
+                        advancedSearchField = newAdvancedSearchField!;
+                      });
+                    }))),
+        SizedBox(
+            width: 300,
             child: TextFormField(
-          controller: _advancedSearchTextController,
-          decoration:
-              const InputDecoration(hintText: 'Deuxième champ de recherche'),
-          onFieldSubmitted: (e) {
-            searchRoadMap();
-          },
-        )),
+              controller: _advancedSearchTextController,
+              decoration: const InputDecoration(
+                  hintText: 'Deuxième champ de recherche'),
+              onFieldSubmitted: (e) {
+                searchRoadMap();
+              },
+            )),
         const Spacer(),
       ];
     } else {
@@ -628,31 +629,34 @@ class _RoadMapListState extends State<RoadMapList>
                         background: Column(children: [
                       Row(mainAxisSize: MainAxisSize.min, children: [
                         Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: DropdownButtonHideUnderline(
-                            child: DropdownButton(
-                                value: searchField,
-                                style: const TextStyle(fontSize: 14),
-                                items: searchFieldList.map((searchFieldList) {
-                                  return DropdownMenuItem(
-                                      value: searchFieldList,
-                                      child: Text(searchFieldList.toString()));
-                                }).toList(),
-                                onChanged: (String? newsearchField) {
-                                  setState(() {
-                                    searchField = newsearchField!;
-                                  });
-                                  searchRoadMap();
-                                }))),
-                        Expanded(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: DropdownButtonHideUnderline(
+                                child: DropdownButton(
+                                    value: searchField,
+                                    style: const TextStyle(fontSize: 14),
+                                    items:
+                                        searchFieldList.map((searchFieldList) {
+                                      return DropdownMenuItem(
+                                          value: searchFieldList,
+                                          child:
+                                              Text(searchFieldList.toString()));
+                                    }).toList(),
+                                    onChanged: (String? newsearchField) {
+                                      setState(() {
+                                        searchField = newsearchField!;
+                                      });
+                                      searchRoadMap();
+                                    }))),
+                        SizedBox(
+                            width: 300,
                             child: TextFormField(
-                          controller: _searchTextController,
-                          decoration:
-                              const InputDecoration(hintText: 'Recherche'),
-                          onFieldSubmitted: (e) {
-                            searchRoadMap();
-                          },
-                        )),
+                              controller: _searchTextController,
+                              decoration:
+                                  const InputDecoration(hintText: 'Recherche'),
+                              onFieldSubmitted: (e) {
+                                searchRoadMap();
+                              },
+                            )),
                         IconButton(
                             onPressed: () {
                               searchRoadMap();
@@ -698,7 +702,7 @@ class _RoadMapListState extends State<RoadMapList>
                               child: const Text('Générer une mise à jour PDA')),
                         const Spacer(),
                         if (globals.user.roadMapRights > 1)
-                          const Text('  Feuilles de route supprimées :'),
+                          const Text('Feuilles de route\nsupprimées :'),
                         if (globals.user.roadMapRights > 1)
                           Switch(
                               value: showDeleteRoadMap,
@@ -720,20 +724,23 @@ class _RoadMapListState extends State<RoadMapList>
                             tooltip: 'Actualiser l\'onglet',
                           ),
                         const Spacer(),
-                        const Text('Nombre de lignes affichées : '),
-                        DropdownButton(
-                            value: numberDisplayed,
-                            items:
-                                numberDisplayedList.map((numberDisplayedList) {
-                              return DropdownMenuItem(
-                                  value: numberDisplayedList,
-                                  child: Text(numberDisplayedList.toString()));
-                            }).toList(),
-                            onChanged: (int? newNumberDisplayed) {
-                              setState(() {
-                                numberDisplayed = newNumberDisplayed!;
-                              });
-                            })
+                        const Text('Nombre de\nlignes affichées : '),
+                        Padding(
+                            padding: const EdgeInsets.only(right: 15),
+                            child: DropdownButton(
+                                value: numberDisplayed,
+                                items: numberDisplayedList
+                                    .map((numberDisplayedList) {
+                                  return DropdownMenuItem(
+                                      value: numberDisplayedList,
+                                      child:
+                                          Text(numberDisplayedList.toString()));
+                                }).toList(),
+                                onChanged: (int? newNumberDisplayed) {
+                                  setState(() {
+                                    numberDisplayed = newNumberDisplayed!;
+                                  });
+                                }))
                       ]),
                       Row(
                         children: advancedResearch(),
@@ -757,21 +764,24 @@ class _RoadMapListState extends State<RoadMapList>
                             trailing: globals.user.roadMapRights > 1
                                 ? popupMenu(roadMap)
                                 : null,
-                            isThreeLine: true,
-                            title: Text(roadMap['CODE TOURNEE']),
-                            subtitle: Text(searchField +
-                                ' : ' +
-                                roadMap[searchField
-                                    .replaceAll('é', 'e')
-                                    .toUpperCase()] +
-                                '\n' +
-                                (isAdvancedResearch
-                                    ? advancedSearchField +
-                                        ' : ' +
-                                        roadMap[advancedSearchField
-                                            .replaceAll('é', 'e')
-                                            .toUpperCase()]
-                                    : '')),
+                            isThreeLine: false,
+                            title: Text(roadMap['LIBELLE TOURNEE']),
+                            subtitle: Row(children: [
+                              SizedBox(
+                                  width: 400,
+                                  child: Text(searchField +
+                                      ' : ' +
+                                      roadMap[searchField
+                                          .replaceAll('é', 'e')
+                                          .toUpperCase()])),
+                              Text(isAdvancedResearch
+                                  ? advancedSearchField +
+                                      ' : ' +
+                                      roadMap[advancedSearchField
+                                          .replaceAll('é', 'e')
+                                          .toUpperCase()]
+                                  : '')
+                            ]),
                             onTap: () {
                               setState(() {
                                 showDetailsRoadMap = true;
