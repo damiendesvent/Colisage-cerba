@@ -42,7 +42,9 @@ class _SiteListState extends State<SiteList>
     'Adresse',
     'Complément adresse',
     'CP',
-    'Ville'
+    'Ville',
+    'Site prélèvement',
+    'Site dépôt'
   ];
   String searchField = searchFieldList[5];
   String advancedSearchField = searchFieldList[1];
@@ -53,6 +55,8 @@ class _SiteListState extends State<SiteList>
   final ScrollController _scrollController = ScrollController();
   late String collectionSiteValue;
   late String depositSiteValue;
+  static List<String> noYesList = ['Non', 'Oui'];
+  String noYesValue = noYesList.first;
 
   Future<bool> isExistingSite(String libelle) async {
     String phpUriDetailsSite =
@@ -1200,14 +1204,27 @@ class _SiteListState extends State<SiteList>
                                     searchSite();
                                   }))),
                       Expanded(
-                          child: TextFormField(
-                        controller: _searchTextController,
-                        decoration:
-                            const InputDecoration(hintText: 'Recherche'),
-                        onFieldSubmitted: (e) {
-                          searchSite();
-                        },
-                      )),
+                          child: searchField.startsWith('Site')
+                              ? DropdownButton(
+                                  value: noYesValue,
+                                  items: noYesList.map((value) {
+                                    return DropdownMenuItem(
+                                        value: value, child: Text(value));
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      noYesValue = newValue!;
+                                    });
+                                    searchSite();
+                                  })
+                              : TextFormField(
+                                  controller: _searchTextController,
+                                  decoration: const InputDecoration(
+                                      hintText: 'Recherche'),
+                                  onFieldSubmitted: (e) {
+                                    searchSite();
+                                  },
+                                )),
                       IconButton(
                           onPressed: () {
                             searchSite();
