@@ -24,7 +24,11 @@ $search = strpos($searchText, '__') === false ? ' LIKE "%'.$searchText.'%"' : ' 
 $advancedSearch = strlen($advancedSearchText) > 0 ? ' AND '.$advancedField.(strpos($advancedSearchText, '__') === false ? ' LIKE "%'.$advancedSearchText.'%"' : ' BETWEEN "'.explode('__',$advancedSearchText)[0].'" AND "'.explode('__', $advancedSearchText)[1].'"') : '';
 $secondAdvancedSearch = strlen($secondAdvancedSearchText) > 0 ? ' AND '.$secondAdvancedField.(strpos($secondAdvancedSearchText, '__') === false ? ' LIKE "%'.$secondAdvancedSearchText.'%"' : ' BETWEEN "'.explode('__',$secondAdvancedSearchText)[0].'" AND "'.explode('__', $secondAdvancedSearchText)[1].'"') : '';
 
-$sqlQuery = 'SELECT * FROM tracabilite WHERE '.$field.$search.$advancedSearch.$secondAdvancedSearch.' ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
+$sqlQuery = 'SELECT `tracabilite`.*,`entetes feuille de route`.`LIBELLE TOURNEE`, `sites`.`LIBELLE SITE`
+            FROM `tracabilite` 
+            JOIN `entetes feuille de route` ON COALESCE(`tracabilite`.`CODE TOURNEE`,0) = `entetes feuille de route`.`CODE TOURNEE` 
+            JOIN `sites` ON `tracabilite`.`CODE SITE` = `sites`.`CODE SITE` 
+            WHERE '.$field.$search.$advancedSearch.$secondAdvancedSearch.' ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
 
