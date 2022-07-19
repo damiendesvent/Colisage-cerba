@@ -112,6 +112,8 @@ class _SiteListState extends State<SiteList>
     if (res.body.isNotEmpty) {
       List itemsSearch = json.decode(res.body);
       _streamController.add(itemsSearch);
+      sitesLibelle = itemsSearch.map((item) => item['LIBELLE SITE']).toList();
+      sitesCode = itemsSearch.map((item) => item['CODE SITE']).toList();
     }
   }
 
