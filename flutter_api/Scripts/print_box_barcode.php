@@ -1,8 +1,8 @@
 <?php
 header('Content-Type: application/json');
-require('fpdf.php');
-require('barcode.php');
-include "../db_cerba.php";
+include './src/fpdf.php';
+include './src/barcode.php';
+include '../db_cerba.php';
 
 
 $start = (int) $_POST['start'];

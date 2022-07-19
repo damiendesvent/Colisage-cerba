@@ -28,8 +28,8 @@ class TracaList extends StatefulWidget {
 extension TimeOfDayConverter on TimeOfDay {
   String to24hours() {
     final hour = this.hour.toString().padLeft(2, "0");
-    final min = this.minute.toString().padLeft(2, "0");
-    return "$hour:$min";
+    final minute = this.minute.toString().padLeft(2, "0");
+    return "$hour:$minute";
   }
 }
 
@@ -41,8 +41,6 @@ class _TracaListState extends State<TracaList>
   final _searchTextController = TextEditingController();
   final _advancedSearchTextController = TextEditingController();
   final _secondAdvancedSearchTextController = TextEditingController();
-  String phpUriTracaList = Env.urlPrefix + 'Tracas/list_traca.php';
-  String phpUriTracaSearch = Env.urlPrefix + 'Tracas/search_traca.php';
   static const numberDisplayedList = [15, 25, 50, 100, 250];
   int numberDisplayed = numberDisplayedList.first;
   static const searchFieldList = [
@@ -69,9 +67,14 @@ class _TracaListState extends State<TracaList>
   String beginTime = '';
   String endTime = '';
   List<dynamic> tracas = [];
+  List<dynamic> backupFiles = [];
+  String backupFile = '';
+  bool backupMode = false;
 
-  Future getTracaList() async {
+  void getTracaList() async {
+    String phpUriTracaList = Env.urlPrefix + 'Tracas/list_traca.php';
     http.Response res = await http.post(Uri.parse(phpUriTracaList), body: {
+      "backup": backupMode ? 'true' : 'false',
       "limit": numberDisplayedList.last.toString(),
       "order": searchFieldList[_currentSortColumn].toUpperCase(),
       "isAscending": _isAscending.toString(),
@@ -85,15 +88,30 @@ class _TracaListState extends State<TracaList>
     }
   }
 
+  void getBackupTracaFiles() async {
+    String phpUriBackupTracaFiles =
+        Env.urlPrefix + 'Backup_traca/list_backup_traca_files.php';
+    http.Response res = await http.get(Uri.parse(phpUriBackupTracaFiles));
+    if (res.body.isNotEmpty) {
+      List items = json.decode(res.body);
+      setState(() {
+        backupFiles = items;
+        backupFile = backupFiles.first;
+      });
+    }
+  }
+
   @override
   void initState() {
     getTracaList();
-
+    getBackupTracaFiles();
     super.initState();
   }
 
   Future searchTraca() async {
+    String phpUriTracaSearch = Env.urlPrefix + 'Tracas/search_traca.php';
     http.Response res = await http.post(Uri.parse(phpUriTracaSearch), body: {
+      "backup": backupMode ? 'true' : 'false',
       "field": searchField.toUpperCase(),
       "advancedField": advancedSearchField.toUpperCase(),
       "secondAdvancedField": secondAdvancedSearchField.toUpperCase(),
@@ -625,6 +643,79 @@ class _TracaListState extends State<TracaList>
                     )))));
   }
 
+  void loadBackupTraca({bool cancel = false}) {
+    String phpUriLoadBackupTraca =
+        Env.urlPrefix + 'Backup_traca/write_backup_traca.php';
+    http.post(Uri.parse(phpUriLoadBackupTraca),
+        body: {'file': cancel ? '_' : backupFile});
+    setState(() {
+      backupMode = !cancel;
+    });
+    Future.delayed(const Duration(milliseconds: 200), () => getTracaList());
+  }
+
+  void showBackupDialog() {
+    showDialog(
+        barrierColor: myBarrierColor,
+        context: context,
+        builder: (_) => StatefulBuilder(
+            builder: (context, setState) => Dialog(
+                insetPadding:
+                    const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
+                elevation: 8,
+                child: SizedBox(
+                    height: 200,
+                    width: 400,
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Text(
+                            'Accès aux archives',
+                            style: TextStyle(
+                                fontSize: 18, color: Colors.grey.shade700),
+                          )),
+                      const Spacer(),
+                      DropdownButton(
+                          style: const TextStyle(fontSize: 16),
+                          value: backupFile,
+                          items: backupFiles.map((file) {
+                            return DropdownMenuItem(
+                                value: file,
+                                child: Text(file.split('_')[1] +
+                                    ' ' +
+                                    file.split('-')[0]));
+                          }).toList(),
+                          onChanged: (dynamic newValue) {
+                            setState(() {
+                              backupFile = newValue!;
+                            });
+                          }),
+                      const Spacer(),
+                      Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                    style: myButtonStyle,
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Annuler')),
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 20),
+                                ),
+                                ElevatedButton(
+                                    style: myButtonStyle,
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      loadBackupTraca();
+                                    },
+                                    child: const Text('Valider'))
+                              ])),
+                    ])))));
+  }
+
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -760,6 +851,24 @@ class _TracaListState extends State<TracaList>
                     icon: const Icon(Icons.sync),
                     tooltip: 'Actualiser l\'onglet',
                   ),
+                if (backupMode)
+                  ElevatedButton(
+                      style: myButtonStyle,
+                      onPressed: () => loadBackupTraca(cancel: true),
+                      child: const Text(
+                        'Retour à la\nbase de données',
+                        textAlign: TextAlign.center,
+                      )),
+                if (!backupMode)
+                  ElevatedButton(
+                      style: myButtonStyle,
+                      onPressed: () {
+                        showBackupDialog();
+                      },
+                      child: const Text(
+                        'Accéder aux\n archives',
+                        textAlign: TextAlign.center,
+                      )),
                 const Spacer(),
                 const Text('Nombre de\nlignes affichées : '),
                 DropdownButton(

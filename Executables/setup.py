@@ -1,8 +1,5 @@
-from email import message
-from msilib.schema import Error
 import os
 import shutil
-from sys import prefix
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog as fd
@@ -14,7 +11,9 @@ import subprocess
 import mysql.connector
 from apscheduler.schedulers.background import BackgroundScheduler
 import glob
+import locale
 
+locale.setlocale(locale.LC_TIME,'')
 
 # on lit le contenu du fichier variables.txt qui contient les variables
 with open('bin/variables.txt') as variables_file :
@@ -46,6 +45,8 @@ with open('bin/variables.txt') as variables_file :
     last_reception_out_directory = variableDict['last_reception_out_directory']
     type_reception_frequence = variableDict['type_reception_frequence']
     reception_frequence = int(variableDict['reception_frequence'])
+    max_backup_files = int(variableDict['max_backup_files'])
+    cleaning_hour = int(variableDict['cleaning_hour'])
 
 
 # cette fonction sert de switch au service PDA en activant ou désactivant la tache planifiée + en mettant à jour l'affichage
@@ -112,10 +113,33 @@ def import_traca_pda() :
 
 def backup(changeDisplay = True) :
     try :
-        subprocess.run('powershell ' + extract_folder + '/bin/mysql/bin/mysqldump --add-drop-table -u root -proot cerba > ' + backup_path + '/' + backup_prefix + datetime.now().strftime('%Y-%m-%d_%H.%M.%S') + '.sql', shell=True) 
+        backup_files = sorted(glob.glob('*.sql', root_dir=backup_path))
+        while len(backup_files) > max_backup_files :
+            os.unlink(backup_path + '/' + backup_files[0])
+            backup_files = sorted(glob.glob('*.sql', root_dir=backup_path))
+        subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba > ' + backup_path + '/' + backup_prefix + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.sql', shell=True) 
         if changeDisplay : canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nen marche\nDernière sauvegarde :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
+        
+        mydb = mysql.connector.connect(host='localhost', user='root', password='root', database='cerba')
+        mycursor = mydb.cursor(buffered=True)
+        query = 'SELECT `DATE HEURE SYNCHRONISATION` FROM `tracabilite` ORDER BY `DATE HEURE SYNCHRONISATION` ASC LIMIT 1'
+        mycursor.execute(query)
+        synchronizing_time = mycursor.fetchone()
+        actual_time = datetime.now()
+        if (synchronizing_time[0].month + 1)%12 != actual_time.month and changeDisplay :
+            if not os.path.isdir(backup_path + '/tracabilites/') :
+                os.mkdir(backup_path + '/tracabilites/')
+            mycursor.execute('INSERT INTO `backup_tracabilite` SELECT * FROM `tracabilite`')
+            mydb.commit()
+            subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite --where="`date heure synchronisation` BETWEEN \'' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00\' AND \'' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59\'" > ' + backup_path + '/tracabilites/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql', shell=True)
+            secondQuery = 'DELETE FROM `tracabilite` WHERE `date heure synchronisation` BETWEEN \'' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00\' AND \'' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59\''
+            mycursor.execute(secondQuery)
+            mycursor.execute('TRUNCATE `backup_tracabilite`')
+            mydb.commit()
 
-    except Exception as e:
+        mycursor.close()
+        mydb.close()
+    except Exception as e :
         canvas1.itemconfigure(displayed_backup_signal, text= 'Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nErreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
 
 # cette fonction sert de switch au service backup en activant ou désactivant la tache planifiée + en mettant à jour l'affichage
@@ -223,8 +247,10 @@ def start_stop_web_server() :
     web_server_status = not web_server_status
     if (web_server_status) :
         launch_server()
+        cleaning_box_scheduler.resume()
     else :
         stop_server()
+        cleaning_box_scheduler.pause()
         stop_all()
 
 def launch_server() :
@@ -359,6 +385,14 @@ def reception() :
     mycursor.close()
     mydb.close()
 
+def clean_boxes() :
+    mydb = mysql.connector.connect(host='localhost', user='root', password='root', database='cerba')
+    mycursor = mydb.cursor()
+    sqlQuery = 'UPDATE `tube` SET `CODE SITE` = 0'
+    mycursor.execute(sqlQuery)
+    mydb.commit()
+    mycursor.close()
+    mydb.close()
 
 global ip
 ip = socket.gethostbyname(socket.gethostname())
@@ -379,6 +413,10 @@ pda_scheduler = BackgroundScheduler()
 pda_scheduler.add_job(import_traca_pda, 'cron', minute=minute_synchro_pda_1, timezone='Europe/Berlin')
 pda_scheduler.add_job(import_traca_pda, 'cron', minute=minute_synchro_pda_2, timezone='Europe/Berlin')
 pda_scheduler.start(paused=True)
+
+cleaning_box_scheduler = BackgroundScheduler()
+cleaning_box_scheduler.add_job(clean_boxes, 'cron', hour=cleaning_hour, timezone='Europe/Berlin')
+cleaning_box_scheduler.start(paused=True)
 
 backup_scheduler = BackgroundScheduler()
 if (type_backup_frequence == 'seconde') :

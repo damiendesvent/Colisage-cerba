@@ -14,12 +14,22 @@ php_file_path = conf/php7.4.1/php.ini
 extract_folder = C:/Serveur_colisage
 
 pda_track_in_directory = C:/PDA_tracks/in
-pda_track_out_directory = C:/PDA_tracks/out
 minute_synchro_pda_1 = 15
 minute_synchro_pda_2 = 45
 
 backup_directory = C:/Backup
 backup_name_prefix = colisage_
 # Pour le paramètre suivant, vous devez écrire : seconde, minute, heure ou jour
-type_backup_frequence = minute
-backup_frequence = 5
+type_backup_frequence = seconde
+backup_frequence = 15
+max_backup_files = 16
+
+last_reception_in_directory = C:/Reception/in
+last_reception_out_directory = C:/Reception/Out
+# Pour le paramètre suivant, vous devez écrire : seconde, minute, heure ou jour
+type_reception_frequence = heure
+reception_frequence = 1
+
+# Ce paramètre correspond à l'heure à laquelle sont vidées automatiquement toutes les boîtes
+cleaning_hour = 16
+

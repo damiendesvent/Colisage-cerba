@@ -670,7 +670,6 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                         setState(() {
                                           editing = false;
                                         });
-                                        ;
                                       },
                                       child: Row(children: const [
                                         Icon(Icons.clear),

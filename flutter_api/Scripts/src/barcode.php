@@ -20,7 +20,7 @@ $sizefactor = (isset($_GET["sizefactor"])?$_GET["sizefactor"]:"1");
 // This function call can be copied into your project and can be made from anywhere in your code
 
 
-function barcode( $filepath="", $text="0", $size="20", $orientation="horizontal", $code_type="code128", $print=false, $SizeFactor=1 ) {
+function barcode( $filepath="", $text="0", $size="20", $orientation="horizontal", $code_type="code128", $print=false, $SizeFactor=1) {
 	$code_string = "";
 	// Translate the $text into barcode the correct $code_type
 	if ( in_array(strtolower($code_type), array("code128", "code128b")) ) {
@@ -119,7 +119,6 @@ function barcode( $filepath="", $text="0", $size="20", $orientation="horizontal"
 		$img_width = $size;
 		$img_height = $code_length*$SizeFactor;
 	}
-
 	$image = imagecreate($img_width, $img_height + $text_height);
 	$black = imagecolorallocate ($image, 0, 0, 0);
 	$white = imagecolorallocate ($image, 255, 255, 255);
@@ -127,6 +126,7 @@ function barcode( $filepath="", $text="0", $size="20", $orientation="horizontal"
 	imagefill( $image, 0, 0, $white );
 	if ( $print ) {
 		imagestring($image, 5, 31, $img_height, $text, $black );
+		//imagettftext($image, 6, 0, ($img_width)/2 - strlen($text)*3, $img_height + 5, $black, 'src/Helvetica-Bold.ttf', $text);
 	}
 
 	$location = 10;

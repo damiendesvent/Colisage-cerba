@@ -7,6 +7,8 @@ import '../models/site.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
+import 'package:printing/printing.dart';
+import 'package:pdf/pdf.dart';
 
 enum Menu { itemEdit, itemDelete }
 
@@ -57,6 +59,8 @@ class _SiteListState extends State<SiteList>
   late String depositSiteValue;
   static List<String> noYesList = ['Non', 'Oui'];
   String noYesValue = noYesList.first;
+  List<dynamic> sitesCode = [];
+  List<dynamic> sitesLibelle = [];
 
   Future<bool> isExistingSite(String libelle) async {
     String phpUriDetailsSite =
@@ -78,6 +82,8 @@ class _SiteListState extends State<SiteList>
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       _streamController.add(items);
+      sitesLibelle = items.map((item) => item['LIBELLE SITE']).toList();
+      sitesCode = items.map((item) => item['CODE SITE']).toList();
     }
   }
 
@@ -1203,6 +1209,49 @@ class _SiteListState extends State<SiteList>
         });
   }
 
+  void onPrintLabel() async {
+    String phpUriPrintLabel = Env.urlPrefix + 'Scripts/print_label.php';
+    http.Response pdfRes = await http.post(Uri.parse(phpUriPrintLabel), body: {
+      'libelles': sitesLibelle.toString(),
+      'codes': sitesCode.toString()
+    });
+    await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdfRes.bodyBytes);
+    Navigator.of(context).pop();
+  }
+
+  void showLabelDialog() {
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: const Text(
+                'Confirmation',
+                textAlign: TextAlign.center,
+              ),
+              content: Text(
+                sitesLibelle.length > 1
+                    ? 'Êtes-vous sûr de vouloir imprimer \nles étiquettes des ' +
+                        sitesLibelle.length.toString() +
+                        ' sites sélectionnés ?'
+                    : 'Êtes-vous sûr de vouloir imprimer l\'étiquette du site sélectionné ?',
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      onPrintLabel();
+                    },
+                    child: const Text('Oui')),
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Non')),
+              ],
+              elevation: 16,
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -1306,6 +1355,18 @@ class _SiteListState extends State<SiteList>
                               showAddPageSite();
                             },
                             child: const Text('Ajouter un site')),
+                      if (globals.user.siteRights > 0)
+                        Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: ElevatedButton(
+                                style: myButtonStyle,
+                                onPressed: () {
+                                  showLabelDialog();
+                                },
+                                child: const Padding(
+                                    padding: EdgeInsets.all(2),
+                                    child: Text('Générer\nétiquettes',
+                                        textAlign: TextAlign.center)))),
                       const Spacer(),
                       if (globals.user.siteRights > 1)
                         const Text('Sites\nsupprimés :'),

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../models/site.dart';
 import '../models/road_map.dart';
-import '../models/traca.dart';
 
 bool isAuthentified = false;
 

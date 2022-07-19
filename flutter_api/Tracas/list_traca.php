@@ -2,6 +2,7 @@
 header('Content-Type: application/json; charset=utf-8');
 include "../db_cerba.php";
 
+$table = $_POST['backup'] == 'true' ? '`backup_tracabilite`' : '`tracabilite`';
 $numberLimit = $_POST['limit'];
 $order = $_POST['order'];
 $isAscending = $_POST['isAscending'] == 'true' ? 'ASC' : 'DESC';
@@ -11,10 +12,10 @@ $replace = array('A', 'A', 'A', 'A', 'A', 'A', 'C', 'E', 'E', 'E', 'E', 'I', 'I'
 
 $order = str_replace($search,$replace,$order);
 
-$sqlQuery = 'SELECT `tracabilite`.*,`entetes feuille de route`.`LIBELLE TOURNEE`, `sites`.`LIBELLE SITE` 
-            FROM `tracabilite` 
-            JOIN `entetes feuille de route` ON COALESCE(`tracabilite`.`CODE TOURNEE`,0) = `entetes feuille de route`.`CODE TOURNEE` 
-            JOIN `sites` ON `tracabilite`.`CODE SITE` = `sites`.`CODE SITE` ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
+$sqlQuery = 'SELECT '.$table.'.*,`entetes feuille de route`.`LIBELLE TOURNEE`, `sites`.`LIBELLE SITE` 
+            FROM '.$table.' 
+            JOIN `entetes feuille de route` ON COALESCE('.$table.'.`CODE TOURNEE`,0) = `entetes feuille de route`.`CODE TOURNEE` 
+            JOIN `sites` ON '.$table.'.`CODE SITE` = `sites`.`CODE SITE` ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
 $result = $stmt -> fetchAll(PDO::FETCH_ASSOC);

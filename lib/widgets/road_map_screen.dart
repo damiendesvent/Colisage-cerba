@@ -701,8 +701,10 @@ class _RoadMapListState extends State<RoadMapList>
                               onPressed: () {
                                 onGeneratePDAUpdate();
                               },
-                              child: const Text('Générer une\nmise à jour PDA',
-                                  textAlign: TextAlign.center)),
+                              child: const Padding(
+                                  padding: EdgeInsets.all(2),
+                                  child: Text('Générer une\nmise à jour PDA',
+                                      textAlign: TextAlign.center))),
                         const Spacer(),
                         if (globals.user.roadMapRights > 1)
                           const Text('Feuilles de route\nsupprimées :'),
