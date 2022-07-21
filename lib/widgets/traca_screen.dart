@@ -81,7 +81,9 @@ class _TracaListState extends State<TracaList>
     });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
-      //_streamController.add(items);
+      if (items.isEmpty) {
+        Future.delayed(const Duration(seconds: 2), () => getTracaList());
+      }
       setState(() {
         tracas = items;
       });
@@ -667,7 +669,7 @@ class _TracaListState extends State<TracaList>
       backupMode = !cancel;
       tracas = [];
     });
-    Future.delayed(const Duration(milliseconds: 200), () => getTracaList());
+    Future.delayed(const Duration(seconds: 2), () => getTracaList());
   }
 
   void showBackupDialog() {
