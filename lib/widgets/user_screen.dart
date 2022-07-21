@@ -417,7 +417,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                             defaultColumnWidth: const FractionColumnWidth(0.4),
                             children: [
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                   child:
                                       Text('Code* : ', style: defaultTextStyle),
                                 ),
@@ -444,7 +444,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             ))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                   child: Text('Prénom* : ',
                                       style: defaultTextStyle),
                                 ),
@@ -469,7 +469,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             ))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                   child:
                                       Text('Nom* : ', style: defaultTextStyle),
                                 ),
@@ -494,7 +494,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             ))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Fonction* : ',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -518,7 +518,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             ))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Mot de passe* : ',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -542,7 +542,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             ))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits sites :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -567,7 +567,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                     })))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits feuilles de route :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -593,7 +593,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                     })))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits boîtes :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -618,7 +618,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                     })))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits utilisateurs :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -643,7 +643,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                     })))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Accès au panneau SQL :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -669,7 +669,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                     })))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Accès aux paramètres :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -844,7 +844,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                             defaultColumnWidth: const FractionColumnWidth(0.4),
                             children: [
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                   child: Text('Prénom* : ',
                                       style: defaultTextStyle),
                                 ),
@@ -869,7 +869,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             ))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                   child:
                                       Text('Nom* : ', style: defaultTextStyle),
                                 ),
@@ -894,7 +894,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             ))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Fonction* : ',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -918,7 +918,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             ))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits sites :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -943,7 +943,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                     })))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits feuilles de route :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -969,7 +969,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                     })))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits boîtes :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -994,7 +994,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                     })))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits utilisateurs :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -1019,7 +1019,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                     })))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Accès au panneau SQL :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -1045,7 +1045,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                     })))))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Accès aux paramètres :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -1182,7 +1182,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                             defaultColumnWidth: const FractionColumnWidth(0.4),
                             children: [
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                   child:
                                       Text('Code : ', style: defaultTextStyle),
                                 ),
@@ -1193,7 +1193,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             style: defaultTextStyle)))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                   child: Text('Prénom : ',
                                       style: defaultTextStyle),
                                 ),
@@ -1204,7 +1204,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             style: defaultTextStyle)))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                   child:
                                       Text('Nom : ', style: defaultTextStyle),
                                 ),
@@ -1215,7 +1215,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             style: defaultTextStyle)))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Fonction : ',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -1225,7 +1225,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             style: defaultTextStyle)))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits sites :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -1236,7 +1236,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             style: defaultTextStyle)))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits feuilles de route :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -1248,7 +1248,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             style: defaultTextStyle)))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits boîtes :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -1259,7 +1259,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             style: defaultTextStyle)))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Droits utilisateurs :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -1270,7 +1270,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             style: defaultTextStyle)))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Accès au panneau SQL :',
                                         style: defaultTextStyle)),
                                 TableCell(
@@ -1281,7 +1281,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                             style: defaultTextStyle)))
                               ]),
                               TableRow(children: [
-                                TableCell(
+                                const TableCell(
                                     child: Text('Accès aux paramètres :',
                                         style: defaultTextStyle)),
                                 TableCell(
