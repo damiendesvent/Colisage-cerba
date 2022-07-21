@@ -26,7 +26,7 @@ with open('bin/variables.txt') as variables_file :
             variableDict[variable[0]] = variable[1]
 
     zip_file = variableDict['zip_file']
-    extract_folder = variableDict['extract_folder']
+    extract_folder = variableDict['chemin_installation_serveur']
     apache_file_path = variableDict['apache_file_path']
     default_path = variableDict['default_path']
     default_antislash_path = variableDict['default_antislash_path']
@@ -34,19 +34,19 @@ with open('bin/variables.txt') as variables_file :
     default_ip = variableDict['default_ip']
     my_file_path = variableDict['my_file_path']
     php_file_path = variableDict['php_file_path']
-    pda_track_in_directory = variableDict['pda_track_in_directory']
+    pda_track_in_directory = variableDict['chemin_reception_fichier_PDA']
     minute_synchro_pda_1 = int(variableDict['minute_synchro_pda_1'])
     minute_synchro_pda_2 = int(variableDict['minute_synchro_pda_2'])
-    backup_path = variableDict['backup_directory']
-    backup_prefix = variableDict['backup_name_prefix']
-    type_backup_frequence = variableDict['type_backup_frequence']
-    interval_backup_time = int(variableDict['backup_frequence'])
-    last_reception_in_directory = variableDict['last_reception_in_directory']
-    last_reception_out_directory = variableDict['last_reception_out_directory']
-    type_reception_frequence = variableDict['type_reception_frequence']
-    reception_frequence = int(variableDict['reception_frequence'])
-    max_backup_files = int(variableDict['max_backup_files'])
-    cleaning_hour = int(variableDict['cleaning_hour'])
+    backup_path = variableDict['chemin_sauvegardes']
+    backup_prefix = variableDict['prefixe_fichier_sauvegarde']
+    type_backup_frequence = variableDict['type_sauvegarde']
+    interval_backup_time = int(variableDict['frequence_sauvegarde'])
+    last_reception_in_directory = variableDict['chemin_reception_fichiers_boite']
+    last_reception_out_directory = variableDict['chemin_envoi_fichiers_boite']
+    type_reception_frequence = variableDict['type_synchronisation']
+    reception_frequence = int(variableDict['frequence_synchronisation'])
+    max_backup_files = int(variableDict['nombre_maximum_fichiers_sauvegarde'])
+    cleaning_hour = int(variableDict['heure_nettoyage_boite'])
 
 
 # cette fonction sert de switch au service PDA en activant ou désactivant la tache planifiée + en mettant à jour l'affichage
@@ -68,6 +68,7 @@ def start_stop_pda() :
 
 # cette fonction est celle utilisée en tache planifiée pour le service PDA
 def import_traca_pda() :
+    os.makedirs(pda_track_in_directory, exist_ok=True)
     os.chdir(pda_track_in_directory)
     list_files = glob.glob('*.txt')
     try :
@@ -96,7 +97,7 @@ def import_traca_pda() :
                     box = 'NULL' if len(box) == 0 else '"' + box + '"'
                     comment = 'NULL' if len(comment) == 0 else '"' + comment + '"'
 
-                    query = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `CODE ORIGINE`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) VALUES ("' + user + '", ' + tour + ', ' + site + ', ' + box + ', NULL, "' + action + '", NULL, "' + time + '", "' + actual_time + '", "' + pda_number + '", NULL, ' + car + ', ' + comment + ')'
+                    query = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `CODE ORIGINE`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) VALUES ("' + user + '", (select `code tournee` from `entetes feuille de route` where `ordre affichage pda` = ' + tour + '), ' + site + ', ' + box + ', NULL, "' + action + '", NULL, "' + time + '", "' + actual_time + '", "' + pda_number + '", NULL, ' + car + ', ' + comment + ')'
                     mycursor.execute(query)
                     mydb.commit()
                     
@@ -112,6 +113,7 @@ def import_traca_pda() :
 
 
 def backup(changeDisplay = True) :
+    os.makedirs(backup_path + '/tracabilites/', exist_ok=True)
     try :
         backup_files = sorted(glob.glob('*.sql', root_dir=backup_path))
         while len(backup_files) > max_backup_files :
@@ -127,8 +129,6 @@ def backup(changeDisplay = True) :
         synchronizing_time = mycursor.fetchone()
         actual_time = datetime.now()
         if (synchronizing_time[0].month + 1)%12 != actual_time.month and changeDisplay :
-            if not os.path.isdir(backup_path + '/tracabilites/') :
-                os.mkdir(backup_path + '/tracabilites/')
             mycursor.execute('INSERT INTO `backup_tracabilite` SELECT * FROM `tracabilite`')
             mydb.commit()
             subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite --where="`date heure synchronisation` BETWEEN \'' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00\' AND \'' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59\'" > ' + backup_path + '/tracabilites/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql', shell=True)
@@ -141,6 +141,7 @@ def backup(changeDisplay = True) :
         mydb.close()
     except Exception as e :
         canvas1.itemconfigure(displayed_backup_signal, text= 'Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nErreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
+        
 
 # cette fonction sert de switch au service backup en activant ou désactivant la tache planifiée + en mettant à jour l'affichage
 def start_stop_backup() :
@@ -160,78 +161,77 @@ def start_stop_backup() :
 
 
 def install() :
-    if os.path.isdir(extract_folder) :
-        if not os.listdir(extract_folder) :
-            if os.path.isfile(zip_file) :
-                shutil.unpack_archive(zip_file, extract_folder) # On extrait l'archive du serveur
+    os.makedirs(extract_folder, exist_ok=True)
+    if not os.listdir(extract_folder) :
+        if os.path.isfile(zip_file) :
+            shutil.unpack_archive(zip_file, extract_folder) # On extrait l'archive du serveur
+            
+            os.chdir(extract_folder)
+            path = os.getcwd()
+            path_w_slash = path.replace('\\','/')
+            # Cette partie modifie le fichier conf du serveur apache pour adapter les chemins d'accès
+            with open(apache_file_path, 'r') as conf_file :
+                conf_file_data = conf_file.read()
                 
-                os.chdir(extract_folder)
-                path = os.getcwd()
-                path_w_slash = path.replace('\\','/')
-                # Cette partie modifie le fichier conf du serveur apache pour adapter les chemins d'accès
-                with open(apache_file_path, 'r') as conf_file :
-                    conf_file_data = conf_file.read()
-                    
-                conf_file_data = conf_file_data.replace(default_path, path_w_slash)   # On remplace les chemins d'accès
-                conf_file_data = conf_file_data.replace(default_antislash_path, path) # par ceux de l'ordinateur
+            conf_file_data = conf_file_data.replace(default_path, path_w_slash)   # On remplace les chemins d'accès
+            conf_file_data = conf_file_data.replace(default_antislash_path, path) # par ceux de l'ordinateur
 
-                with open(apache_file_path, 'w') as conf_file :
-                    conf_file.write(conf_file_data)
+            with open(apache_file_path, 'w') as conf_file :
+                conf_file.write(conf_file_data)
+            
+            # Cette partie modifie le fichier main du site pour adapter l'IP 
+            with open(main_file_path, 'r') as main_file :
+                main_file_data = main_file.read()
                 
-                # Cette partie modifie le fichier main du site pour adapter l'IP 
-                with open(main_file_path, 'r') as main_file :
-                    main_file_data = main_file.read()
-                    
-                main_file_data = main_file_data.replace(default_ip, ip)   # On remplace l'IP defaut par l'IP locale de l'ordinateur
+            main_file_data = main_file_data.replace(default_ip, ip)   # On remplace l'IP defaut par l'IP locale de l'ordinateur
 
-                with open(main_file_path, 'w') as main_file :
-                    main_file.write(main_file_data)
+            with open(main_file_path, 'w') as main_file :
+                main_file.write(main_file_data)
 
-                # Cette partie modifie le fichier conf du serveur mysql pour adapter les chemins d'accès
-                with open(my_file_path, 'r') as my_file :
-                    my_file_data = my_file.read()
+            # Cette partie modifie le fichier conf du serveur mysql pour adapter les chemins d'accès
+            with open(my_file_path, 'r') as my_file :
+                my_file_data = my_file.read()
 
-                my_file_data = my_file_data.replace(default_path, path_w_slash)
+            my_file_data = my_file_data.replace(default_path, path_w_slash)
 
-                with open(my_file_path, 'w') as my_file :
-                    my_file.write(my_file_data)
+            with open(my_file_path, 'w') as my_file :
+                my_file.write(my_file_data)
 
-                # Cette partie modifie le fichier conf du serveur php pour adapter les chemins d'accès
-                with open(php_file_path, 'r') as php_file :
-                    php_file_data = php_file.read()
+            # Cette partie modifie le fichier conf du serveur php pour adapter les chemins d'accès
+            with open(php_file_path, 'r') as php_file :
+                php_file_data = php_file.read()
 
-                php_file_data = php_file_data.replace(default_path, path_w_slash)
-                php_file_data = php_file_data.replace(default_antislash_path, path)
-                
-                with open(php_file_path, 'w') as php_file :
-                    php_file.write(php_file_data)
+            php_file_data = php_file_data.replace(default_path, path_w_slash)
+            php_file_data = php_file_data.replace(default_antislash_path, path)
+            
+            with open(php_file_path, 'w') as php_file :
+                php_file.write(php_file_data)
 
-                messagebox.showinfo('Installation réussie','Le serveur est désormais installé')
-        
-            else :
-                messagebox.showerror('Problème de fichier', 'Le fichier MAMP.zip est introuvable,\nVérifiez qu\'il est bien présent.')
-
+            messagebox.showinfo('Installation réussie','Le serveur est désormais installé')
+    
         else :
-            messagebox.showerror('Serveur déjà installé', 'Le serveur est déjà installé, \ns\'il ne fonctionne pas corectement, appuyez sur Réparer')
+            messagebox.showerror('Problème de fichier', 'Le fichier MAMP.zip est introuvable,\nVérifiez qu\'il est bien présent.')
+
     else :
-        os.mkdir(extract_folder)
-        install()
+        messagebox.showerror('Serveur déjà installé', 'Le serveur est déjà installé, \ns\'il ne fonctionne pas corectement, appuyez sur Réparer')
 
 
 def repair() :
-    if os.path.isdir(extract_folder) :
-        shutil.rmtree(extract_folder)
-    install()
-
+    safety_msg = messagebox.askyesno('Réparer le serveur', 'Etes-vous sûr de vouloir le réparer ?\nCela le réinitialisera et les données non sauvegardées seront perdues')
+    if safety_msg :
+        if os.path.isdir(extract_folder) :
+            shutil.rmtree(extract_folder)
+        install()
+    
 
 def uninstall() :
     safety_msg = messagebox.askyesno('Désinstaller le serveur', 'Etes-vous sûr de vouloir le désinstaller ?')
     if safety_msg :
         if os.path.isdir(extract_folder) :
             shutil.rmtree(extract_folder)
-        uninstalled_label = tk.Label(root, text= 'Désinstallation réussie du serveur le ' + datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fg='brown', font=('helvetica', 10))
-        uninstalled_message = canvas1.create_window(250,50,window=uninstalled_label)
-        root.after(8000, canvas1.delete, uninstalled_message)
+            messagebox.showinfo('Désinstallation réussie','Le serveur a été désinstallé')
+        else :
+            messagebox.showerror('Serveur non présent', 'Le serveur n\était pas présent au chemin d\'accès spécifié')
 
 
 def quit() :
@@ -304,12 +304,12 @@ def launch_all() :
 def stop_all() :
     global pda_status
     if pda_status : start_stop_pda()
-    global web_server_status
-    if web_server_status : stop_server()
     global backup_status
     if backup_status : start_stop_backup()
     global reception_status
     if reception_status : start_stop_reception()
+    global web_server_status
+    if web_server_status : start_stop_web_server()
 
 
 def stop_process() :
@@ -358,6 +358,7 @@ def start_stop_reception() :
 
 # cette fonction est répétée périodiquement et réecrit un fichier contenant une boite par ligne en ajoutant la dernière réception de la boite
 def reception() :
+    os.makedirs(last_reception_in_directory, exist_ok=True)
     mydb = mysql.connector.connect(host='localhost', user='root', password='root', database='cerba')
     mycursor = mydb.cursor(buffered=True)
     file_names = os.listdir(last_reception_in_directory)

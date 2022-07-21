@@ -1,6 +1,8 @@
 # Après chaque modification des variables, il faut relancer
 # le serveur pour que les mises à jour soient effectives
+# Utilisez toujours des chemins sans espace
 
+# VOUS N'AVEZ PAS BESOIN DE MODIFIER CETTE PARTIE
 zip_file = MAMP.zip
 default_path = C:/MAMP
 default_antislash_path = C:\MAMP
@@ -10,26 +12,29 @@ apache_file_path = conf/apache/httpd.conf
 my_file_path = conf/mysql/my.ini
 php_file_path = conf/php7.4.1/php.ini
 
-# Indiquez où vous souhaitez que le serveur soit installé (prennez un chemin sans espace)
-extract_folder = C:/Serveur_colisage
+# Indiquez où vous souhaitez que le serveur soit installé
+chemin_installation_serveur = C:/Serveur_colisage
 
-pda_track_in_directory = C:/PDA_tracks/in
+# Importation des fichiers PDA
+chemin_reception_fichier_PDA = C:/PDA_tracks/IN
 minute_synchro_pda_1 = 15
-minute_synchro_pda_2 = 45
+minute_synchro_pda_2 = 39
 
-backup_directory = C:/Backup
-backup_name_prefix = colisage_
+# Sauvegarde de la base de données
+chemin_sauvegardes = C:/Backup
+prefixe_fichier_sauvegarde = colisage_
 # Pour le paramètre suivant, vous devez écrire : seconde, minute, heure ou jour
-type_backup_frequence = seconde
-backup_frequence = 15
-max_backup_files = 16
+type_sauvegarde = seconde
+frequence_sauvegarde = 15
+nombre_maximum_fichiers_sauvegarde = 16
 
-last_reception_in_directory = C:/Reception/in
-last_reception_out_directory = C:/Reception/Out
+# Ecriture des fichiers txt avec dernière réception boite
+chemin_reception_fichiers_boite = C:/Reception/IN
+chemin_envoi_fichiers_boite = C:/Reception/OUT
 # Pour le paramètre suivant, vous devez écrire : seconde, minute, heure ou jour
-type_reception_frequence = heure
-reception_frequence = 1
+type_synchronisation = heure
+frequence_synchronisation = 1
 
 # Ce paramètre correspond à l'heure à laquelle sont vidées automatiquement toutes les boîtes
-cleaning_hour = 16
+heure_nettoyage_boite = 6
 
