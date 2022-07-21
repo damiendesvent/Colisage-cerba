@@ -109,20 +109,25 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
               child: (globals.isAuthentified)
                   ? Scaffold(
                       appBar: AppBar(
-                        title: const Text('Colisage des prélèvements'),
-                        automaticallyImplyLeading: false,
+                        title: const Text(
+                          'Colisage des prélèvements',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w100),
+                        ),
                         leading: Padding(
                             padding: const EdgeInsets.all(5),
                             child: Image.asset(
                               'assets/images/cerballiance_logo.png',
                             )),
                         backgroundColor: themeMainColor,
-                        toolbarHeight: 50,
+                        toolbarHeight: 38,
                         flexibleSpace: FlexibleSpaceBar(
-                          title: Text('Bonjour ' + globals.user.firstname),
+                          title: Text('Bonjour ' + globals.user.firstname,
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w100)),
                           centerTitle: true,
                           titlePadding: const EdgeInsets.fromLTRB(0, 0, 0,
-                              60), //choisit la position de la zone de texte
+                              55), //choisit la position de la zone de texte
                         ),
                         actions: <Widget>[
                           Padding(
@@ -135,7 +140,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                                   },
                                   icon: const Icon(
                                     Icons.exit_to_app,
-                                    size: 30,
+                                    size: 28,
                                     color: Colors.red,
                                   ))),
                         ],
@@ -148,7 +153,8 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                               borderRadius: BorderRadius.circular(8)),
                           labelColor: themeMainColor,
                           unselectedLabelColor: Colors.white,
-                          labelStyle: const TextStyle(fontSize: 16),
+                          labelStyle: TextStyle(
+                              fontSize: defaultTextStyle.fontSize! + 2),
                           tabs: <Widget>[
                             Row(
                               mainAxisSize: MainAxisSize.min,
@@ -174,7 +180,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                                 const Icon(Icons.receipt),
                                 if (MediaQuery.of(context).size.width >
                                     minTabWidth)
-                                  const Text(" Réception tube")
+                                  const Text(" Réception boîte")
                               ],
                             ),
                             if (globals.user.siteRights +
@@ -203,7 +209,11 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                           Text('Vous n\'êtes pas connecté !',
-                              style: Theme.of(context).textTheme.headline2),
+                              style: TextStyle(
+                                  fontSize: 40,
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.w100,
+                                  letterSpacing: -0.5)),
                           Padding(
                               padding: const EdgeInsets.all(30),
                               child: ElevatedButton(

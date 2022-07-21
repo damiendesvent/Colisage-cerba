@@ -8,6 +8,9 @@ final Color backgroundColor = Colors.lightBlue.shade50
 const Color myBarrierColor = Colors.black26;
 
 ButtonStyle myButtonStyle = ButtonStyle(
+  textStyle: MaterialStateProperty.resolveWith((Set<MaterialState> states) {
+    return states.contains(MaterialState.disabled) ? null : defaultTextStyle;
+  }),
   foregroundColor:
       MaterialStateProperty.resolveWith((Set<MaterialState> states) {
     return states.contains(MaterialState.disabled) ? null : Colors.white;
@@ -15,6 +18,11 @@ ButtonStyle myButtonStyle = ButtonStyle(
   backgroundColor:
       MaterialStateProperty.resolveWith((Set<MaterialState> states) {
     return states.contains(MaterialState.disabled) ? null : themeMainColor;
+  }),
+  padding: MaterialStateProperty.resolveWith((Set<MaterialState> states) {
+    return states.contains(MaterialState.disabled)
+        ? null
+        : const EdgeInsets.all(10);
   }),
 );
 
@@ -39,3 +47,5 @@ SnackBar mySnackBar(Text text,
     action: action,
   );
 }
+
+const TextStyle defaultTextStyle = TextStyle(fontSize: 15);

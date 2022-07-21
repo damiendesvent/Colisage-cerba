@@ -13,7 +13,7 @@ import 'sql_screen.dart';
 import 'settings_screen.dart';
 import 'tube_screen.dart';
 import 'traca_screen.dart';
-import 'receipt_tube_screen.dart';
+import 'receipt_box_screen.dart';
 import 'management_screen.dart';
 
 class LogInScreen extends StatelessWidget {
@@ -55,7 +55,7 @@ class _LogInFormState extends State<LogInForm> {
             globals.mainWidgetTabs = [
               const TracaScreen(),
               const TubeScreen(),
-              const ReceiptTubeScreen(),
+              const ReceiptBoxScreen(),
               if (globals.user.siteRights +
                       globals.user.roadMapRights +
                       globals.user.boxRights +
@@ -115,13 +115,13 @@ class _LogInFormState extends State<LogInForm> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
+      insetPadding: const EdgeInsets.all(50),
       elevation: 8,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(25))),
       child: SizedBox(
-        height: 400,
-        width: 600,
+        height: 350,
+        width: 500,
         child: Form(
           onChanged: _updateFormProgress,
           child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -136,7 +136,7 @@ class _LogInFormState extends State<LogInForm> {
                   )),
               title: const Text(
                 "Colisage des prélèvements",
-                style: TextStyle(fontSize: 22),
+                style: TextStyle(fontSize: 18),
               ),
               backgroundColor: themeMainColor,
               automaticallyImplyLeading: false,
@@ -147,10 +147,11 @@ class _LogInFormState extends State<LogInForm> {
               color: themeSecondColor,
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 32, 12, 12),
+              padding: const EdgeInsets.fromLTRB(12, 20, 12, 6),
               child: SizedBox(
                   height: 60,
                   child: TextFormField(
+                    style: defaultTextStyle,
                     autofocus: true,
                     controller: _codeTextController,
                     textInputAction: TextInputAction.next,
@@ -166,6 +167,7 @@ class _LogInFormState extends State<LogInForm> {
               child: SizedBox(
                   height: 60,
                   child: TextFormField(
+                    style: defaultTextStyle,
                     obscureText: true,
                     controller: _passwordTextController,
                     decoration: InputDecoration(
@@ -187,7 +189,7 @@ class _LogInFormState extends State<LogInForm> {
                   )),
             ),
             Padding(
-                padding: const EdgeInsets.all(28),
+                padding: const EdgeInsets.all(10),
                 child: ElevatedButton(
                     style: myButtonStyle,
                     onPressed: () {

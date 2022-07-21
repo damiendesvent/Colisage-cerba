@@ -117,11 +117,14 @@ class _SqlAppState extends State<SqlApp> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Commande : ',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text('Commande : ',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: defaultTextStyle.fontSize)),
                           SizedBox(
                               width: 1000,
                               child: TextField(
+                                style: defaultTextStyle,
                                 controller: queryController,
                                 decoration: InputDecoration(
                                     hintText: 'SELECT * from sites',

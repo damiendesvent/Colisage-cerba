@@ -159,7 +159,7 @@ class _TracaListState extends State<TracaList>
               child: DropdownButtonHideUnderline(
                   child: DropdownButton(
                       value: advancedSearchField,
-                      style: const TextStyle(fontSize: 14),
+                      style: defaultTextStyle,
                       items: searchFieldList.map((searchFieldList) {
                         return DropdownMenuItem(
                             value: searchFieldList,
@@ -172,14 +172,15 @@ class _TracaListState extends State<TracaList>
                         searchTraca();
                       }))),
           SizedBox(
-              width: 550,
+              width: 360,
               child: advancedSearchField.contains('Date')
                   ? Row(
                       children: [
                         const Text(' De : '),
                         SizedBox(
-                            width: 120,
+                            width: 90,
                             child: TextFormField(
+                                style: defaultTextStyle,
                                 textAlign: TextAlign.center,
                                 initialValue: beginDate,
                                 onChanged: (newValue) {
@@ -189,8 +190,9 @@ class _TracaListState extends State<TracaList>
                                 })),
                         const Text(' : '),
                         SizedBox(
-                            width: 60,
+                            width: 50,
                             child: TextFormField(
+                              style: defaultTextStyle,
                               textAlign: TextAlign.center,
                               initialValue: beginTime,
                               onChanged: (newValue) {
@@ -201,8 +203,9 @@ class _TracaListState extends State<TracaList>
                             )),
                         const Text(' à : '),
                         SizedBox(
-                            width: 120,
+                            width: 90,
                             child: TextFormField(
+                              style: defaultTextStyle,
                               textAlign: TextAlign.center,
                               initialValue: endDate,
                               onChanged: (newValue) {
@@ -213,8 +216,9 @@ class _TracaListState extends State<TracaList>
                             )),
                         const Text(' : '),
                         SizedBox(
-                            width: 60,
+                            width: 50,
                             child: TextFormField(
+                              style: defaultTextStyle,
                               textAlign: TextAlign.center,
                               initialValue: endTime,
                               onChanged: (newValue) {
@@ -226,6 +230,7 @@ class _TracaListState extends State<TracaList>
                       ],
                     )
                   : TextFormField(
+                      style: defaultTextStyle,
                       controller: _advancedSearchTextController,
                       decoration: const InputDecoration(
                           hintText: 'Deuxième champ de recherche'),
@@ -251,7 +256,7 @@ class _TracaListState extends State<TracaList>
                 child: DropdownButtonHideUnderline(
                     child: DropdownButton(
                         value: advancedSearchField,
-                        style: const TextStyle(fontSize: 14),
+                        style: defaultTextStyle,
                         items: searchFieldList.map((searchFieldList) {
                           return DropdownMenuItem(
                               value: searchFieldList,
@@ -268,7 +273,7 @@ class _TracaListState extends State<TracaList>
                 child: DropdownButtonHideUnderline(
                     child: DropdownButton(
                         value: secondAdvancedSearchField,
-                        style: const TextStyle(fontSize: 14),
+                        style: defaultTextStyle,
                         items: searchFieldList.map((searchFieldList) {
                           return DropdownMenuItem(
                               value: searchFieldList,
@@ -282,15 +287,16 @@ class _TracaListState extends State<TracaList>
                         })))
           ]),
           SizedBox(
-              width: 550,
+              width: 360,
               child: Column(children: [
                 advancedSearchField.contains('Date')
                     ? Row(
                         children: [
                           const Text(' De : '),
                           SizedBox(
-                              width: 120,
+                              width: 90,
                               child: TextFormField(
+                                  style: defaultTextStyle,
                                   textAlign: TextAlign.center,
                                   initialValue: beginDate,
                                   onChanged: (newValue) {
@@ -300,8 +306,9 @@ class _TracaListState extends State<TracaList>
                                   })),
                           const Text(' : '),
                           SizedBox(
-                              width: 60,
+                              width: 50,
                               child: TextFormField(
+                                style: defaultTextStyle,
                                 textAlign: TextAlign.center,
                                 initialValue: beginTime,
                                 onChanged: (newValue) {
@@ -312,8 +319,9 @@ class _TracaListState extends State<TracaList>
                               )),
                           const Text(' à : '),
                           SizedBox(
-                              width: 120,
+                              width: 90,
                               child: TextFormField(
+                                style: defaultTextStyle,
                                 textAlign: TextAlign.center,
                                 initialValue: endDate,
                                 onChanged: (newValue) {
@@ -324,8 +332,9 @@ class _TracaListState extends State<TracaList>
                               )),
                           const Text(' : '),
                           SizedBox(
-                              width: 60,
+                              width: 50,
                               child: TextFormField(
+                                style: defaultTextStyle,
                                 textAlign: TextAlign.center,
                                 initialValue: endTime,
                                 onChanged: (newValue) {
@@ -337,6 +346,7 @@ class _TracaListState extends State<TracaList>
                         ],
                       )
                     : TextFormField(
+                        style: defaultTextStyle,
                         controller: _advancedSearchTextController,
                         decoration: const InputDecoration(
                             hintText: 'Deuxième champ de recherche'),
@@ -349,8 +359,9 @@ class _TracaListState extends State<TracaList>
                         children: [
                           const Text(' De : '),
                           SizedBox(
-                              width: 120,
+                              width: 90,
                               child: TextFormField(
+                                  style: defaultTextStyle,
                                   textAlign: TextAlign.center,
                                   initialValue: beginDate,
                                   onChanged: (newValue) {
@@ -360,8 +371,9 @@ class _TracaListState extends State<TracaList>
                                   })),
                           const Text(' : '),
                           SizedBox(
-                              width: 60,
+                              width: 50,
                               child: TextFormField(
+                                style: defaultTextStyle,
                                 textAlign: TextAlign.center,
                                 initialValue: beginTime,
                                 onChanged: (newValue) {
@@ -372,8 +384,9 @@ class _TracaListState extends State<TracaList>
                               )),
                           const Text(' à : '),
                           SizedBox(
-                              width: 120,
+                              width: 90,
                               child: TextFormField(
+                                style: defaultTextStyle,
                                 textAlign: TextAlign.center,
                                 initialValue: endDate,
                                 onChanged: (newValue) {
@@ -384,8 +397,9 @@ class _TracaListState extends State<TracaList>
                               )),
                           const Text(' : '),
                           SizedBox(
-                              width: 60,
+                              width: 50,
                               child: TextFormField(
+                                style: defaultTextStyle,
                                 textAlign: TextAlign.center,
                                 initialValue: endTime,
                                 onChanged: (newValue) {
@@ -397,6 +411,7 @@ class _TracaListState extends State<TracaList>
                         ],
                       )
                     : TextFormField(
+                        style: defaultTextStyle,
                         controller: _secondAdvancedSearchTextController,
                         decoration: const InputDecoration(
                             hintText: 'Troisième champ de recherche'),
@@ -425,208 +440,209 @@ class _TracaListState extends State<TracaList>
   }
 
   void showDetailTraca(Traca traca) {
-    const TextStyle textStyle = TextStyle(fontSize: 18);
     showDialog(
         barrierColor: myBarrierColor,
         context: context,
         builder: (_) => Dialog(
-            insetPadding:
-                const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
+            insetPadding: const EdgeInsets.all(20),
             elevation: 8,
             child: SingleChildScrollView(
                 child: SizedBox(
-                    height: 700,
-                    width: 700,
+                    height: 550,
+                    width: 500,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            padding: const EdgeInsets.only(top: 10, bottom: 40),
                             child: Text(
                               'Détails de traçabilité n° ' +
                                   traca.code.toString(),
                               style: TextStyle(
-                                  fontSize: 18, color: Colors.grey.shade700),
+                                  fontSize: 16, color: Colors.grey.shade700),
                             )),
-                        const Spacer(),
                         Table(
                             defaultColumnWidth: const FractionColumnWidth(0.4),
                             children: [
                               TableRow(
                                 children: [
-                                  const TableCell(
+                                  TableCell(
                                       child: Text('Code : ',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 16))),
+                                              fontSize:
+                                                  defaultTextStyle.fontSize))),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.code.toString(),
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 16)))),
+                                                  fontSize: defaultTextStyle
+                                                      .fontSize)))),
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Utilisateur : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.user,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
-                                      child:
-                                          Text('Tournée : ', style: textStyle)),
+                                      child: Text('Tournée : ',
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.tournee,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
-                                      child: Text('Site : ', style: textStyle)),
+                                      child: Text('Site : ',
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.site,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
-                                      child:
-                                          Text('Boite : ', style: textStyle)),
+                                      child: Text('Boite : ',
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.box,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
-                                      child: Text('Tube : ', style: textStyle)),
+                                      child: Text('Tube : ',
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.tube,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
-                                      child:
-                                          Text('Action : ', style: textStyle)),
+                                      child: Text('Action : ',
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.action,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Correspondant : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.correspondant,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Enregistrement : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.registeringTime,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Synchronisation : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.synchronizingTime,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
-                                      child:
-                                          Text('Origine : ', style: textStyle)),
+                                      child: Text('Origine : ',
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.pgm,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Lettrage : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.lettrage.toString(),
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Code voiture : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.car.toString(),
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Commentaire : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 40,
+                                          height: 30,
                                           child: Text(traca.comment,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                             ]),
                         Padding(
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(15),
                           child: SizedBox(
-                              width: 110,
+                              width: 100,
                               child: ElevatedButton(
                                 style: myButtonStyle,
                                 onPressed: () {
@@ -638,7 +654,6 @@ class _TracaListState extends State<TracaList>
                                 ]),
                               )),
                         ),
-                        const Spacer()
                       ],
                     )))));
   }
@@ -650,6 +665,7 @@ class _TracaListState extends State<TracaList>
         body: {'file': cancel ? '_' : backupFile});
     setState(() {
       backupMode = !cancel;
+      tracas = [];
     });
     Future.delayed(const Duration(milliseconds: 200), () => getTracaList());
   }
@@ -660,6 +676,8 @@ class _TracaListState extends State<TracaList>
         context: context,
         builder: (_) => StatefulBuilder(
             builder: (context, setState) => Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding:
                     const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
                 elevation: 8,
@@ -672,11 +690,11 @@ class _TracaListState extends State<TracaList>
                           child: Text(
                             'Accès aux archives',
                             style: TextStyle(
-                                fontSize: 18, color: Colors.grey.shade700),
+                                fontSize: 16, color: Colors.grey.shade700),
                           )),
                       const Spacer(),
                       DropdownButton(
-                          style: const TextStyle(fontSize: 16),
+                          style: defaultTextStyle,
                           value: backupFile,
                           items: backupFiles.map((file) {
                             return DropdownMenuItem(
@@ -725,8 +743,8 @@ class _TracaListState extends State<TracaList>
     endTime = TimeOfDay.now().to24hours();
     DataTableSource tracaData =
         TracaData((traca) => showDetailTraca(traca), tracas);
-    TextStyle titleStyle =
-        const TextStyle(fontWeight: FontWeight.bold, fontSize: 16);
+    TextStyle titleStyle = TextStyle(
+        fontWeight: FontWeight.bold, fontSize: defaultTextStyle.fontSize);
     return Scaffold(
         appBar: AppBar(
             elevation: 8,
@@ -740,7 +758,7 @@ class _TracaListState extends State<TracaList>
                     child: DropdownButtonHideUnderline(
                         child: DropdownButton(
                             value: searchField,
-                            style: const TextStyle(fontSize: 14),
+                            style: defaultTextStyle,
                             items: searchFieldList.map((searchFieldList) {
                               return DropdownMenuItem(
                                   value: searchFieldList,
@@ -752,14 +770,15 @@ class _TracaListState extends State<TracaList>
                               });
                             }))),
                 SizedBox(
-                    width: 550,
+                    width: 360,
                     child: searchField.contains('Date')
                         ? Row(
                             children: [
                               const Text(' De : '),
                               SizedBox(
-                                  width: 120,
+                                  width: 90,
                                   child: TextFormField(
+                                      style: defaultTextStyle,
                                       textAlign: TextAlign.center,
                                       initialValue: beginDate,
                                       onChanged: (newValue) {
@@ -769,8 +788,9 @@ class _TracaListState extends State<TracaList>
                                       })),
                               const Text(' : '),
                               SizedBox(
-                                  width: 60,
+                                  width: 50,
                                   child: TextFormField(
+                                    style: defaultTextStyle,
                                     textAlign: TextAlign.center,
                                     initialValue: beginTime,
                                     onChanged: (newValue) {
@@ -781,8 +801,9 @@ class _TracaListState extends State<TracaList>
                                   )),
                               const Text(' à : '),
                               SizedBox(
-                                  width: 120,
+                                  width: 90,
                                   child: TextFormField(
+                                    style: defaultTextStyle,
                                     textAlign: TextAlign.center,
                                     initialValue: endDate,
                                     onChanged: (newValue) {
@@ -793,8 +814,9 @@ class _TracaListState extends State<TracaList>
                                   )),
                               const Text(' : '),
                               SizedBox(
-                                  width: 60,
+                                  width: 50,
                                   child: TextFormField(
+                                    style: defaultTextStyle,
                                     textAlign: TextAlign.center,
                                     initialValue: endTime,
                                     onChanged: (newValue) {
@@ -806,6 +828,7 @@ class _TracaListState extends State<TracaList>
                             ],
                           )
                         : TextFormField(
+                            style: defaultTextStyle,
                             controller: _searchTextController,
                             decoration:
                                 const InputDecoration(hintText: 'Recherche'),
@@ -870,8 +893,12 @@ class _TracaListState extends State<TracaList>
                         textAlign: TextAlign.center,
                       )),
                 const Spacer(),
-                const Text('Nombre de\nlignes affichées : '),
+                const Text(
+                  'Nombre de\nlignes affichées : ',
+                  style: defaultTextStyle,
+                ),
                 DropdownButton(
+                    style: defaultTextStyle,
                     value: numberDisplayed,
                     items: numberDisplayedList.map((numberDisplayedList) {
                       return DropdownMenuItem(
@@ -949,8 +976,13 @@ class _TracaListState extends State<TracaList>
                                 ],
                                 source: tracaData))))
               ])
-            : const Center(
-                child: Text('Aucun élément ne correspond à votre recherche')));
+            : (_searchTextController.text.isEmpty &&
+                    _advancedSearchTextController.text.isEmpty &&
+                    _secondAdvancedSearchTextController.text.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : const Center(
+                    child: Text(
+                        'Aucun élément ne correspond à votre recherche'))));
   }
 }
 
@@ -984,54 +1016,72 @@ class TracaData extends DataTableSource {
           }
         },
         cells: [
-          DataCell(SelectableText(data[index]['CODE TRACABILITE'])),
-          DataCell(SelectableText(data[index]['UTILISATEUR'])),
+          DataCell(SelectableText(data[index]['CODE TRACABILITE'],
+              style: defaultTextStyle)),
+          DataCell(SelectableText(data[index]['UTILISATEUR'],
+              style: defaultTextStyle)),
           DataCell(SizedBox(
               width: 150,
               child: AutoSizeText(
-                data[index]['LIBELLE TOURNEE'] ?? '',
+                data[index]['LIBELLE TOURNEE'] ??
+                    (data[index]['CODE TOURNEE'] ?? 'Aucune'),
+                style: defaultTextStyle,
                 maxLines: 2,
-                minFontSize: 14,
+                minFontSize: defaultTextStyle.fontSize! - 2,
                 overflowReplacement: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Tooltip(
-                        message: data[index]['LIBELLE TOURNEE'] ?? '',
+                        message: data[index]['LIBELLE TOURNEE'] ??
+                            (data[index]['CODE TOURNEE'] ?? 'Aucune'),
                         child: Text(
-                          data[index]['LIBELLE TOURNEE'] ?? '',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        )),
+                            data[index]['LIBELLE TOURNEE'] ??
+                                (data[index]['CODE TOURNEE'] ?? 'Aucune'),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: defaultTextStyle)),
                   ],
                 ),
               ))),
           DataCell(SizedBox(
               width: 150,
               child: AutoSizeText(
-                data[index]['LIBELLE SITE'],
+                data[index]['LIBELLE SITE'] ??
+                    (data[index]['CODE SITE'] ?? 'Aucun'),
+                style: defaultTextStyle,
                 maxLines: 3,
-                minFontSize: 14,
+                minFontSize: defaultTextStyle.fontSize! - 2,
                 overflowReplacement: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Tooltip(
-                        message: data[index]['LIBELLE SITE'],
+                        message: data[index]['LIBELLE SITE'] ??
+                            (data[index]['CODE SITE'] ?? 'Aucun'),
                         child: Text(
-                          data[index]['LIBELLE SITE'],
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        )),
+                            data[index]['LIBELLE SITE'] ??
+                                (data[index]['CODE SITE'] ?? 'Aucun'),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: defaultTextStyle)),
                   ],
                 ),
               ))),
-          DataCell(SelectableText(data[index]['BOITE'] ?? '')),
-          DataCell(SelectableText(data[index]['TUBE'] ?? '')),
-          DataCell(SelectableText(data[index]['ACTION'])),
-          DataCell(SelectableText(data[index]['CODE VOITURE'] ?? '')),
-          DataCell(SelectableText(DateFormat("HH'h'mm:ss\ndd/MM/yyyy").format(
-              DateTime.parse(data[index]['DATE HEURE ENREGISTREMENT'])))),
-          DataCell(SelectableText(DateFormat("HH'h'mm:ss\ndd/MM/yyyy").format(
-              DateTime.parse(data[index]['DATE HEURE SYNCHRONISATION'])))),
+          DataCell(SelectableText(data[index]['BOITE'] ?? '',
+              style: defaultTextStyle)),
+          DataCell(SelectableText(data[index]['TUBE'] ?? '',
+              style: defaultTextStyle)),
+          DataCell(
+              SelectableText(data[index]['ACTION'], style: defaultTextStyle)),
+          DataCell(SelectableText(data[index]['CODE VOITURE'] ?? '',
+              style: defaultTextStyle)),
+          DataCell(SelectableText(
+              DateFormat("HH'h'mm:ss\ndd/MM/yyyy").format(
+                  DateTime.parse(data[index]['DATE HEURE ENREGISTREMENT'])),
+              style: defaultTextStyle)),
+          DataCell(SelectableText(
+              DateFormat("HH'h'mm:ss\ndd/MM/yyyy").format(
+                  DateTime.parse(data[index]['DATE HEURE SYNCHRONISATION'])),
+              style: defaultTextStyle)),
         ]);
   }
 

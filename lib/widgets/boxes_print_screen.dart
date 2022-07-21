@@ -193,7 +193,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                   (maxDatatable[boxType]! + 1).toString() +
                   ' a bien été créée.',
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 16),
+          style: defaultTextStyle,
         ),
         width: 800,
       ));
@@ -223,14 +223,15 @@ class _BoxesPrintState extends State<BoxesPrint>
                 },
                 children: [
                   TableRow(children: [
-                    const TableCell(
+                    TableCell(
                         child: SizedBox(
                             height: 50,
                             child: Center(
                                 child: Text('Catégorie',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 16))))),
+                                        fontSize:
+                                            defaultTextStyle.fontSize))))),
                     for (String type in boxTypesLibelleList)
                       if (type == editedBoxType && !deleteBoxes)
                         TableCell(
@@ -247,43 +248,47 @@ class _BoxesPrintState extends State<BoxesPrint>
                                   errorMaxLines: 2,
                                 ),
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold)))
+                                style: TextStyle(
+                                    fontSize: defaultTextStyle.fontSize,
+                                    fontWeight: FontWeight.bold)))
                       else
                         TableCell(
                             child: SelectableText(
                           type,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: defaultTextStyle.fontSize),
                         ))
                   ]),
                   TableRow(children: [
-                    const TableCell(
+                    TableCell(
                         child: SizedBox(
                             height: 50,
                             child: Center(
                                 child: Text('Code',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 16))))),
+                                        fontSize:
+                                            defaultTextStyle.fontSize))))),
                     for (String type in boxTypesAcronymeList)
                       TableCell(
                           child: SelectableText(
                         type,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 16),
+                        style: defaultTextStyle,
                       ))
                   ]),
                   TableRow(children: [
-                    const TableCell(
+                    TableCell(
                         child: SizedBox(
                             height: 50,
                             child: Center(
                                 child: Text('N° min',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 16))))),
+                                        fontSize:
+                                            defaultTextStyle.fontSize))))),
                     for (String type in boxTypesLibelleList)
                       TableCell(
                           child: SelectableText(
@@ -292,17 +297,19 @@ class _BoxesPrintState extends State<BoxesPrint>
                                   ? '1'
                                   : '0',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 16)))
+                              style: TextStyle(
+                                  fontSize: defaultTextStyle.fontSize)))
                   ]),
                   TableRow(children: [
-                    const TableCell(
+                    TableCell(
                         child: SizedBox(
                             height: 50,
                             child: Center(
                                 child: Text('N° max',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 16))))),
+                                        fontSize:
+                                            defaultTextStyle.fontSize))))),
                     for (String type in boxTypesLibelleList)
                       if (type == editedBoxType && deleteBoxes)
                         TableCell(
@@ -321,12 +328,12 @@ class _BoxesPrintState extends State<BoxesPrint>
                                   errorMaxLines: 3,
                                 ),
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16)))
+                                style: defaultTextStyle))
                       else
                         TableCell(
                             child: SelectableText(maxDatatable[type].toString(),
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16)))
+                                style: defaultTextStyle))
                   ]),
                   TableRow(children: [
                     TableCell(
@@ -446,9 +453,14 @@ class _BoxesPrintState extends State<BoxesPrint>
                                   icon:
                                       const Icon(Icons.settings_backup_restore),
                                   onPressed: () {
-                                    onRestoreBoxType(libelle: type);
+                                    boxType == 'Aucun type de boîte trouvé'
+                                        ? null
+                                        : onRestoreBoxType(libelle: type);
                                   },
-                                  tooltip: 'Restaurer le type ' + type,
+                                  tooltip:
+                                      boxType == 'Aucun type de boîte trouvé'
+                                          ? null
+                                          : ('Restaurer le type ' + type),
                                 )
                               : IconButton(
                                   icon: const Icon(Icons.delete_forever),
@@ -591,6 +603,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                             child: SizedBox(
                                 height: 60,
                                 child: TextField(
+                                  style: defaultTextStyle,
                                   controller: minBoxController,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
@@ -616,6 +629,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                             child: SizedBox(
                                 height: 60,
                                 child: TextField(
+                                  style: defaultTextStyle,
                                   controller: maxBoxController,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
@@ -702,7 +716,6 @@ class _BoxesPrintState extends State<BoxesPrint>
   }
 
   void showAddPageBoxType() {
-    const TextStyle textStyle = TextStyle(fontSize: 16);
     TextEditingController codeController = TextEditingController();
     TextEditingController libelleController = TextEditingController();
     bool submited = false;
@@ -715,6 +728,8 @@ class _BoxesPrintState extends State<BoxesPrint>
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding:
                     const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
                 elevation: 8,
@@ -738,12 +753,14 @@ class _BoxesPrintState extends State<BoxesPrint>
                           children: [
                             TableRow(children: [
                               const TableCell(
-                                child: Text('Code* : ', style: textStyle),
+                                child:
+                                    Text('Code* : ', style: defaultTextStyle),
                               ),
                               TableCell(
                                   child: SizedBox(
                                       height: 60,
                                       child: TextField(
+                                          style: defaultTextStyle,
                                           controller: codeController,
                                           inputFormatters: [
                                             LengthLimitingTextInputFormatter(5),
@@ -760,12 +777,14 @@ class _BoxesPrintState extends State<BoxesPrint>
                             ]),
                             TableRow(children: [
                               const TableCell(
-                                child: Text('Libellé* : ', style: textStyle),
+                                child: Text('Libellé* : ',
+                                    style: defaultTextStyle),
                               ),
                               TableCell(
                                   child: SizedBox(
                                       height: 60,
                                       child: TextField(
+                                          style: defaultTextStyle,
                                           controller: libelleController,
                                           inputFormatters: [
                                             LengthLimitingTextInputFormatter(
@@ -889,7 +908,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                           Radius.circular(25))),
                                   elevation: 8,
                                   child: SizedBox(
-                                      width: 500,
+                                      width: 400,
                                       height: 350,
                                       child: Column(
                                         children: [
@@ -897,14 +916,16 @@ class _BoxesPrintState extends State<BoxesPrint>
                                               padding: EdgeInsets.all(30),
                                               child: Text(
                                                 'Création d\'étiquettes de boîtes',
-                                                style: TextStyle(fontSize: 24),
+                                                style: TextStyle(fontSize: 20),
                                               )),
                                           Padding(
                                               padding: const EdgeInsets.all(8),
                                               child: Text(
                                                 'Cet outil crée les boîtes du type spécifié puis lance l\'impression de leurs étiquettes.',
                                                 style: TextStyle(
-                                                    fontSize: 14,
+                                                    fontSize: defaultTextStyle
+                                                            .fontSize! -
+                                                        2,
                                                     color:
                                                         Colors.grey.shade700),
                                               )),
@@ -916,6 +937,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                                   width: 400,
                                                   child:
                                                       DropdownButtonFormField(
+                                                    style: defaultTextStyle,
                                                     value: boxType,
                                                     items: boxTypesLibelleList
                                                         .map((boxType) {
@@ -934,8 +956,9 @@ class _BoxesPrintState extends State<BoxesPrint>
                                               padding:
                                                   const EdgeInsets.all(10.0),
                                               child: SizedBox(
-                                                  width: 400,
+                                                  width: 150,
                                                   child: TextFormField(
+                                                    style: defaultTextStyle,
                                                     readOnly: boxType ==
                                                         'Aucun type de boîte trouvé',
                                                     controller:
@@ -978,7 +1001,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                           Radius.circular(25))),
                                   elevation: 8,
                                   child: SizedBox(
-                                      width: 500,
+                                      width: 400,
                                       height: 350,
                                       child: Column(
                                         children: [
@@ -986,14 +1009,16 @@ class _BoxesPrintState extends State<BoxesPrint>
                                               padding: EdgeInsets.all(30),
                                               child: Text(
                                                 'Impression d\'étiquettes de boîtes',
-                                                style: TextStyle(fontSize: 24),
+                                                style: TextStyle(fontSize: 20),
                                               )),
                                           Padding(
                                               padding: const EdgeInsets.all(8),
                                               child: Text(
                                                 'Cet outil l\'impression des étiquettes de boîtes spécifiées.',
                                                 style: TextStyle(
-                                                    fontSize: 14,
+                                                    fontSize: defaultTextStyle
+                                                            .fontSize! -
+                                                        2,
                                                     color:
                                                         Colors.grey.shade700),
                                               )),
@@ -1005,6 +1030,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                                   width: 400,
                                                   child:
                                                       DropdownButtonFormField(
+                                                    style: defaultTextStyle,
                                                     value: boxType2,
                                                     items: boxTypesLibelleList
                                                         .map((boxType) {
@@ -1028,8 +1054,10 @@ class _BoxesPrintState extends State<BoxesPrint>
                                                   children: [
                                                     SizedBox(
                                                         height: 60,
-                                                        width: 180,
+                                                        width: 130,
                                                         child: TextFormField(
+                                                          style:
+                                                              defaultTextStyle,
                                                           readOnly: boxType2 ==
                                                               'Aucun type de boîte trouvé',
                                                           controller:
@@ -1060,8 +1088,10 @@ class _BoxesPrintState extends State<BoxesPrint>
                                                             EdgeInsets.all(20)),
                                                     SizedBox(
                                                         height: 60,
-                                                        width: 180,
+                                                        width: 130,
                                                         child: TextFormField(
+                                                          style:
+                                                              defaultTextStyle,
                                                           readOnly: boxType2 ==
                                                               'Aucun type de boîte trouvé',
                                                           controller:

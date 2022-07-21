@@ -27,8 +27,8 @@ $secondAdvancedSearch = strlen($secondAdvancedSearchText) > 0 ? ' AND '.$secondA
 
 $sqlQuery = 'SELECT '.$table.'.*,`entetes feuille de route`.`LIBELLE TOURNEE`, `sites`.`LIBELLE SITE`
             FROM '.$table.' 
-            JOIN `entetes feuille de route` ON COALESCE('.$table.'.`CODE TOURNEE`,0) = `entetes feuille de route`.`CODE TOURNEE` 
-            JOIN `sites` ON '.$table.'.`CODE SITE` = `sites`.`CODE SITE` 
+            LEFT JOIN `entetes feuille de route` ON COALESCE('.$table.'.`CODE TOURNEE`,0) = `entetes feuille de route`.`CODE TOURNEE` 
+            LEFT JOIN `sites` ON '.$table.'.`CODE SITE` = `sites`.`CODE SITE` 
             WHERE '.$field.$search.$advancedSearch.$secondAdvancedSearch.' ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();

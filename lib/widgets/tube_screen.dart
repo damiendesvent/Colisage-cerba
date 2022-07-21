@@ -27,7 +27,6 @@ class TubeList extends StatefulWidget {
 }
 
 class _TubeListState extends State<TubeList> {
-  static const TextStyle textStyle = TextStyle(fontSize: 18);
   TextEditingController siteController = TextEditingController();
   TextEditingController userController = TextEditingController();
   TextEditingController boxController = TextEditingController();
@@ -318,249 +317,6 @@ class _TubeListState extends State<TubeList> {
     }
   }
 
-  /*void checkBoxErrorText() {
-    checkLastBoxTraca().then((lastTracaBox) {
-      if (boxController.text.isNotEmpty) {
-        getNatureContent(boxController.text);
-        switch (natureContent) {
-          case 'Boîte':
-            switch (action[0]) {
-              case '1':
-                switch (lastTracaBox['action']) {
-                  case '':
-                    getListTube(boxController.text);
-                    setState(() {
-                      boxErrorText = null;
-                      submited = false;
-                      showTubeDialog = true;
-                    });
-                    break;
-                  case 'AJT':
-                    if (lastTracaBox['site'] == siteController.text) {
-                      getListTube(boxController.text);
-                      setState(() {
-                        showTubeDialog = true;
-                        boxErrorText = null;
-                        submited = false;
-                      });
-                    } else {
-                      setState(() {
-                        boxErrorText =
-                            'La boîte contient des tubes d\'un autre site';
-                      });
-                    }
-                    break;
-                  case 'VIT':
-                    getSiteTubes().then((value) {
-                      if (value == siteController.text || value.isEmpty) {
-                        getListTube(boxController.text);
-                        setState(() {
-                          showTubeDialog = true;
-                          boxErrorText = null;
-                          submited = false;
-                        });
-                      } else {
-                        setState(() {
-                          boxErrorText =
-                              'La boîte contient des tubes d\'un autre site';
-                        });
-                      }
-                    });
-                    break;
-                  default:
-                    setState(() {
-                      boxErrorText = 'La boîte a été ramassée';
-                    });
-                    break;
-                }
-                break;
-              case '2':
-                switch (lastTracaBox['action']) {
-                  case '':
-                    setState(() {
-                      boxErrorText = 'La boîte ne contient aucun tube';
-                    });
-                    break;
-                  case 'AJT':
-                    getListTube(boxController.text);
-                    setState(() {
-                      showTubeDialog = true;
-                      boxErrorText = null;
-                      submited = false;
-                    });
-                    break;
-                  case 'VIT':
-                    getListTube(boxController.text);
-                    setState(() {
-                      showTubeDialog = true;
-                      boxErrorText = null;
-                      submited = false;
-                    });
-                    break;
-                  default:
-                    setState(() {
-                      boxErrorText = 'La boîte a été ramassée';
-                    });
-                    break;
-                }
-                break;
-              case '3':
-                switch (lastTracaBox['action']) {
-                  case 'DEP':
-                    if (lastTracaBox['site'] == siteController.text) {
-                      setState(() {
-                        boxErrorText = null;
-                        submited = false;
-                        showTourneeDialog = true;
-                      });
-                    } else {
-                      setState(() {
-                        boxErrorText = 'La boîte n\'est pas sur ce site';
-                      });
-                    }
-                    break;
-                  case 'RAM':
-                    setState(() {
-                      boxErrorText = 'Boîte déjà ramassée';
-                    });
-                    break;
-                  default:
-                    setState(() {
-                      boxErrorText = null;
-                      submited = false;
-                      showTourneeDialog = true;
-                    });
-                    break;
-                }
-                break;
-              case '4':
-                switch (lastTracaBox['action']) {
-                  case '':
-                    setState(() {
-                      boxErrorText = 'La boîte n\'a pas été ramassée';
-                    });
-                    break;
-                  case 'DEP':
-                    setState(() {
-                      boxErrorText = 'La boîte a déjà été déposée';
-                    });
-                    break;
-                  case 'RAM':
-                    isDepositSite().then((value) {
-                      if (value) {
-                        getListTube(boxController.text, setTubes: true);
-                      }
-                    });
-                    setState(() {
-                      showTourneeDialog = true;
-                    });
-                    break;
-                }
-                break;
-              case '5':
-                switch (lastTracaBox['action']) {
-                  case '':
-                    getListTube(boxController.text, setTubes: true);
-                    setState(() {
-                      showTubeDialog = true;
-                    });
-                    break;
-                  case 'AJT':
-                    getListTube(boxController.text, setTubes: true);
-                    setState(() {
-                      showTubeDialog = true;
-                      boxErrorText = null;
-                      submited = false;
-                    });
-                    break;
-                  case 'VIT':
-                    getListTube(boxController.text, setTubes: true);
-                    setState(() {
-                      showTubeDialog = true;
-                      boxErrorText = null;
-                      submited = false;
-                    });
-                    break;
-                  default:
-                    setState(() {
-                      boxErrorText = 'La boîte a été ramassée';
-                    });
-                    break;
-                }
-                break;
-            }
-            break;
-          case 'Sachet':
-            switch (action[0]) {
-              case '3':
-                switch (lastTracaBox['action']) {
-                  case '':
-                    setState(() {
-                      boxErrorText = null;
-                      submited = false;
-                      showTourneeDialog = true;
-                    });
-                    break;
-                  case 'DEP':
-                    if (lastTracaBox['site'] == siteController.text) {
-                      setState(() {
-                        boxErrorText = null;
-                        submited = false;
-                        showTourneeDialog = true;
-                      });
-                    } else {
-                      setState(() {
-                        boxErrorText = 'Le sachet n\'est pas sur ce site';
-                      });
-                    }
-                    break;
-                  case 'RAM':
-                    setState(() {
-                      boxErrorText = 'Sachet déjà ramassé';
-                    });
-                    break;
-                }
-                break;
-              case '4':
-                switch (lastTracaBox['action']) {
-                  case '':
-                    setState(() {
-                      boxErrorText = 'Le sachet n\'a pas été ramassé';
-                    });
-                    break;
-                  case 'DEP':
-                    setState(() {
-                      boxErrorText = 'Le sachet a déjà été déposé';
-                    });
-                    break;
-                  case 'RAM':
-                    isDepositSite().then((value) {
-                      if (value) {
-                        //mettre variable pour supprimer sachet à la validation
-                      }
-                    });
-                    setState(() {
-                      showTourneeDialog = true;
-                    });
-                    break;
-                }
-                break;
-              default:
-                setState(() {
-                  boxErrorText = 'Impossible d\'éditer les tubes d\'un sachet';
-                });
-                break;
-            }
-            break;
-        }
-      } else {
-        setState(() {
-          boxErrorText = 'Veuillez entrer une valeur';
-        });
-      }
-    });
-  }*/
-
   void checkBoxErrorText() {
     checkLastBoxTraca().then((lastTracaBox) {
       if (boxController.text.isNotEmpty) {
@@ -703,11 +459,13 @@ class _TubeListState extends State<TubeList> {
   List<Widget> screen() {
     return [
       Dialog(
-          insetPadding: const EdgeInsets.all(50),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(25))),
+          insetPadding: const EdgeInsets.all(15),
           elevation: 8,
           child: SizedBox(
-            width: 600,
-            height: 700,
+            width: 500,
+            height: 515,
             child: Column(children: [
               Form(
                   key: formKey,
@@ -721,21 +479,21 @@ class _TubeListState extends State<TubeList> {
                       TableRow(
                         children: [
                           const TableCell(
-                              child: Text('Site : ', style: textStyle)),
+                              child: Text('Site : ', style: defaultTextStyle)),
                           TableCell(
                               child: SizedBox(
-                                  height: 70,
+                                  height: 50,
                                   child: showBoxDialog
                                       ? Padding(
                                           padding: const EdgeInsets.fromLTRB(
                                               0, 14, 0, 0),
                                           child: Text(
                                             siteController.text,
-                                            style: textStyle,
+                                            style: defaultTextStyle,
                                           ))
                                       : globals.user.settingsRights
                                           ? SearchField(
-                                              searchStyle: textStyle,
+                                              searchStyle: defaultTextStyle,
                                               onSubmit: (_) {
                                                 formKey.currentState!
                                                     .validate();
@@ -785,7 +543,7 @@ class _TubeListState extends State<TubeList> {
                                               child: Text(
                                                 siteController.text =
                                                     globals.currentSite,
-                                                style: textStyle,
+                                                style: defaultTextStyle,
                                               ))))
                         ],
                       ),
@@ -794,22 +552,22 @@ class _TubeListState extends State<TubeList> {
                           const TableCell(
                               child: Text(
                             'Utilisateur : ',
-                            style: textStyle,
+                            style: defaultTextStyle,
                           )),
                           TableCell(
                               child: SizedBox(
-                                  height: 70,
+                                  height: 50,
                                   child: showBoxDialog
                                       ? Padding(
                                           padding: const EdgeInsets.fromLTRB(
                                               0, 14, 0, 0),
                                           child: Text(
                                             userController.text,
-                                            style: textStyle,
+                                            style: defaultTextStyle,
                                           ))
                                       : globals.user.settingsRights
                                           ? SearchField(
-                                              searchStyle: textStyle,
+                                              searchStyle: defaultTextStyle,
                                               initialValue: SearchFieldListItem<
                                                       String>(
                                                   globals.user.code +
@@ -861,7 +619,7 @@ class _TubeListState extends State<TubeList> {
                                                         globals.user.firstname +
                                                         ' ' +
                                                         globals.user.lastname,
-                                                style: textStyle,
+                                                style: defaultTextStyle,
                                               ))))
                         ],
                       ),
@@ -870,23 +628,23 @@ class _TubeListState extends State<TubeList> {
                           const TableCell(
                               child: Text(
                             'Action : ',
-                            style: textStyle,
+                            style: defaultTextStyle,
                           )),
                           TableCell(
                               child: SizedBox(
-                                  height: 70,
+                                  height: 50,
                                   child: showBoxDialog
                                       ? Padding(
                                           padding: const EdgeInsets.fromLTRB(
                                               0, 25, 0, 0),
                                           child: Text(
                                             action,
-                                            style: textStyle,
+                                            style: defaultTextStyle,
                                           ))
                                       : DropdownButtonHideUnderline(
                                           child: DropdownButton(
                                               value: action,
-                                              style: textStyle,
+                                              style: defaultTextStyle,
                                               items: actionsList.map((value) {
                                                 return DropdownMenuItem(
                                                     value: value,
@@ -903,10 +661,13 @@ class _TubeListState extends State<TubeList> {
                     ],
                   )),
               Padding(
-                padding: const EdgeInsets.all(30),
+                padding: const EdgeInsets.all(15),
                 child: ElevatedButton(
-                  style: myButtonStyle,
-                  child: const Text('Valider'),
+                  style: ButtonStyle(
+                      backgroundColor: myButtonStyle.backgroundColor,
+                      foregroundColor: myButtonStyle.foregroundColor,
+                      padding: myButtonStyle.padding),
+                  child: const Text('Valider', style: defaultTextStyle),
                   onPressed: showBoxDialog
                       ? null
                       : () {
@@ -939,27 +700,27 @@ class _TubeListState extends State<TubeList> {
                         children: [
                           TableCell(
                               child: Text(natureContent + ' : ',
-                                  style: textStyle)),
+                                  style: defaultTextStyle)),
                           TableCell(
                               child: SizedBox(
-                                  height: 70,
+                                  height: 50,
                                   child: showTubeDialog || showTourneeDialog
                                       ? Padding(
                                           padding: const EdgeInsets.fromLTRB(
                                               0, 14, 0, 0),
                                           child: Text(
                                             boxController.text,
-                                            style: textStyle,
+                                            style: defaultTextStyle,
                                           ))
                                       : Row(children: [
                                           SizedBox(
-                                              width: 320,
+                                              width: 220,
                                               child: SizedBox(
-                                                  height: 70,
+                                                  height: 50,
                                                   child: TextField(
                                                     textInputAction:
                                                         TextInputAction.none,
-                                                    style: textStyle,
+                                                    style: defaultTextStyle,
                                                     autofocus: true,
                                                     controller: boxController,
                                                     decoration: InputDecoration(
@@ -1002,38 +763,36 @@ class _TubeListState extends State<TubeList> {
                       TableRow(
                         children: [
                           const TableCell(
-                              child: Text('Tube : ', style: textStyle)),
+                              child: Text('Tube : ', style: defaultTextStyle)),
                           TableCell(
                               child: Row(children: [
                             SizedBox(
-                                width: 320,
-                                child: SizedBox(
-                                    height: 70,
-                                    child: TextField(
-                                      textInputAction: TextInputAction.none,
-                                      autofocus: true,
-                                      controller: tubeController,
-                                      decoration: InputDecoration(
-                                          errorText: submited
-                                              ? tubeErrorText()
-                                              : null),
-                                      onSubmitted: (_) {
-                                        setState(() {
-                                          submited = true;
-                                        });
-                                        if (tubeErrorText() == null) {
-                                          action[0] == '1'
-                                              ? onAddTube(tubeController.text)
-                                              : onRemoveTube(
-                                                  tubeController.text);
-                                          setState(() {
-                                            submited = false;
-                                            tubes.add(tubeController.text);
-                                            tubeController.clear();
-                                          });
-                                        }
-                                      },
-                                    ))),
+                                width: 220,
+                                height: 50,
+                                child: TextField(
+                                  style: defaultTextStyle,
+                                  textInputAction: TextInputAction.none,
+                                  autofocus: true,
+                                  controller: tubeController,
+                                  decoration: InputDecoration(
+                                      errorText:
+                                          submited ? tubeErrorText() : null),
+                                  onSubmitted: (_) {
+                                    setState(() {
+                                      submited = true;
+                                    });
+                                    if (tubeErrorText() == null) {
+                                      action[0] == '1'
+                                          ? onAddTube(tubeController.text)
+                                          : onRemoveTube(tubeController.text);
+                                      setState(() {
+                                        submited = false;
+                                        tubes.add(tubeController.text);
+                                        tubeController.clear();
+                                      });
+                                    }
+                                  },
+                                )),
                             IconButton(
                                 tooltip: 'Valider',
                                 onPressed: () {
@@ -1067,7 +826,8 @@ class _TubeListState extends State<TubeList> {
                       TableRow(
                         children: [
                           const TableCell(
-                              child: Padding(padding: EdgeInsets.all(40))),
+                              child:
+                                  Padding(padding: EdgeInsets.only(top: 80))),
                           TableCell(
                               child: Text(
                                   'Nombre de tubes dans ' +
@@ -1075,22 +835,23 @@ class _TubeListState extends State<TubeList> {
                                           ? 'la '
                                           : 'le ') +
                                       natureContent.toLowerCase(),
-                                  style: textStyle))
+                                  style: defaultTextStyle))
                         ],
                       ),
                       TableRow(
                         children: [
                           const TableCell(
-                              child:
-                                  Text('Avant modification', style: textStyle)),
+                              child: Padding(
+                                  padding: EdgeInsets.only(bottom: 15),
+                                  child: Text('Avant modification',
+                                      style: defaultTextStyle))),
                           TableCell(
                               child: Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 20),
+                                  padding: const EdgeInsets.only(bottom: 15),
                                   child: Text(
                                     alreadyOnBoxTubes.length.toString() +
                                         ' / 50',
-                                    style: textStyle,
+                                    style: defaultTextStyle,
                                     textAlign: TextAlign.center,
                                   )))
                         ],
@@ -1098,8 +859,8 @@ class _TubeListState extends State<TubeList> {
                       TableRow(
                         children: [
                           const TableCell(
-                              child:
-                                  Text('Après modification', style: textStyle)),
+                              child: Text('Après modification',
+                                  style: defaultTextStyle)),
                           TableCell(
                               child: Text(
                                   (action[0] == '1'
@@ -1109,7 +870,7 @@ class _TubeListState extends State<TubeList> {
                                                   tubes.length)
                                           .toString() +
                                       ' / 50',
-                                  style: textStyle,
+                                  style: defaultTextStyle,
                                   textAlign: TextAlign.center))
                         ],
                       ),
@@ -1125,10 +886,11 @@ class _TubeListState extends State<TubeList> {
                       TableRow(
                         children: [
                           const TableCell(
-                              child: Text('Code tournée : ', style: textStyle)),
+                              child: Text('Code tournée : ',
+                                  style: defaultTextStyle)),
                           TableCell(
                               child: SizedBox(
-                                  height: 70,
+                                  height: 50,
                                   child: showCarDialog
                                       ? Padding(
                                           padding: const EdgeInsets.fromLTRB(
@@ -1137,30 +899,29 @@ class _TubeListState extends State<TubeList> {
                                             tourneeController.text.isEmpty
                                                 ? 'Aucun'
                                                 : tourneeController.text,
-                                            style: textStyle,
+                                            style: defaultTextStyle,
                                           ))
                                       : Row(children: [
                                           SizedBox(
-                                              width: 320,
-                                              child: SizedBox(
-                                                  height: 70,
-                                                  child: TextField(
-                                                      autofocus: true,
-                                                      controller:
-                                                          tourneeController,
-                                                      decoration:
-                                                          const InputDecoration(
-                                                              hintText:
-                                                                  'Aucun si vide'),
-                                                      inputFormatters: [
-                                                        FilteringTextInputFormatter
-                                                            .digitsOnly
-                                                      ],
-                                                      onSubmitted: (_) {
-                                                        setState(() {
-                                                          showCarDialog = true;
-                                                        });
-                                                      }))),
+                                              width: 220,
+                                              height: 50,
+                                              child: TextField(
+                                                  style: defaultTextStyle,
+                                                  autofocus: true,
+                                                  controller: tourneeController,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                          hintText:
+                                                              'Aucun si vide'),
+                                                  inputFormatters: [
+                                                    FilteringTextInputFormatter
+                                                        .digitsOnly
+                                                  ],
+                                                  onSubmitted: (_) {
+                                                    setState(() {
+                                                      showCarDialog = true;
+                                                    });
+                                                  })),
                                           IconButton(
                                               tooltip: 'Valider',
                                               onPressed: () {
@@ -1177,11 +938,11 @@ class _TubeListState extends State<TubeList> {
                         TableRow(
                           children: [
                             const TableCell(
-                                child:
-                                    Text('Code voiture : ', style: textStyle)),
+                                child: Text('Code voiture : ',
+                                    style: defaultTextStyle)),
                             TableCell(
                                 child: SizedBox(
-                                    height: 70,
+                                    height: 50,
                                     child: showCommentDialog
                                         ? Padding(
                                             padding: const EdgeInsets.fromLTRB(
@@ -1190,31 +951,30 @@ class _TubeListState extends State<TubeList> {
                                               carController.text.isEmpty
                                                   ? 'Aucun'
                                                   : carController.text,
-                                              style: textStyle,
+                                              style: defaultTextStyle,
                                             ))
                                         : Row(children: [
                                             SizedBox(
-                                                width: 320,
-                                                child: SizedBox(
-                                                    height: 70,
-                                                    child: TextField(
-                                                        autofocus: true,
-                                                        controller:
-                                                            carController,
-                                                        decoration:
-                                                            const InputDecoration(
-                                                                hintText:
-                                                                    'Aucun si vide'),
-                                                        inputFormatters: [
-                                                          FilteringTextInputFormatter
-                                                              .digitsOnly
-                                                        ],
-                                                        onSubmitted: (_) {
-                                                          setState(() {
-                                                            showCommentDialog =
-                                                                true;
-                                                          });
-                                                        }))),
+                                                width: 220,
+                                                height: 50,
+                                                child: TextField(
+                                                    style: defaultTextStyle,
+                                                    autofocus: true,
+                                                    controller: carController,
+                                                    decoration:
+                                                        const InputDecoration(
+                                                            hintText:
+                                                                'Aucun si vide'),
+                                                    inputFormatters: [
+                                                      FilteringTextInputFormatter
+                                                          .digitsOnly
+                                                    ],
+                                                    onSubmitted: (_) {
+                                                      setState(() {
+                                                        showCommentDialog =
+                                                            true;
+                                                      });
+                                                    })),
                                             IconButton(
                                                 tooltip: 'Valider',
                                                 onPressed: () {
@@ -1231,11 +991,11 @@ class _TubeListState extends State<TubeList> {
                         TableRow(
                           children: [
                             const TableCell(
-                                child:
-                                    Text('Commentaire : ', style: textStyle)),
+                                child: Text('Commentaire : ',
+                                    style: defaultTextStyle)),
                             TableCell(
                                 child: SizedBox(
-                                    height: 70,
+                                    height: 50,
                                     child: showValidation
                                         ? Padding(
                                             padding: const EdgeInsets.fromLTRB(
@@ -1244,27 +1004,26 @@ class _TubeListState extends State<TubeList> {
                                               commentController.text.isEmpty
                                                   ? 'Aucun'
                                                   : commentController.text,
-                                              style: textStyle,
+                                              style: defaultTextStyle,
                                             ))
                                         : Row(children: [
                                             SizedBox(
-                                                width: 320,
-                                                child: SizedBox(
-                                                    height: 70,
-                                                    child: TextField(
-                                                        autofocus: true,
-                                                        controller:
-                                                            commentController,
-                                                        decoration:
-                                                            const InputDecoration(
-                                                                hintText:
-                                                                    'Aucun si vide'),
-                                                        onSubmitted: (_) {
-                                                          setState(() {
-                                                            showValidation =
-                                                                true;
-                                                          });
-                                                        }))),
+                                                width: 220,
+                                                height: 50,
+                                                child: TextField(
+                                                    style: defaultTextStyle,
+                                                    autofocus: true,
+                                                    controller:
+                                                        commentController,
+                                                    decoration:
+                                                        const InputDecoration(
+                                                            hintText:
+                                                                'Aucun si vide'),
+                                                    onSubmitted: (_) {
+                                                      setState(() {
+                                                        showValidation = true;
+                                                      });
+                                                    })),
                                             IconButton(
                                                 tooltip: 'Valider',
                                                 onPressed: () {
@@ -1299,7 +1058,7 @@ class _TubeListState extends State<TubeList> {
                 ),
               if (showBoxDialog)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 25, 0, 10),
+                  padding: const EdgeInsets.all(15),
                   child: ElevatedButton(
                     style: myButtonStyle,
                     child: const Text('Fermer'),
@@ -1312,14 +1071,16 @@ class _TubeListState extends State<TubeList> {
           )),
       if (showTubeDialog || showBoxesDialog)
         Dialog(
-            insetPadding: const EdgeInsets.all(50),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(25))),
+            insetPadding: const EdgeInsets.all(15),
             elevation: 8,
             child: SizedBox(
-                height: 700,
+                height: 515,
                 child: Column(children: [
                   SizedBox(
-                      width: 600,
-                      height: 640,
+                      width: 500,
+                      height: 515,
                       child: Scrollbar(
                           controller: _secondScrollController,
                           thumbVisibility: true,
@@ -1328,7 +1089,7 @@ class _TubeListState extends State<TubeList> {
                               controller: _secondScrollController,
                               child: Column(children: [
                                 Padding(
-                                    padding: const EdgeInsets.all(20),
+                                    padding: const EdgeInsets.all(10),
                                     child: Text(
                                       showBoxesDialog
                                           ? 'Réception des sachets/boîtes :'
@@ -1336,7 +1097,7 @@ class _TubeListState extends State<TubeList> {
                                               ' n° ' +
                                               boxController.text,
                                       style: TextStyle(
-                                          fontSize: 18,
+                                          fontSize: 16,
                                           color: Colors.grey.shade800),
                                     )),
                                 if (alreadyOnBoxTubes.isNotEmpty &&
@@ -1378,11 +1139,12 @@ class _TubeListState extends State<TubeList> {
                                                                   .indexOf(i) +
                                                               1)
                                                           .toString(),
-                                                  style: textStyle,
+                                                  style: defaultTextStyle,
                                                 )),
                                                 TableCell(
                                                     child: Text('tube ' + i,
-                                                        style: textStyle)),
+                                                        style:
+                                                            defaultTextStyle)),
                                                 const TableCell(
                                                     child: SizedBox(
                                                   height: 40,
@@ -1392,12 +1154,12 @@ class _TubeListState extends State<TubeList> {
                                 if (tubes.isNotEmpty)
                                   const Padding(
                                     padding:
-                                        EdgeInsets.fromLTRB(10, 20, 500, 5),
+                                        EdgeInsets.fromLTRB(10, 20, 410, 5),
                                     child: Text(
                                       'Actions :',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 18),
+                                          fontSize: 14),
                                     ),
                                   ),
                                 Table(
@@ -1417,12 +1179,17 @@ class _TubeListState extends State<TubeList> {
                                                 : null,
                                             children: [
                                               TableCell(
-                                                  child: Text(
-                                                ' ' +
-                                                    (tubes.indexOf(i) + 1)
-                                                        .toString(),
-                                                style: textStyle,
-                                              )),
+                                                  child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 5),
+                                                      child: Text(
+                                                        ' ' +
+                                                            (tubes.indexOf(i) +
+                                                                    1)
+                                                                .toString(),
+                                                        style: defaultTextStyle,
+                                                      ))),
                                               TableCell(
                                                   child: Text(
                                                       action[0] == '6'
@@ -1433,7 +1200,7 @@ class _TubeListState extends State<TubeList> {
                                                                   : 'Enlèvement') +
                                                               ' du tube ' +
                                                               i,
-                                                      style: textStyle)),
+                                                      style: defaultTextStyle)),
                                               TableCell(
                                                   child: SizedBox(
                                                       height: 40,
@@ -1458,7 +1225,7 @@ class _TubeListState extends State<TubeList> {
   @override
   Widget build(BuildContext context) {
     if (sites.isNotEmpty && users.isNotEmpty) {
-      if (MediaQuery.of(context).size.width > 1400 || !showTubeDialog) {
+      if (MediaQuery.of(context).size.width > 1060 || !showTubeDialog) {
         return Scrollbar(
             controller: _mainScrollController,
             thumbVisibility: true,

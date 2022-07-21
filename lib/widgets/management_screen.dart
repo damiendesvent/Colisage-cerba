@@ -58,10 +58,8 @@ class _ManagementState extends State<Management>
     return Scaffold(
       body: Center(
           child: Scaffold(
-              appBar: AppBar(
-                toolbarHeight: 0,
-                backgroundColor: themeMainColor,
-                bottom: TabBar(
+              appBar: MyAppbar(
+                widget: TabBar(
                   controller: _tabController,
                   indicator: BoxDecoration(
                       color: Colors.white,
@@ -69,62 +67,81 @@ class _ManagementState extends State<Management>
                       borderRadius: BorderRadius.circular(8)),
                   labelColor: themeMainColor,
                   unselectedLabelColor: Colors.white,
-                  labelStyle: const TextStyle(fontSize: 16),
+                  labelStyle:
+                      TextStyle(fontSize: defaultTextStyle.fontSize! + 2),
                   tabs: <Widget>[
                     if (globals.user.userRights > 0)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.manage_accounts_rounded),
-                          if (MediaQuery.of(context).size.width > minTabWidth)
-                            const Text(" Utilisateurs")
-                        ],
-                      ),
+                      SizedBox(
+                          height: 32,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.manage_accounts_rounded),
+                              if (MediaQuery.of(context).size.width >
+                                  minTabWidth)
+                                const Text(" Utilisateurs")
+                            ],
+                          )),
                     if (globals.user.boxRights > 0)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.print),
-                          if (MediaQuery.of(context).size.width > minTabWidth)
-                            const Text(" Etiquettes")
-                        ],
-                      ),
+                      SizedBox(
+                          height: 32,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.print),
+                              if (MediaQuery.of(context).size.width >
+                                  minTabWidth)
+                                const Text(" Etiquettes")
+                            ],
+                          )),
                     if (globals.user.siteRights > 0)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.track_changes_outlined),
-                          if (MediaQuery.of(context).size.width > minTabWidth)
-                            const Text(" Sites")
-                        ],
-                      ),
+                      SizedBox(
+                          height: 32,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.track_changes_outlined),
+                              if (MediaQuery.of(context).size.width >
+                                  minTabWidth)
+                                const Text(" Sites")
+                            ],
+                          )),
                     if (globals.user.roadMapRights > 0)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.fact_check_outlined),
-                          if (MediaQuery.of(context).size.width > minTabWidth)
-                            const Text(" Feuilles de route")
-                        ],
-                      ),
+                      SizedBox(
+                          height: 32,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.fact_check_outlined),
+                              if (MediaQuery.of(context).size.width >
+                                  minTabWidth)
+                                const Text(" Feuilles de route")
+                            ],
+                          )),
                     if (globals.user.settingsRights)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.settings),
-                          if (MediaQuery.of(context).size.width > minTabWidth)
-                            const Text(" Paramètres")
-                        ],
-                      ),
+                      SizedBox(
+                          height: 32,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.settings),
+                              if (MediaQuery.of(context).size.width >
+                                  minTabWidth)
+                                const Text(" Paramètres")
+                            ],
+                          )),
                     if (globals.user.sqlExecute)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.data_usage),
-                          if (MediaQuery.of(context).size.width > minTabWidth)
-                            const Text(" Interface SQL")
-                        ],
-                      ),
+                      SizedBox(
+                          height: 32,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.data_usage),
+                              if (MediaQuery.of(context).size.width >
+                                  minTabWidth)
+                                const Text(" Interface SQL")
+                            ],
+                          )),
                   ],
                 ),
               ),
@@ -133,4 +150,24 @@ class _ManagementState extends State<Management>
                   children: globals.managementWidgetTabs))),
     );
   }
+}
+
+class MyAppbar extends StatelessWidget implements PreferredSizeWidget {
+  final Widget widget;
+
+  const MyAppbar({required this.widget});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: themeMainColor,
+      height: preferredSize.height,
+      child: Center(
+        child: widget,
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(32.0);
 }

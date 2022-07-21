@@ -14,8 +14,8 @@ $order = str_replace($search,$replace,$order);
 
 $sqlQuery = 'SELECT '.$table.'.*,`entetes feuille de route`.`LIBELLE TOURNEE`, `sites`.`LIBELLE SITE` 
             FROM '.$table.' 
-            JOIN `entetes feuille de route` ON COALESCE('.$table.'.`CODE TOURNEE`,0) = `entetes feuille de route`.`CODE TOURNEE` 
-            JOIN `sites` ON '.$table.'.`CODE SITE` = `sites`.`CODE SITE` ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
+            LEFT JOIN `entetes feuille de route` ON COALESCE('.$table.'.`CODE TOURNEE`,0) = `entetes feuille de route`.`CODE TOURNEE` 
+            LEFT JOIN `sites` ON '.$table.'.`CODE SITE` = `sites`.`CODE SITE` ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
 $result = $stmt -> fetchAll(PDO::FETCH_ASSOC);

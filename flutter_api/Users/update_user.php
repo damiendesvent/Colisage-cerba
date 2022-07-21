@@ -3,7 +3,6 @@ header('Content-Type: application/json');
 include "../db_cerba.php";
 
 $code = $_POST['code'];
-$searchCode = $_POST['searchCode'];
 $firstname = $_POST['firstname'];
 $lastname = $_POST['lastname'];
 $function = $_POST['function'];
@@ -14,8 +13,7 @@ $userRights = $_POST['userRights'];
 $sqlExecute = $_POST['sqlExecute'] == 'true' ? '1' : '0';
 $settingsAccess = $_POST['settingsAccess'] == 'true' ? '1' : '0';
 
-$sqlQuery = 'UPDATE utilisateurs SET `CODE UTILISATEUR` = "'.$code.
-                        '", NOM = "'.$lastname.
+$sqlQuery = 'UPDATE utilisateurs SET NOM = "'.$lastname.
                         '", PRENOM = "'.$firstname.
                         '", FONCTION = "'.$function.
                         '", `DROITS SITE` = '.$siteRights.
@@ -23,6 +21,6 @@ $sqlQuery = 'UPDATE utilisateurs SET `CODE UTILISATEUR` = "'.$code.
                         ', `DROITS BOITE` = '.$boxRights.
                         ', `DROITS UTILISATEUR` = '.$userRights.
                         ', `EXECUTION SQL` = '.$sqlExecute.
-                        ', `ACCES PARAMETRES` = '.$settingsAccess.' where `CODE UTILISATEUR` LIKE "'.$searchCode.'"';
+                        ', `ACCES PARAMETRES` = '.$settingsAccess.' where `CODE UTILISATEUR` = "'.$code.'"';
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();

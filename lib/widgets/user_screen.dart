@@ -38,8 +38,6 @@ class UpperCaseTextFormatter extends TextInputFormatter {
 class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => globals.shouldKeepAlive;
-
-  TextStyle textStyle = const TextStyle(fontSize: 16);
   final StreamController<List> _streamController = StreamController<List>();
   int i = 0;
   bool _isAscending = true;
@@ -119,8 +117,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
             padding: const EdgeInsets.only(left: 10),
             child: DropdownButtonHideUnderline(
                 child: DropdownButton(
+                    style: defaultTextStyle,
                     value: advancedSearchField,
-                    style: const TextStyle(fontSize: 14),
                     items: searchFieldList.map((searchFieldList) {
                       return DropdownMenuItem(
                           value: searchFieldList,
@@ -133,6 +131,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                     }))),
         Expanded(
             child: TextFormField(
+          style: defaultTextStyle,
           controller: _advancedSearchTextController,
           decoration:
               const InputDecoration(hintText: 'Deuxième champ de recherche'),
@@ -157,7 +156,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
     });
   }
 
-  void onUpdateUser(User myUser, String searchCode) async {
+  void onUpdateUser(User myUser) async {
     String phpUriUserUpdate = Env.urlPrefix + 'Users/update_user.php';
     await http.post(Uri.parse(phpUriUserUpdate), body: {
       "code": myUser.code,
@@ -170,7 +169,6 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
       "userRights": myUser.userRights.toString(),
       "sqlExecute": myUser.sqlExecute ? 'true' : 'false',
       "settingsAccess": myUser.settingsRights ? 'true' : 'false',
-      "searchCode": searchCode
     });
     setState(() {
       editingUser = null;
@@ -179,6 +177,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
       boxRights = null;
       userRights = null;
     });
+    Navigator.of(context).pop();
     Future.delayed(
         Duration(milliseconds: globals.milisecondWait), () => searchUser());
     ScaffoldMessenger.of(context).showSnackBar(
@@ -203,6 +202,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                     user['NOM'] +
                     ' ?',
                 textAlign: TextAlign.center,
+                style: defaultTextStyle,
               ),
               actions: [
                 TextButton(
@@ -374,7 +374,6 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   }
 
   void showAddPageUser() {
-    const TextStyle textStyle = TextStyle(fontSize: 16);
     TextEditingController codeController = TextEditingController();
     TextEditingController firstnameController = TextEditingController();
     TextEditingController lastnameController = TextEditingController();
@@ -396,377 +395,929 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
-                insetPadding:
-                    const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
+                insetPadding: const EdgeInsets.all(20),
                 elevation: 8,
-                child: Stack(alignment: Alignment.center, children: [
-                  SizedBox(
-                      width: 600,
-                      height: 750,
-                      child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: Text(
-                              'Ajout d\'un utilisateur',
-                              style: TextStyle(
-                                  fontSize: 18, color: Colors.grey.shade700),
-                            )),
-                        const Spacer(),
-                        Table(
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          defaultColumnWidth: const FractionColumnWidth(0.4),
-                          children: [
-                            TableRow(children: [
-                              const TableCell(
-                                child: Text('Code* : ', style: textStyle),
-                              ),
-                              TableCell(
-                                  child: SizedBox(
-                                      height: 60,
-                                      child: TextField(
-                                          textInputAction: TextInputAction.next,
-                                          controller: codeController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(
-                                                10),
-                                            UpperCaseTextFormatter(),
-                                          ],
-                                          decoration: InputDecoration(
-                                            errorText:
-                                                (codeController.text.isEmpty ||
-                                                            codeExisting) &&
-                                                        submited
-                                                    ? codeValueCheck
-                                                    : null,
-                                          ))))
-                            ]),
-                            TableRow(children: [
-                              const TableCell(
-                                child: Text('Prénom* : ', style: textStyle),
-                              ),
-                              TableCell(
-                                  child: SizedBox(
-                                      height: 60,
-                                      child: TextField(
-                                          textInputAction: TextInputAction.next,
-                                          controller: firstnameController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(
-                                                20),
-                                          ],
-                                          decoration: InputDecoration(
-                                            errorText: firstnameController
-                                                        .text.isEmpty &&
-                                                    submited
-                                                ? 'Veuillez entrer une valeur'
-                                                : null,
-                                          ))))
-                            ]),
-                            TableRow(children: [
-                              const TableCell(
-                                child: Text('Nom* : ', style: textStyle),
-                              ),
-                              TableCell(
-                                  child: SizedBox(
-                                      height: 60,
-                                      child: TextField(
-                                          textInputAction: TextInputAction.next,
-                                          controller: lastnameController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(
-                                                20),
-                                          ],
-                                          decoration: InputDecoration(
-                                            errorText: lastnameController
-                                                        .text.isEmpty &&
-                                                    submited
-                                                ? 'Veuillez entrer une valeur'
-                                                : null,
-                                          ))))
-                            ]),
-                            TableRow(children: [
-                              const TableCell(
-                                  child:
-                                      Text('Fonction* : ', style: textStyle)),
-                              TableCell(
-                                  child: SizedBox(
-                                      height: 60,
-                                      child: TextField(
-                                          textInputAction: TextInputAction.next,
-                                          controller: functionController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(
-                                                35),
-                                          ],
-                                          decoration: InputDecoration(
-                                            errorText: functionController
-                                                        .text.isEmpty &&
-                                                    submited
-                                                ? 'Veuillez entrer une valeur'
-                                                : null,
-                                          ))))
-                            ]),
-                            TableRow(children: [
-                              const TableCell(
-                                  child: Text('Mot de passe* : ',
-                                      style: textStyle)),
-                              TableCell(
-                                  child: SizedBox(
-                                      height: 60,
-                                      child: TextField(
-                                          obscureText: true,
-                                          controller: passwordController,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(
-                                                24),
-                                          ],
-                                          decoration: InputDecoration(
-                                            errorText: passwordController
-                                                            .text.length <
-                                                        4 &&
-                                                    submited
-                                                ? 'Veuillez entrer au moins 4 caractères'
-                                                : null,
-                                          ))))
-                            ]),
-                            TableRow(children: [
-                              const TableCell(
-                                  child:
-                                      Text('Droits sites :', style: textStyle)),
-                              TableCell(
-                                  child: Center(
-                                      child: DropdownButtonHideUnderline(
-                                          child: DropdownButton(
-                                              value: siteRights,
-                                              style:
-                                                  const TextStyle(fontSize: 14),
-                                              items:
-                                                  accessRightsList.map((value) {
-                                                return DropdownMenuItem(
-                                                    value: value,
-                                                    child: Text(value));
-                                              }).toList(),
-                                              onChanged: (String? newValue) {
-                                                setState(() {
-                                                  siteRights = newValue!;
-                                                });
-                                              }))))
-                            ]),
-                            TableRow(children: [
-                              const TableCell(
-                                  child: Text('Droits feuilles de route :',
-                                      style: textStyle)),
-                              TableCell(
-                                  child: Center(
-                                      child: DropdownButtonHideUnderline(
-                                          child: DropdownButton(
-                                              value: roadMapRights,
-                                              style:
-                                                  const TextStyle(fontSize: 14),
-                                              items:
-                                                  accessRightsList.map((value) {
-                                                return DropdownMenuItem(
-                                                    value: value,
-                                                    child: Text(value));
-                                              }).toList(),
-                                              onChanged: (String? newValue) {
-                                                setState(() {
-                                                  roadMapRights = newValue!;
-                                                });
-                                              }))))
-                            ]),
-                            TableRow(children: [
-                              const TableCell(
-                                  child: Text('Droits boîtes :',
-                                      style: textStyle)),
-                              TableCell(
-                                  child: Center(
-                                      child: DropdownButtonHideUnderline(
-                                          child: DropdownButton(
-                                              value: boxRights,
-                                              style:
-                                                  const TextStyle(fontSize: 14),
-                                              items:
-                                                  accessRightsList.map((value) {
-                                                return DropdownMenuItem(
-                                                    value: value,
-                                                    child: Text(value));
-                                              }).toList(),
-                                              onChanged: (String? newValue) {
-                                                setState(() {
-                                                  boxRights = newValue!;
-                                                });
-                                              }))))
-                            ]),
-                            TableRow(children: [
-                              const TableCell(
-                                  child: Text('Droits utilisateurs :',
-                                      style: textStyle)),
-                              TableCell(
-                                  child: Center(
-                                      child: DropdownButtonHideUnderline(
-                                          child: DropdownButton(
-                                              value: userRights,
-                                              style:
-                                                  const TextStyle(fontSize: 14),
-                                              items:
-                                                  accessRightsList.map((value) {
-                                                return DropdownMenuItem(
-                                                    value: value,
-                                                    child: Text(value));
-                                              }).toList(),
-                                              onChanged: (String? newValue) {
-                                                setState(() {
-                                                  userRights = newValue!;
-                                                });
-                                              }))))
-                            ]),
-                            TableRow(children: [
-                              const TableCell(
-                                  child: Text('Accès au panneau SQL :',
-                                      style: textStyle)),
-                              TableCell(
-                                  child: Center(
-                                      child: DropdownButtonHideUnderline(
-                                          child: DropdownButton(
-                                              value: executeSqlStatus,
-                                              style:
-                                                  const TextStyle(fontSize: 14),
-                                              items: yesNoList.map((value) {
-                                                return DropdownMenuItem(
-                                                    value: value,
-                                                    child: Text(value));
-                                              }).toList(),
-                                              onChanged: (String? newValue) {
-                                                setState(() {
-                                                  executeSqlStatus = newValue!;
-                                                });
-                                              }))))
-                            ]),
-                            TableRow(children: [
-                              const TableCell(
-                                  child: Text('Accès aux paramètres :',
-                                      style: textStyle)),
-                              TableCell(
-                                  child: Center(
-                                      child: DropdownButtonHideUnderline(
-                                          child: DropdownButton(
-                                              value: settingsAccessStatus,
-                                              style:
-                                                  const TextStyle(fontSize: 14),
-                                              items: yesNoList.map((value) {
-                                                return DropdownMenuItem(
-                                                    value: value,
-                                                    child: Text(value));
-                                              }).toList(),
-                                              onChanged: (String? newValue) {
-                                                setState(() {
-                                                  settingsAccessStatus =
-                                                      newValue!;
-                                                });
-                                              }))))
-                            ]),
-                          ],
-                        ),
-                        Center(
-                            child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 20),
-                                child: SizedBox(
-                                    width: 231,
-                                    child: Row(children: [
-                                      ElevatedButton(
-                                        style: myButtonStyle,
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Row(children: const [
-                                          Icon(Icons.clear),
-                                          Text(' Annuler')
-                                        ]),
-                                      ),
-                                      const Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10)),
-                                      ElevatedButton(
-                                        style: myButtonStyle,
-                                        onPressed: () {
-                                          setState(() {
-                                            submited = true;
-                                            codeExisting = true;
-                                          });
-                                          isUser(codeController.text)
-                                              .then((value) => setState(() {
-                                                    codeExisting = value;
-                                                    codeValueCheck = codeExisting
-                                                        ? 'Utilisateur existant'
-                                                        : 'Veuillez entrer une valeur';
-                                                    if (!codeExisting &&
-                                                        codeController
-                                                            .text.isNotEmpty &&
-                                                        firstnameController
-                                                            .text.isNotEmpty &&
-                                                        lastnameController
-                                                            .text.isNotEmpty &&
-                                                        passwordController
-                                                                .text.length >
-                                                            3 &&
-                                                        functionController
-                                                            .text.isNotEmpty) {
-                                                      onAddUser(User(
-                                                          code: codeController
-                                                              .text,
-                                                          firstname:
-                                                              firstnameController
-                                                                  .text,
-                                                          lastname:
-                                                              lastnameController
-                                                                  .text,
-                                                          function:
-                                                              functionController
-                                                                  .text,
-                                                          password:
-                                                              passwordController
-                                                                  .text,
-                                                          siteRights: accessRightsList.indexOf(
-                                                              siteRights),
-                                                          roadMapRights:
-                                                              accessRightsList.indexOf(
-                                                                  roadMapRights),
-                                                          boxRights: accessRightsList.indexOf(
-                                                              boxRights),
-                                                          userRights: accessRightsList.indexOf(
-                                                              userRights),
-                                                          sqlExecute:
-                                                              executeSqlStatus ==
-                                                                  'Oui',
-                                                          settingsRights:
-                                                              settingsAccessStatus ==
-                                                                  'Oui'));
-                                                    }
-                                                  }));
-                                        },
-                                        child: Row(children: const [
-                                          Icon(Icons.check),
-                                          Text(' Valider')
-                                        ]),
-                                      )
-                                    ])))),
-                        const Spacer(),
-                        Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Text('* : champs obligatoires',
+                child: SingleChildScrollView(
+                    child: SizedBox(
+                        width: 550,
+                        height: 600,
+                        child:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
+                          Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Text(
+                                'Ajout d\'un utilisateur',
                                 style: TextStyle(
-                                    color: Colors.grey.shade700, fontSize: 12)))
-                      ]))
-                ]));
+                                    fontSize: 18, color: Colors.grey.shade700),
+                              )),
+                          const Spacer(),
+                          Table(
+                            defaultVerticalAlignment:
+                                TableCellVerticalAlignment.middle,
+                            defaultColumnWidth: const FractionColumnWidth(0.4),
+                            children: [
+                              TableRow(children: [
+                                TableCell(
+                                  child:
+                                      Text('Code* : ', style: defaultTextStyle),
+                                ),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 40,
+                                        child: TextField(
+                                            style: defaultTextStyle,
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            controller: codeController,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  10),
+                                              UpperCaseTextFormatter(),
+                                            ],
+                                            decoration: InputDecoration(
+                                              errorText: (codeController
+                                                              .text.isEmpty ||
+                                                          codeExisting) &&
+                                                      submited
+                                                  ? codeValueCheck
+                                                  : null,
+                                            ))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                  child: Text('Prénom* : ',
+                                      style: defaultTextStyle),
+                                ),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 40,
+                                        child: TextField(
+                                            style: defaultTextStyle,
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            controller: firstnameController,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  20),
+                                            ],
+                                            decoration: InputDecoration(
+                                              errorText: firstnameController
+                                                          .text.isEmpty &&
+                                                      submited
+                                                  ? 'Veuillez entrer une valeur'
+                                                  : null,
+                                            ))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                  child:
+                                      Text('Nom* : ', style: defaultTextStyle),
+                                ),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 40,
+                                        child: TextField(
+                                            style: defaultTextStyle,
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            controller: lastnameController,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  20),
+                                            ],
+                                            decoration: InputDecoration(
+                                              errorText: lastnameController
+                                                          .text.isEmpty &&
+                                                      submited
+                                                  ? 'Veuillez entrer une valeur'
+                                                  : null,
+                                            ))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Fonction* : ',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 40,
+                                        child: TextField(
+                                            style: defaultTextStyle,
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            controller: functionController,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  35),
+                                            ],
+                                            decoration: InputDecoration(
+                                              errorText: functionController
+                                                          .text.isEmpty &&
+                                                      submited
+                                                  ? 'Veuillez entrer une valeur'
+                                                  : null,
+                                            ))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Mot de passe* : ',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 40,
+                                        child: TextField(
+                                            style: defaultTextStyle,
+                                            obscureText: true,
+                                            controller: passwordController,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  24),
+                                            ],
+                                            decoration: InputDecoration(
+                                              errorText: passwordController
+                                                              .text.length <
+                                                          4 &&
+                                                      submited
+                                                  ? 'Veuillez entrer au moins 4 caractères'
+                                                  : null,
+                                            ))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits sites :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 40,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: siteRights,
+                                                    style: defaultTextStyle,
+                                                    items: accessRightsList
+                                                        .map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        siteRights = newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits feuilles de route :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 40,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: roadMapRights,
+                                                    style: defaultTextStyle,
+                                                    items: accessRightsList
+                                                        .map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        roadMapRights =
+                                                            newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits boîtes :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 40,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: boxRights,
+                                                    style: defaultTextStyle,
+                                                    items: accessRightsList
+                                                        .map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        boxRights = newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits utilisateurs :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 40,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: userRights,
+                                                    style: defaultTextStyle,
+                                                    items: accessRightsList
+                                                        .map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        userRights = newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Accès au panneau SQL :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 40,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: executeSqlStatus,
+                                                    style: defaultTextStyle,
+                                                    items:
+                                                        yesNoList.map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        executeSqlStatus =
+                                                            newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Accès aux paramètres :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 40,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: settingsAccessStatus,
+                                                    style: defaultTextStyle,
+                                                    items:
+                                                        yesNoList.map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        settingsAccessStatus =
+                                                            newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                            ],
+                          ),
+                          Center(
+                              child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 20),
+                                  child: SizedBox(
+                                      width: 231,
+                                      child: Row(children: [
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Row(children: const [
+                                            Icon(Icons.clear),
+                                            Text(' Annuler')
+                                          ]),
+                                        ),
+                                        const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10)),
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
+                                            setState(() {
+                                              submited = true;
+                                              codeExisting = true;
+                                            });
+                                            isUser(codeController.text)
+                                                .then((value) => setState(() {
+                                                      codeExisting = value;
+                                                      codeValueCheck = codeExisting
+                                                          ? 'Utilisateur existant'
+                                                          : 'Veuillez entrer une valeur';
+                                                      if (!codeExisting &&
+                                                          codeController.text
+                                                              .isNotEmpty &&
+                                                          firstnameController
+                                                              .text
+                                                              .isNotEmpty &&
+                                                          lastnameController
+                                                              .text
+                                                              .isNotEmpty &&
+                                                          passwordController
+                                                                  .text.length >
+                                                              3 &&
+                                                          functionController
+                                                              .text
+                                                              .isNotEmpty) {
+                                                        onAddUser(User(
+                                                            code: codeController
+                                                                .text,
+                                                            firstname:
+                                                                firstnameController
+                                                                    .text,
+                                                            lastname:
+                                                                lastnameController
+                                                                    .text,
+                                                            function:
+                                                                functionController
+                                                                    .text,
+                                                            password:
+                                                                passwordController
+                                                                    .text,
+                                                            siteRights:
+                                                                accessRightsList.indexOf(
+                                                                    siteRights),
+                                                            roadMapRights:
+                                                                accessRightsList
+                                                                    .indexOf(
+                                                                        roadMapRights),
+                                                            boxRights:
+                                                                accessRightsList
+                                                                    .indexOf(
+                                                                        boxRights),
+                                                            userRights:
+                                                                accessRightsList
+                                                                    .indexOf(
+                                                                        userRights),
+                                                            sqlExecute:
+                                                                executeSqlStatus ==
+                                                                    'Oui',
+                                                            settingsRights:
+                                                                settingsAccessStatus ==
+                                                                    'Oui'));
+                                                      }
+                                                    }));
+                                          },
+                                          child: Row(children: const [
+                                            Icon(Icons.check),
+                                            Text(' Valider')
+                                          ]),
+                                        )
+                                      ])))),
+                          const Spacer(),
+                          Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Text('* : champs obligatoires',
+                                  style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                      fontSize: 12)))
+                        ]))));
+          });
+        });
+  }
+
+  void showEditPageUser(User user) {
+    TextEditingController firstnameController =
+        TextEditingController(text: user.firstname);
+    TextEditingController lastnameController =
+        TextEditingController(text: user.lastname);
+    TextEditingController functionController =
+        TextEditingController(text: user.function);
+    bool submited = false;
+    String siteRights = accessRightsList[user.siteRights];
+    String roadMapRights = accessRightsList[user.roadMapRights];
+    String boxRights = accessRightsList[user.boxRights];
+    String userRights = accessRightsList[user.userRights];
+    String executeSqlStatus = yesNoList[user.sqlExecute ? 0 : 1];
+    String settingsAccessStatus = yesNoList[user.settingsRights ? 0 : 1];
+
+    showDialog(
+        barrierColor: myBarrierColor,
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Dialog(
+                insetPadding: const EdgeInsets.all(20),
+                elevation: 8,
+                child: SingleChildScrollView(
+                    child: SizedBox(
+                        width: 550,
+                        height: 600,
+                        child:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
+                          Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Text(
+                                'Edition de l\'utilisateur ' + user.code,
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.grey.shade700),
+                              )),
+                          const Spacer(),
+                          Table(
+                            defaultVerticalAlignment:
+                                TableCellVerticalAlignment.middle,
+                            defaultColumnWidth: const FractionColumnWidth(0.4),
+                            children: [
+                              TableRow(children: [
+                                TableCell(
+                                  child: Text('Prénom* : ',
+                                      style: defaultTextStyle),
+                                ),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: TextField(
+                                            style: defaultTextStyle,
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            controller: firstnameController,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  20),
+                                            ],
+                                            decoration: InputDecoration(
+                                              errorText: firstnameController
+                                                          .text.isEmpty &&
+                                                      submited
+                                                  ? 'Veuillez entrer une valeur'
+                                                  : null,
+                                            ))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                  child:
+                                      Text('Nom* : ', style: defaultTextStyle),
+                                ),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: TextField(
+                                            style: defaultTextStyle,
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            controller: lastnameController,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  20),
+                                            ],
+                                            decoration: InputDecoration(
+                                              errorText: lastnameController
+                                                          .text.isEmpty &&
+                                                      submited
+                                                  ? 'Veuillez entrer une valeur'
+                                                  : null,
+                                            ))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Fonction* : ',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: TextField(
+                                            style: defaultTextStyle,
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            controller: functionController,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  35),
+                                            ],
+                                            decoration: InputDecoration(
+                                              errorText: functionController
+                                                          .text.isEmpty &&
+                                                      submited
+                                                  ? 'Veuillez entrer une valeur'
+                                                  : null,
+                                            ))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits sites :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 45,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: siteRights,
+                                                    style: defaultTextStyle,
+                                                    items: accessRightsList
+                                                        .map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        siteRights = newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits feuilles de route :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 45,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: roadMapRights,
+                                                    style: defaultTextStyle,
+                                                    items: accessRightsList
+                                                        .map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        roadMapRights =
+                                                            newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits boîtes :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 45,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: boxRights,
+                                                    style: defaultTextStyle,
+                                                    items: accessRightsList
+                                                        .map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        boxRights = newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits utilisateurs :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 45,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: userRights,
+                                                    style: defaultTextStyle,
+                                                    items: accessRightsList
+                                                        .map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        userRights = newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Accès au panneau SQL :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 45,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: executeSqlStatus,
+                                                    style: defaultTextStyle,
+                                                    items:
+                                                        yesNoList.map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        executeSqlStatus =
+                                                            newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Accès aux paramètres :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 45,
+                                            child: DropdownButtonHideUnderline(
+                                                child: DropdownButton(
+                                                    value: settingsAccessStatus,
+                                                    style: defaultTextStyle,
+                                                    items:
+                                                        yesNoList.map((value) {
+                                                      return DropdownMenuItem(
+                                                          value: value,
+                                                          child: Text(value));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        settingsAccessStatus =
+                                                            newValue!;
+                                                      });
+                                                    })))))
+                              ]),
+                            ],
+                          ),
+                          Center(
+                              child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 20),
+                                  child: SizedBox(
+                                      width: 231,
+                                      child: Row(children: [
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Row(children: const [
+                                            Icon(Icons.clear),
+                                            Text(' Annuler')
+                                          ]),
+                                        ),
+                                        const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10)),
+                                        ElevatedButton(
+                                          style: myButtonStyle,
+                                          onPressed: () {
+                                            setState(() {
+                                              submited = true;
+                                            });
+                                            setState(() {
+                                              if (firstnameController
+                                                      .text.isNotEmpty &&
+                                                  lastnameController
+                                                      .text.isNotEmpty &&
+                                                  functionController
+                                                      .text.isNotEmpty) {
+                                                onUpdateUser(User(
+                                                    code: user.code,
+                                                    firstname:
+                                                        firstnameController
+                                                            .text,
+                                                    lastname:
+                                                        lastnameController.text,
+                                                    function:
+                                                        functionController.text,
+                                                    password: '',
+                                                    siteRights: accessRightsList
+                                                        .indexOf(siteRights),
+                                                    roadMapRights:
+                                                        accessRightsList
+                                                            .indexOf(
+                                                                roadMapRights),
+                                                    boxRights: accessRightsList
+                                                        .indexOf(boxRights),
+                                                    userRights: accessRightsList
+                                                        .indexOf(userRights),
+                                                    sqlExecute:
+                                                        executeSqlStatus ==
+                                                            'Oui',
+                                                    settingsRights:
+                                                        settingsAccessStatus ==
+                                                            'Oui'));
+                                              }
+                                            });
+                                          },
+                                          child: Row(children: const [
+                                            Icon(Icons.check),
+                                            Text(' Valider')
+                                          ]),
+                                        )
+                                      ])))),
+                          const Spacer(),
+                          Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Text('* : champs obligatoires',
+                                  style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                      fontSize: 12)))
+                        ]))));
+          });
+        });
+  }
+
+  void showDetailsPageUser(User user) {
+    showDialog(
+        barrierColor: myBarrierColor,
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Dialog(
+                insetPadding: const EdgeInsets.all(20),
+                elevation: 8,
+                child: SingleChildScrollView(
+                    child: SizedBox(
+                        width: 550,
+                        height: 600,
+                        child:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
+                          Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Text(
+                                'Détails de ' +
+                                    user.firstname +
+                                    ' ' +
+                                    user.lastname,
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.grey.shade700),
+                              )),
+                          const Spacer(),
+                          Table(
+                            defaultColumnWidth: const FractionColumnWidth(0.4),
+                            children: [
+                              TableRow(children: [
+                                TableCell(
+                                  child:
+                                      Text('Code : ', style: defaultTextStyle),
+                                ),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: SelectableText(user.code,
+                                            style: defaultTextStyle)))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                  child: Text('Prénom : ',
+                                      style: defaultTextStyle),
+                                ),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: SelectableText(user.firstname,
+                                            style: defaultTextStyle)))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                  child:
+                                      Text('Nom : ', style: defaultTextStyle),
+                                ),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: SelectableText(user.lastname,
+                                            style: defaultTextStyle)))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Fonction : ',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: SelectableText(user.function,
+                                            style: defaultTextStyle)))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits sites :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: SelectableText(
+                                            accessRightsList[user.siteRights],
+                                            style: defaultTextStyle)))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits feuilles de route :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: SelectableText(
+                                            accessRightsList[
+                                                user.roadMapRights],
+                                            style: defaultTextStyle)))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits boîtes :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: SelectableText(
+                                            accessRightsList[user.boxRights],
+                                            style: defaultTextStyle)))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Droits utilisateurs :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: SelectableText(
+                                            accessRightsList[user.userRights],
+                                            style: defaultTextStyle)))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Accès au panneau SQL :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: SelectableText(
+                                            yesNoList[user.sqlExecute ? 0 : 1],
+                                            style: defaultTextStyle)))
+                              ]),
+                              TableRow(children: [
+                                TableCell(
+                                    child: Text('Accès aux paramètres :',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 45,
+                                        child: SelectableText(
+                                            yesNoList[user.sqlExecute ? 0 : 1],
+                                            style: defaultTextStyle)))
+                              ]),
+                            ],
+                          ),
+                          Center(
+                              child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 20),
+                                  child: SizedBox(
+                                    width: 100,
+                                    child: ElevatedButton(
+                                      style: myButtonStyle,
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Row(children: const [
+                                        Icon(Icons.clear),
+                                        Text(' Annuler')
+                                      ]),
+                                    ),
+                                  ))),
+                          const Spacer(),
+                        ]))));
           });
         });
   }
 
   void showResetPasswordPage(Map<dynamic, dynamic> user) {
-    const TextStyle textStyle = TextStyle(fontSize: 16);
+    const TextStyle defaultTextStyle = TextStyle(fontSize: 16);
     TextEditingController passwordController = TextEditingController();
     TextEditingController repeatPasswordController = TextEditingController();
     bool submited = false;
@@ -804,11 +1355,12 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                               TableRow(children: [
                                 const TableCell(
                                     child: Text('Mot de passe* :   ',
-                                        style: textStyle)),
+                                        style: defaultTextStyle)),
                                 TableCell(
                                     child: SizedBox(
-                                        width: 60,
+                                        width: 50,
                                         child: TextField(
+                                          style: defaultTextStyle,
                                           obscureText: true,
                                           controller: passwordController,
                                           decoration: InputDecoration(
@@ -824,11 +1376,12 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                               TableRow(children: [
                                 const TableCell(
                                     child: Text('Répêter le mot de passe* :   ',
-                                        style: textStyle)),
+                                        style: defaultTextStyle)),
                                 TableCell(
                                     child: SizedBox(
-                                        width: 60,
+                                        width: 50,
                                         child: TextField(
+                                          style: defaultTextStyle,
                                           obscureText: true,
                                           controller: repeatPasswordController,
                                           decoration: InputDecoration(
@@ -920,14 +1473,18 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
       TextEditingController functionController =
           TextEditingController(text: user['FONCTION']);
       return [
-        DataCell(TextField(controller: codeController)),
-        DataCell(TextField(controller: lastnameController)),
-        DataCell(TextField(controller: firstnameController)),
-        DataCell(TextField(controller: functionController)),
+        DataCell(
+            TextField(style: defaultTextStyle, controller: codeController)),
+        DataCell(
+            TextField(style: defaultTextStyle, controller: lastnameController)),
+        DataCell(TextField(
+            style: defaultTextStyle, controller: firstnameController)),
+        DataCell(
+            TextField(style: defaultTextStyle, controller: functionController)),
         DataCell(Center(
             child: DropdownButton(
                 value: siteRights,
-                style: const TextStyle(fontSize: 14),
+                style: defaultTextStyle,
                 items: accessRightsList.map((value) {
                   return DropdownMenuItem(value: value, child: Text(value));
                 }).toList(),
@@ -939,7 +1496,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         DataCell(Center(
             child: DropdownButton(
                 value: roadMapRights,
-                style: const TextStyle(fontSize: 14),
+                style: defaultTextStyle,
                 items: accessRightsList.map((value) {
                   return DropdownMenuItem(value: value, child: Text(value));
                 }).toList(),
@@ -951,7 +1508,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         DataCell(Center(
             child: DropdownButton(
                 value: boxRights,
-                style: const TextStyle(fontSize: 14),
+                style: defaultTextStyle,
                 items: accessRightsList.map((value) {
                   return DropdownMenuItem(value: value, child: Text(value));
                 }).toList(),
@@ -963,7 +1520,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         DataCell(Center(
             child: DropdownButton(
                 value: userRights,
-                style: const TextStyle(fontSize: 14),
+                style: defaultTextStyle,
                 items: accessRightsList.map((value) {
                   return DropdownMenuItem(value: value, child: Text(value));
                 }).toList(),
@@ -975,7 +1532,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         DataCell(Center(
             child: DropdownButton(
                 value: executeSqlStatus,
-                style: const TextStyle(fontSize: 14),
+                style: defaultTextStyle,
                 items: yesNoList.map((value) {
                   return DropdownMenuItem(value: value, child: Text(value));
                 }).toList(),
@@ -987,7 +1544,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         DataCell(Center(
             child: DropdownButton(
                 value: settingsAccessStatus,
-                style: const TextStyle(fontSize: 14),
+                style: defaultTextStyle,
                 items: yesNoList.map((value) {
                   return DropdownMenuItem(value: value, child: Text(value));
                 }).toList(),
@@ -1004,21 +1561,18 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                   if (lastnameController.text.isNotEmpty &&
                       firstnameController.text.isNotEmpty &&
                       functionController.text.isNotEmpty) {
-                    onUpdateUser(
-                        User(
-                            code: codeController.text,
-                            firstname: firstnameController.text,
-                            lastname: lastnameController.text,
-                            function: functionController.text,
-                            password: '',
-                            siteRights: accessRightsList.indexOf(siteRights!),
-                            roadMapRights:
-                                accessRightsList.indexOf(roadMapRights!),
-                            boxRights: accessRightsList.indexOf(boxRights!),
-                            userRights: accessRightsList.indexOf(userRights!),
-                            sqlExecute: executeSqlStatus == 'Oui',
-                            settingsRights: settingsAccessStatus == 'Oui'),
-                        user['CODE UTILISATEUR']);
+                    onUpdateUser(User(
+                        code: codeController.text,
+                        firstname: firstnameController.text,
+                        lastname: lastnameController.text,
+                        function: functionController.text,
+                        password: '',
+                        siteRights: accessRightsList.indexOf(siteRights!),
+                        roadMapRights: accessRightsList.indexOf(roadMapRights!),
+                        boxRights: accessRightsList.indexOf(boxRights!),
+                        userRights: accessRightsList.indexOf(userRights!),
+                        sqlExecute: executeSqlStatus == 'Oui',
+                        settingsRights: settingsAccessStatus == 'Oui'));
                   }
                 },
                 icon: const Icon(Icons.check)),
@@ -1039,36 +1593,17 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
       ];
     } else {
       return [
-        DataCell(SelectableText(user['CODE UTILISATEUR'])),
-        DataCell(SelectableText(user['NOM'])),
-        DataCell(SelectableText(user['PRENOM'])),
-        DataCell(SelectableText(user['FONCTION'])),
-        DataCell(Center(
-            child: SelectableText(
-                accessRightsList[int.parse(user['DROITS SITE'])]))),
-        DataCell(Center(
-            child: SelectableText(
-                accessRightsList[int.parse(user['DROITS FEUILLE DE ROUTE'])]))),
-        DataCell(Center(
-            child: SelectableText(
-                accessRightsList[int.parse(user['DROITS BOITE'])]))),
-        DataCell(Center(
-            child: SelectableText(
-                accessRightsList[int.parse(user['DROITS UTILISATEUR'])]))),
-        DataCell(Center(
-            child:
-                SelectableText(user['EXECUTION SQL'] == '1' ? 'Oui' : 'Non'))),
-        DataCell(Center(
-            child: SelectableText(
-                user['ACCES PARAMETRES'] == '1' ? 'Oui' : 'Non'))),
+        DataCell(
+            SelectableText(user['CODE UTILISATEUR'], style: defaultTextStyle)),
+        DataCell(SelectableText(user['NOM'], style: defaultTextStyle)),
+        DataCell(SelectableText(user['PRENOM'], style: defaultTextStyle)),
+        DataCell(SelectableText(user['FONCTION'], style: defaultTextStyle)),
         DataCell(Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IconButton(
               onPressed: () {
-                setState(() {
-                  editingUser = user['CODE UTILISATEUR'];
-                });
+                showEditPageUser(User.fromSnapshot(user));
               },
               icon: const Icon(Icons.edit),
               tooltip: 'Editer',
@@ -1126,7 +1661,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                             child: DropdownButtonHideUnderline(
                                 child: DropdownButton(
                                     value: searchField,
-                                    style: const TextStyle(fontSize: 14),
+                                    style: defaultTextStyle,
                                     items:
                                         searchFieldList.map((searchFieldList) {
                                       return DropdownMenuItem(
@@ -1141,6 +1676,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                     }))),
                         Expanded(
                             child: TextFormField(
+                          style: defaultTextStyle,
                           controller: _searchTextController,
                           decoration:
                               const InputDecoration(hintText: 'Recherche'),
@@ -1173,6 +1709,13 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                               icon: const Icon(Icons.search_off_outlined),
                               tooltip: 'Recherche simple'),
                         const Spacer(),
+                        if (globals.user.userRights > 1)
+                          ElevatedButton(
+                              style: myButtonStyle,
+                              onPressed: () {
+                                showAddPageUser();
+                              },
+                              child: const Text('Ajouter un utilisateur')),
                         if (globals.shouldDisplaySyncButton)
                           IconButton(
                             onPressed: () {
@@ -1184,8 +1727,10 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                             tooltip: 'Actualiser l\'onglet',
                           ),
                         const Spacer(),
-                        const Text('Nombre de lignes affichées : '),
+                        const Text('Nombre de lignes affichées : ',
+                            style: defaultTextStyle),
                         DropdownButton(
+                            style: defaultTextStyle,
                             value: numberDisplayed,
                             items:
                                 numberDisplayedList.map((numberDisplayedList) {
@@ -1221,6 +1766,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                               CrossAxisAlignment.stretch,
                                           children: [
                                             DataTable(
+                                              showCheckboxColumn: false,
                                               headingRowColor:
                                                   MaterialStateProperty
                                                       .resolveWith<Color?>((Set<
@@ -1229,13 +1775,13 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                 return Colors.grey
                                                     .withOpacity(0.2);
                                               }),
-                                              headingRowHeight: 80,
+                                              headingRowHeight: 50,
                                               sortColumnIndex:
                                                   _currentSortColumn,
                                               sortAscending: _isAscending,
                                               headingTextStyle: const TextStyle(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 15),
+                                                  fontSize: 14),
                                               columns: [
                                                 DataColumn(
                                                     label: const Text(
@@ -1262,125 +1808,27 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                     onSort:
                                                         sorting('FONCTION')),
                                                 DataColumn(
-                                                    label: Expanded(
-                                                        child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: const [
-                                                          Text('Droits\nsites',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center)
-                                                        ])),
-                                                    onSort: sorting(
-                                                        'EDITION SITE')),
-                                                DataColumn(
-                                                    label: Expanded(
-                                                        child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: const [
-                                                          Text(
-                                                              'Droits\nfeuilles de route',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center)
-                                                        ])),
-                                                    onSort: sorting(
-                                                        'DROITS FEUILLE DE ROUTE')),
-                                                DataColumn(
-                                                    label: Expanded(
-                                                        child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: const [
-                                                          Text('Droits\nboîtes',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center)
-                                                        ])),
-                                                    onSort: sorting(
-                                                        'DROITS BOITE')),
-                                                DataColumn(
-                                                    label: Expanded(
-                                                        child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: const [
-                                                          Text(
-                                                              'Droits\nutilisateurs',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center)
-                                                        ])),
-                                                    onSort: sorting(
-                                                        'DROITS UTILISATEUR')),
-                                                DataColumn(
-                                                    label: Expanded(
-                                                        child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: const [
-                                                          Text(
-                                                              'Accès\npanneau SQL',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center)
-                                                        ])),
-                                                    onSort: sorting(
-                                                        'EXECUTION SQL')),
-                                                DataColumn(
-                                                    label: Expanded(
-                                                        child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: const [
-                                                          Text(
-                                                              'Accès\nparamètres',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center)
-                                                        ])),
-                                                    onSort: sorting(
-                                                        'ACCES PARAMETRES')),
-                                                DataColumn(
-                                                    label: Column(children: [
-                                                  Padding(
-                                                      padding: const EdgeInsets
-                                                              .fromLTRB(
-                                                          0, 10, 0, 0),
-                                                      child: ElevatedButton(
-                                                          style: myButtonStyle,
-                                                          onPressed: () {
-                                                            showAddPageUser();
-                                                          },
-                                                          child: const Text(
-                                                              'Ajouter un utilisateur'))),
-                                                  const Spacer(),
-                                                  Row(children: [
-                                                    const Text(
-                                                        'Utilisateurs\nsupprimées :'),
-                                                    Switch(
-                                                        value: showDeleteUser,
-                                                        onChanged: (newValue) {
-                                                          setState(() {
-                                                            showDeleteUser =
-                                                                newValue;
-                                                          });
-                                                          getUserList();
-                                                        })
-                                                  ])
+                                                    label: Row(children: [
+                                                  const Text(
+                                                      'Utilisateurs\nsupprimées :'),
+                                                  Switch(
+                                                      value: showDeleteUser,
+                                                      onChanged: (newValue) {
+                                                        setState(() {
+                                                          showDeleteUser =
+                                                              newValue;
+                                                        });
+                                                        getUserList();
+                                                      })
                                                 ]))
                                               ],
                                               rows: [
                                                 for (Map user in snapshot.data)
                                                   DataRow(
+                                                    onSelectChanged: (_) =>
+                                                        showDetailsPageUser(
+                                                            User.fromSnapshot(
+                                                                user)),
                                                     color: MaterialStateProperty
                                                         .resolveWith<Color?>(
                                                             (Set<MaterialState>

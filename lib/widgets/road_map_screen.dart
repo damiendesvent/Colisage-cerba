@@ -97,7 +97,7 @@ class _RoadMapListState extends State<RoadMapList>
             child: DropdownButtonHideUnderline(
                 child: DropdownButton(
                     value: advancedSearchField,
-                    style: const TextStyle(fontSize: 14),
+                    style: defaultTextStyle,
                     items: searchFieldList.map((searchFieldList) {
                       return DropdownMenuItem(
                           value: searchFieldList,
@@ -111,6 +111,7 @@ class _RoadMapListState extends State<RoadMapList>
         SizedBox(
             width: 300,
             child: TextFormField(
+              style: defaultTextStyle,
               controller: _advancedSearchTextController,
               decoration: const InputDecoration(
                   hintText: 'Deuxième champ de recherche'),
@@ -217,7 +218,7 @@ class _RoadMapListState extends State<RoadMapList>
                                     roadMap.libelle +
                                     ' a bien été restauré.',
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16),
+                                style: defaultTextStyle,
                               )
                             ]),
                       );
@@ -317,7 +318,7 @@ class _RoadMapListState extends State<RoadMapList>
                                     roadMap.libelle +
                                     ' a bien été supprimé.',
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16),
+                                style: defaultTextStyle,
                               )
                             ]),
                         action: SnackBarAction(
@@ -378,7 +379,6 @@ class _RoadMapListState extends State<RoadMapList>
   }
 
   void showAddPageRoadMap() {
-    const TextStyle textStyle = TextStyle(fontSize: 16);
     TextEditingController codeController = TextEditingController();
     TextEditingController libelleController = TextEditingController();
     TextEditingController telController = TextEditingController();
@@ -399,8 +399,8 @@ class _RoadMapListState extends State<RoadMapList>
                 elevation: 8,
                 child: Stack(alignment: Alignment.center, children: [
                   SizedBox(
-                      width: 600,
-                      height: 500,
+                      width: 500,
+                      height: 450,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -420,15 +420,17 @@ class _RoadMapListState extends State<RoadMapList>
                               children: [
                                 TableRow(
                                   children: [
-                                    const TableCell(
+                                    TableCell(
                                         child: Text('Code tournée* : ',
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 16))),
+                                                fontSize: defaultTextStyle
+                                                    .fontSize))),
                                     TableCell(
                                         child: SizedBox(
-                                            height: 60,
+                                            height: 50,
                                             child: TextField(
+                                              style: defaultTextStyle,
                                               controller: codeController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -451,11 +453,12 @@ class _RoadMapListState extends State<RoadMapList>
                                   children: [
                                     const TableCell(
                                         child: Text('Libellé* : ',
-                                            style: textStyle)),
+                                            style: defaultTextStyle)),
                                     TableCell(
                                         child: SizedBox(
-                                            height: 60,
+                                            height: 50,
                                             child: TextField(
+                                              style: defaultTextStyle,
                                               controller: libelleController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -474,11 +477,12 @@ class _RoadMapListState extends State<RoadMapList>
                                   children: [
                                     const TableCell(
                                         child: Text('Tel chauffeur : ',
-                                            style: textStyle)),
+                                            style: defaultTextStyle)),
                                     TableCell(
                                         child: SizedBox(
-                                            height: 60,
+                                            height: 50,
                                             child: TextField(
+                                              style: defaultTextStyle,
                                               controller: telController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -491,11 +495,12 @@ class _RoadMapListState extends State<RoadMapList>
                                   children: [
                                     const TableCell(
                                         child: Text('Ordre affichage PDA* : ',
-                                            style: textStyle)),
+                                            style: defaultTextStyle)),
                                     TableCell(
                                         child: SizedBox(
-                                            height: 60,
+                                            height: 50,
                                             child: TextField(
+                                              style: defaultTextStyle,
                                               controller: pdaController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -516,11 +521,12 @@ class _RoadMapListState extends State<RoadMapList>
                                   children: [
                                     const TableCell(
                                         child: Text('Commentaire : ',
-                                            style: textStyle)),
+                                            style: defaultTextStyle)),
                                     TableCell(
                                         child: SizedBox(
-                                            height: 60,
+                                            height: 50,
                                             child: TextField(
+                                              style: defaultTextStyle,
                                               controller: commentController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -633,7 +639,7 @@ class _RoadMapListState extends State<RoadMapList>
                             child: DropdownButtonHideUnderline(
                                 child: DropdownButton(
                                     value: searchField,
-                                    style: const TextStyle(fontSize: 14),
+                                    style: defaultTextStyle,
                                     items:
                                         searchFieldList.map((searchFieldList) {
                                       return DropdownMenuItem(
@@ -650,6 +656,7 @@ class _RoadMapListState extends State<RoadMapList>
                         SizedBox(
                             width: 300,
                             child: TextFormField(
+                              style: defaultTextStyle,
                               controller: _searchTextController,
                               decoration:
                                   const InputDecoration(hintText: 'Recherche'),
@@ -701,10 +708,8 @@ class _RoadMapListState extends State<RoadMapList>
                               onPressed: () {
                                 onGeneratePDAUpdate();
                               },
-                              child: const Padding(
-                                  padding: EdgeInsets.all(2),
-                                  child: Text('Générer une\nmise à jour PDA',
-                                      textAlign: TextAlign.center))),
+                              child: const Text('Générer une\nmise à jour PDA',
+                                  textAlign: TextAlign.center)),
                         const Spacer(),
                         if (globals.user.roadMapRights > 1)
                           const Text('Feuilles de route\nsupprimées :'),
@@ -729,10 +734,12 @@ class _RoadMapListState extends State<RoadMapList>
                             tooltip: 'Actualiser l\'onglet',
                           ),
                         const Spacer(),
-                        const Text('Nombre de\nlignes affichées : '),
+                        const Text('Nombre de\nlignes affichées : ',
+                            style: defaultTextStyle),
                         Padding(
                             padding: const EdgeInsets.only(right: 15),
                             child: DropdownButton(
+                                style: defaultTextStyle,
                                 value: numberDisplayed,
                                 items: numberDisplayedList
                                     .map((numberDisplayedList) {
@@ -770,22 +777,27 @@ class _RoadMapListState extends State<RoadMapList>
                                 ? popupMenu(roadMap)
                                 : null,
                             isThreeLine: false,
-                            title: Text(roadMap['LIBELLE TOURNEE']),
+                            title: Text(roadMap['LIBELLE TOURNEE'],
+                                style: defaultTextStyle),
                             subtitle: Row(children: [
                               SizedBox(
                                   width: 400,
-                                  child: Text(searchField +
-                                      ' : ' +
-                                      roadMap[searchField
-                                          .replaceAll('é', 'e')
-                                          .toUpperCase()])),
-                              Text(isAdvancedResearch
-                                  ? advancedSearchField +
-                                      ' : ' +
-                                      roadMap[advancedSearchField
-                                          .replaceAll('é', 'e')
-                                          .toUpperCase()]
-                                  : '')
+                                  child: Text(
+                                      searchField +
+                                          ' : ' +
+                                          roadMap[searchField
+                                              .replaceAll('é', 'e')
+                                              .toUpperCase()],
+                                      style: defaultTextStyle)),
+                              Text(
+                                  isAdvancedResearch
+                                      ? advancedSearchField +
+                                          ' : ' +
+                                          roadMap[advancedSearchField
+                                              .replaceAll('é', 'e')
+                                              .toUpperCase()]
+                                      : '',
+                                  style: defaultTextStyle)
                             ]),
                             onTap: () {
                               setState(() {

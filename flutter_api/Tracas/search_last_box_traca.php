@@ -2,9 +2,9 @@
 header('Content-Type: application/json');
 include "../db_cerba.php";
 
-$tube = $_POST['tube'];
+$box = $_POST['box'];
 
-$sqlQuery = 'SELECT * FROM tracabilite WHERE `TUBE` LIKE "'.$tube.'" AND `ACTION` = "VIT" ORDER BY `DATE HEURE ENREGISTREMENT` DESC';
+$sqlQuery = 'SELECT * FROM tracabilite WHERE `BOITE` LIKE "'.$box.'" AND `ACTION` = "REC" ORDER BY `DATE HEURE ENREGISTREMENT` DESC LIMIT 1';
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
 

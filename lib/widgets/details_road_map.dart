@@ -40,7 +40,6 @@ class DetailsRoadMap extends StatefulWidget {
 }
 
 class _DetailsRoadMapState extends State<DetailsRoadMap> {
-  TextStyle textStyle = const TextStyle(fontSize: 16);
   final StreamController<List> _streamController = StreamController<List>();
   int i = 0;
   bool _isAscending = true;
@@ -183,7 +182,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                     roadMapDetail['LIBELLE SITE'] +
                                     ' a bien été supprimé.',
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16),
+                                style: defaultTextStyle,
                               )
                             ]),
                         action: SnackBarAction(
@@ -267,7 +266,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                     roadMapDetail['LIBELLE SITE'] +
                                     ' a bien été restaurée.',
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16),
+                                style: defaultTextStyle,
                               )
                             ]),
                       );
@@ -320,7 +319,6 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
   }
 
   void showAddPageDetailRoadMap() {
-    const TextStyle textStyle = TextStyle(fontSize: 16);
     TextEditingController codeController = TextEditingController();
     TextEditingController siteController = TextEditingController();
     TextEditingController timeController = TextEditingController();
@@ -340,8 +338,8 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                 elevation: 8,
                 child: Stack(alignment: Alignment.center, children: [
                   SizedBox(
-                      width: 600,
-                      height: 500,
+                      width: 500,
+                      height: 420,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -361,15 +359,17 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                               children: [
                                 TableRow(
                                   children: [
-                                    const TableCell(
+                                    TableCell(
                                         child: Text('Code étape* : ',
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 16))),
+                                                fontSize: defaultTextStyle
+                                                    .fontSize))),
                                     TableCell(
                                         child: SizedBox(
-                                            height: 60,
+                                            height: 50,
                                             child: TextField(
+                                                style: defaultTextStyle,
                                                 controller: codeController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
@@ -391,8 +391,8 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                 TableRow(
                                   children: [
                                     const TableCell(
-                                        child:
-                                            Text('Site* : ', style: textStyle)),
+                                        child: Text('Site* : ',
+                                            style: defaultTextStyle)),
                                     TableCell(
                                         child: SizedBox(
                                             height: 70,
@@ -429,11 +429,12 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                   children: [
                                     const TableCell(
                                         child: Text('Heure arrivée* : ',
-                                            style: textStyle)),
+                                            style: defaultTextStyle)),
                                     TableCell(
                                         child: SizedBox(
-                                            height: 60,
+                                            height: 50,
                                             child: TextField(
+                                                style: defaultTextStyle,
                                                 textAlign: TextAlign.center,
                                                 controller: timeController,
                                                 inputFormatters: [
@@ -457,10 +458,10 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                   children: [
                                     const TableCell(
                                         child: Text('Passage sur appel : ',
-                                            style: textStyle)),
+                                            style: defaultTextStyle)),
                                     TableCell(
                                         child: SizedBox(
-                                            height: 60,
+                                            height: 50,
                                             width: 100,
                                             child: Checkbox(
                                               value: onCallValue,
@@ -476,11 +477,12 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                   children: [
                                     const TableCell(
                                         child: Text('Commentaire : ',
-                                            style: textStyle)),
+                                            style: defaultTextStyle)),
                                     TableCell(
                                         child: SizedBox(
-                                            height: 60,
+                                            height: 50,
                                             child: TextField(
+                                              style: defaultTextStyle,
                                               controller: commentController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -563,6 +565,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
   }
 
   Widget headerRoadMap(bool isEditing) {
+    double cellHeight = 20;
     if (!isEditing) {
       return Dialog(
           insetPadding: const EdgeInsets.fromLTRB(10, 0, 10, 20),
@@ -572,20 +575,65 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
           child: SizedBox(
               width: 500,
               height: 110,
-              child: Column(children: [
-                SelectableText('Code tournée : ${roadMap.code}',
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold)),
-                SelectableText('Libellé : ${roadMap.libelle}',
-                    style: textStyle),
-                SelectableText('Téléphone chauffeur : ${roadMap.tel}',
-                    style: textStyle),
-                SelectableText(
-                    'Ordre d\'affichage PDA : ${roadMap.sortingNumer}',
-                    style: textStyle),
-                SelectableText('Commentaire : ${roadMap.comment}',
-                    style: textStyle),
-              ])));
+              child: Center(
+                  child: Table(
+                      defaultColumnWidth: const FractionColumnWidth(0.4),
+                      children: [
+                    TableRow(children: [
+                      TableCell(
+                          child: SizedBox(
+                              height: cellHeight,
+                              child: Text('Code tournée :',
+                                  style: TextStyle(
+                                      fontSize: defaultTextStyle.fontSize! + 2,
+                                      fontWeight: FontWeight.bold)))),
+                      TableCell(
+                          child: SelectableText(roadMap.code.toString(),
+                              style: TextStyle(
+                                  fontSize: defaultTextStyle.fontSize! + 2,
+                                  fontWeight: FontWeight.bold)))
+                    ]),
+                    TableRow(children: [
+                      TableCell(
+                          child: SizedBox(
+                              height: cellHeight,
+                              child: const Text('Libellé :',
+                                  style: defaultTextStyle))),
+                      TableCell(
+                          child: SelectableText(roadMap.libelle,
+                              style: defaultTextStyle))
+                    ]),
+                    TableRow(children: [
+                      TableCell(
+                          child: SizedBox(
+                              height: cellHeight,
+                              child: const Text('Téléphone chauffeur :',
+                                  style: defaultTextStyle))),
+                      TableCell(
+                          child: SelectableText(roadMap.tel,
+                              style: defaultTextStyle))
+                    ]),
+                    TableRow(children: [
+                      TableCell(
+                          child: SizedBox(
+                              height: cellHeight,
+                              child: const Text('Ordre d\'affichage PDA :',
+                                  style: defaultTextStyle))),
+                      TableCell(
+                          child: SelectableText(roadMap.sortingNumer.toString(),
+                              style: defaultTextStyle))
+                    ]),
+                    TableRow(children: [
+                      TableCell(
+                          child: SizedBox(
+                              height: cellHeight,
+                              child: const Text('Commentaire :',
+                                  style: defaultTextStyle))),
+                      TableCell(
+                          child: SelectableText(roadMap.comment,
+                              style: defaultTextStyle))
+                    ]),
+                  ]))));
     } else {
       late TextEditingController libelleController =
           TextEditingController(text: roadMap.libelle);
@@ -602,65 +650,91 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
           elevation: 8,
           child: SizedBox(
               width: 500,
-              height: 350,
+              height: 250,
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('Code tournée : ${roadMap.code}',
                         style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text('Libellé* : ', style: textStyle),
-                      SizedBox(
-                        width: 200,
-                        child: TextField(
-                          controller: libelleController,
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(35)
-                          ],
-                        ),
-                      )
-                    ]),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text('Téléphone chauffeur* : ', style: textStyle),
-                      SizedBox(
-                        width: 200,
-                        child: TextField(
-                          controller: telController,
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(20)
-                          ],
-                        ),
-                      )
-                    ]),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text('Ordre d\'affichage PDA* : ', style: textStyle),
-                      SizedBox(
-                        width: 200,
-                        child: TextField(
-                          controller: pdaController,
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(4),
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                        ),
-                      )
-                    ]),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text('Commentaire : ', style: textStyle),
-                      SizedBox(
-                        width: 200,
-                        child: TextField(
-                          controller: commentController,
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(254)
-                          ],
-                        ),
-                      )
-                    ]),
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    Table(
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
+                        defaultColumnWidth: const FractionColumnWidth(0.4),
+                        children: [
+                          TableRow(children: [
+                            const TableCell(
+                                child: Text('Libellé* : ',
+                                    style: defaultTextStyle)),
+                            TableCell(
+                                child: SizedBox(
+                              width: 200,
+                              height: cellHeight + 15,
+                              child: TextField(
+                                style: defaultTextStyle,
+                                controller: libelleController,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(35)
+                                ],
+                              ),
+                            ))
+                          ]),
+                          TableRow(children: [
+                            const TableCell(
+                                child: Text('Téléphone chauffeur* : ',
+                                    style: defaultTextStyle)),
+                            TableCell(
+                                child: SizedBox(
+                              width: 200,
+                              height: cellHeight + 15,
+                              child: TextField(
+                                style: defaultTextStyle,
+                                controller: telController,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(20)
+                                ],
+                              ),
+                            ))
+                          ]),
+                          TableRow(children: [
+                            const TableCell(
+                                child: Text('Ordre d\'affichage PDA* : ',
+                                    style: defaultTextStyle)),
+                            TableCell(
+                                child: SizedBox(
+                              width: 200,
+                              height: cellHeight + 15,
+                              child: TextField(
+                                style: defaultTextStyle,
+                                controller: pdaController,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(4),
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                              ),
+                            ))
+                          ]),
+                          TableRow(children: [
+                            const TableCell(
+                                child: Text('Commentaire : ',
+                                    style: defaultTextStyle)),
+                            TableCell(
+                                child: SizedBox(
+                              width: 200,
+                              height: cellHeight + 15,
+                              child: TextField(
+                                style: defaultTextStyle,
+                                controller: commentController,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(254)
+                                ],
+                              ),
+                            ))
+                          ]),
+                        ]),
                     Center(
                         child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                             child: SizedBox(
                                 width: 231,
                                 child: Row(children: [
@@ -715,7 +789,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
             child: DropdownButtonHideUnderline(
                 child: DropdownButton(
                     value: advancedSearchField,
-                    style: const TextStyle(fontSize: 14),
+                    style: defaultTextStyle,
                     items: searchFieldList.map((searchFieldList) {
                       return DropdownMenuItem(
                           value: searchFieldList,
@@ -728,6 +802,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                     }))),
         Expanded(
             child: TextFormField(
+          style: defaultTextStyle,
           controller: _advancedSearchTextController,
           decoration:
               const InputDecoration(hintText: 'Deuxième champ de recherche'),
@@ -795,7 +870,9 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
           controller: libelleController,
           emptyWidget: Text('Aucun site trouvé',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.red.shade900, fontSize: 15)),
+              style: TextStyle(
+                  color: Colors.red.shade900,
+                  fontSize: defaultTextStyle.fontSize)),
           suggestions: sites
               .map(
                 (e) => SearchFieldListItem<Site>(
@@ -805,11 +882,13 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
               )
               .toList(),
         )),
-        DataCell(TextField(controller: timeController)),
-        DataCell(TextField(controller: commentController)),
+        DataCell(
+            TextField(style: defaultTextStyle, controller: timeController)),
+        DataCell(
+            TextField(style: defaultTextStyle, controller: commentController)),
         DataCell(DropdownButton(
             value: onCallStatus,
-            style: const TextStyle(fontSize: 14),
+            style: defaultTextStyle,
             items: onCallList.map((onCall) {
               return DropdownMenuItem(value: onCall, child: Text(onCall));
             }).toList(),
@@ -834,7 +913,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                         const Text(
                           'Site introuvable, veuillez selectionner un site dans la liste',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 16),
+                          style: defaultTextStyle,
                         ),
                         color: (Colors.red[800])!,
                         icon: const Icon(
@@ -857,12 +936,17 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
       ];
     } else {
       return [
-        DataCell(SelectableText(roadMapDetail['CODE AVANCEMENT'])),
-        DataCell(SelectableText(roadMapDetail['LIBELLE SITE'])),
-        DataCell(SelectableText(roadMapDetail['HEURE ARRIVEE'])),
-        DataCell(SelectableText(roadMapDetail['COMMENTAIRE'])),
+        DataCell(SelectableText(roadMapDetail['CODE AVANCEMENT'],
+            style: defaultTextStyle)),
+        DataCell(SelectableText(roadMapDetail['LIBELLE SITE'],
+            style: defaultTextStyle)),
+        DataCell(SelectableText(roadMapDetail['HEURE ARRIVEE'],
+            style: defaultTextStyle)),
+        DataCell(SelectableText(roadMapDetail['COMMENTAIRE'],
+            style: defaultTextStyle)),
         DataCell(SelectableText(
-            roadMapDetail['PASSAGE SUR APPEL'] == '1' ? 'Oui' : 'Non')),
+            roadMapDetail['PASSAGE SUR APPEL'] == '1' ? 'Oui' : 'Non',
+            style: defaultTextStyle)),
         if (globals.user.roadMapRights > 1)
           DataCell(Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -945,7 +1029,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                   child: DropdownButtonHideUnderline(
                                       child: DropdownButton(
                                           value: searchField,
-                                          style: const TextStyle(fontSize: 14),
+                                          style: defaultTextStyle,
                                           items: searchFieldList
                                               .map((searchFieldList) {
                                             return DropdownMenuItem(
@@ -960,6 +1044,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                           }))),
                               Expanded(
                                   child: TextFormField(
+                                style: defaultTextStyle,
                                 controller: _searchTextController,
                                 decoration: const InputDecoration(
                                     hintText: 'Recherche'),
@@ -993,6 +1078,13 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                     icon: const Icon(Icons.search_off_outlined),
                                     tooltip: 'Recherche simple'),
                               const Spacer(),
+                              if (globals.user.roadMapRights > 1)
+                                ElevatedButton(
+                                    style: myButtonStyle,
+                                    onPressed: () {
+                                      showAddPageDetailRoadMap();
+                                    },
+                                    child: const Text('Ajouter une étape')),
                               if (globals.shouldDisplaySyncButton)
                                 IconButton(
                                   onPressed: () {
@@ -1005,8 +1097,10 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                   tooltip: 'Actualiser l\'onglet',
                                 ),
                               const Spacer(),
-                              const Text('Nombre de lignes affichées : '),
+                              const Text('Nombre de lignes affichées : ',
+                                  style: defaultTextStyle),
                               DropdownButton(
+                                  style: defaultTextStyle,
                                   value: numberDisplayed,
                                   items: numberDisplayedList
                                       .map((numberDisplayedList) {
@@ -1026,7 +1120,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                             )
                           ])),
                     ]),
-                    preferredSize: Size(double.infinity, editing ? 425 : 190)),
+                    preferredSize: Size(double.infinity, editing ? 325 : 185)),
                 body: Scrollbar(
                     controller: _scrollController,
                     thumbVisibility: true,
@@ -1046,12 +1140,12 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                               'Aucune étape ne correspond à votre recherche.')))
                                   : DataTable(
                                       columnSpacing: 0,
-                                      headingRowHeight: 80,
+                                      headingRowHeight: 50,
                                       sortColumnIndex: _currentSortColumn,
                                       sortAscending: _isAscending,
-                                      headingTextStyle: const TextStyle(
+                                      headingTextStyle: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 16),
+                                          fontSize: defaultTextStyle.fontSize),
                                       columns: [
                                         DataColumn(
                                             label: const Text(
@@ -1078,32 +1172,17 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                                 sorting('PASSAGE SUR APPEL')),
                                         if (globals.user.roadMapRights > 1)
                                           DataColumn(
-                                              label: Column(children: [
-                                            Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        0, 10, 0, 0),
-                                                child: ElevatedButton(
-                                                    style: myButtonStyle,
-                                                    onPressed: () {
-                                                      showAddPageDetailRoadMap();
-                                                    },
-                                                    child: const Text(
-                                                        'Ajouter une étape'))),
-                                            const Spacer(),
-                                            Row(children: [
-                                              const Text('Etapes supprimées :'),
-                                              Switch(
-                                                  value:
-                                                      showDeleteDetailRoadMap,
-                                                  onChanged: (newValue) {
-                                                    setState(() {
-                                                      showDeleteDetailRoadMap =
-                                                          newValue;
-                                                    });
-                                                    getDetailsRoadMapList();
-                                                  })
-                                            ])
+                                              label: Row(children: [
+                                            const Text('Etapes\nsupprimées :'),
+                                            Switch(
+                                                value: showDeleteDetailRoadMap,
+                                                onChanged: (newValue) {
+                                                  setState(() {
+                                                    showDeleteDetailRoadMap =
+                                                        newValue;
+                                                  });
+                                                  getDetailsRoadMapList();
+                                                })
                                           ]))
                                       ],
                                       rows: [

@@ -125,7 +125,7 @@ class _SiteListState extends State<SiteList>
             child: DropdownButtonHideUnderline(
                 child: DropdownButton(
                     value: advancedSearchField,
-                    style: const TextStyle(fontSize: 14),
+                    style: defaultTextStyle,
                     items: searchFieldList.map((searchFieldList) {
                       return DropdownMenuItem(
                           value: searchFieldList,
@@ -143,6 +143,7 @@ class _SiteListState extends State<SiteList>
                     child: SizedBox(
                         width: 100,
                         child: DropdownButton(
+                            style: defaultTextStyle,
                             isExpanded: true,
                             alignment: AlignmentDirectional.center,
                             value: noYesValue,
@@ -157,6 +158,7 @@ class _SiteListState extends State<SiteList>
                               searchSite();
                             })))
                 : TextFormField(
+                    style: defaultTextStyle,
                     controller: _advancedSearchTextController,
                     decoration: const InputDecoration(
                         hintText: 'Deuxième champ de recherche'),
@@ -259,7 +261,7 @@ class _SiteListState extends State<SiteList>
                                     site.libelle +
                                     ' a bien été restauré.',
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16),
+                                style: defaultTextStyle,
                               )
                             ]),
                       );
@@ -277,18 +279,16 @@ class _SiteListState extends State<SiteList>
   }
 
   void showDetailSite(Site site) {
-    const TextStyle textStyle = TextStyle(fontSize: 18);
     showDialog(
         barrierColor: myBarrierColor,
         context: context,
         builder: (_) => Dialog(
-            insetPadding:
-                const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
+            insetPadding: const EdgeInsets.all(50),
             elevation: 8,
             child: SingleChildScrollView(
                 child: SizedBox(
-                    height: 700,
-                    width: 700,
+                    height: 500,
+                    width: 500,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -306,84 +306,84 @@ class _SiteListState extends State<SiteList>
                               TableRow(
                                 children: [
                                   const TableCell(
-                                      child:
-                                          Text('Libellé : ', style: textStyle)),
+                                      child: Text('Libellé : ',
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 55,
+                                          height: 40,
                                           child: SelectableText(site.libelle,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Correspondant : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 55,
+                                          height: 40,
                                           child: SelectableText(
                                               site.correspondant,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
-                                      child:
-                                          Text('Adresse : ', style: textStyle)),
+                                      child: Text('Adresse : ',
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 55,
+                                          height: 40,
                                           child: SelectableText(site.adress,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Complément d\'adresse : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 55,
+                                          height: 40,
                                           child: SelectableText(site.cpltAdress,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Code Postal : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 55,
+                                          height: 40,
                                           child: SelectableText(
                                               site.cp == 0
                                                   ? ''
                                                   : site.cp.toString(),
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
-                                      child:
-                                          Text('Ville : ', style: textStyle)),
+                                      child: Text('Ville : ',
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 55,
+                                          height: 40,
                                           child: SelectableText(site.city,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Site de prélèvement : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
                                           height: 40,
@@ -391,42 +391,55 @@ class _SiteListState extends State<SiteList>
                                               site.collectionSite
                                                   ? 'Oui'
                                                   : 'Non',
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Site de dépôt :            ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
                                           height: 40,
                                           child: Text(
                                               site.depositSite ? 'Oui' : 'Non',
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   const TableCell(
                                       child: Text('Commentaire : ',
-                                          style: textStyle)),
+                                          style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
-                                          height: 55,
+                                          height: 40,
                                           child: SelectableText(site.comment,
-                                              style: textStyle)))
+                                              style: defaultTextStyle)))
                                 ],
                               ),
                             ]),
+                        Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: SizedBox(
+                                width: 100,
+                                child: ElevatedButton(
+                                  style: myButtonStyle,
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Row(children: const [
+                                    Icon(Icons.clear),
+                                    Text(' Annuler')
+                                  ]),
+                                ))),
                         const Spacer()
                       ],
                     )))));
   }
 
   void showEditPageSite(Site site) {
-    const TextStyle textStyle = TextStyle(fontSize: 18);
     late TextEditingController libelleController =
         TextEditingController(text: site.libelle);
     late TextEditingController correspondantController =
@@ -459,8 +472,8 @@ class _SiteListState extends State<SiteList>
                 elevation: 8,
                 child: SingleChildScrollView(
                     child: SizedBox(
-                        height: 700,
-                        width: 700,
+                        height: 525,
+                        width: 500,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -484,11 +497,12 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Libellé* : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 controller: libelleController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
@@ -507,11 +521,12 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Correspondant : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 controller:
                                                     correspondantController,
                                                 inputFormatters: [
@@ -525,11 +540,12 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Adresse* : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 controller: adressController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
@@ -549,11 +565,12 @@ class _SiteListState extends State<SiteList>
                                       const TableCell(
                                           child: Text(
                                               'Complément d\'adresse : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 controller:
                                                     cpltAdressController,
                                                 inputFormatters: [
@@ -567,11 +584,12 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Code Postal* : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 controller: cpController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
@@ -592,11 +610,12 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Ville* : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 controller: cityController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
@@ -615,26 +634,30 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Site de prélèvement : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
-                                          child: SizedBox(
-                                              height: 40,
-                                              width: 100,
-                                              child: DropdownButton(
-                                                value: collectionSiteValue,
-                                                items: yesNoList.map((yesNo) {
-                                                  return DropdownMenuItem(
-                                                      value: yesNo,
-                                                      child: Text(
-                                                          yesNo.toString()));
-                                                }).toList(),
-                                                onChanged: (String? newValue) {
-                                                  setState(() {
-                                                    collectionSiteValue =
-                                                        newValue!;
-                                                  });
-                                                },
-                                              )))
+                                          child: Center(
+                                              child: SizedBox(
+                                                  height: 40,
+                                                  width: 60,
+                                                  child: DropdownButton(
+                                                    style: defaultTextStyle,
+                                                    value: collectionSiteValue,
+                                                    items:
+                                                        yesNoList.map((yesNo) {
+                                                      return DropdownMenuItem(
+                                                          value: yesNo,
+                                                          child: Text(yesNo
+                                                              .toString()));
+                                                    }).toList(),
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        collectionSiteValue =
+                                                            newValue!;
+                                                      });
+                                                    },
+                                                  ))))
                                     ],
                                   ),
                                   TableRow(
@@ -642,37 +665,42 @@ class _SiteListState extends State<SiteList>
                                       const TableCell(
                                           child: Text(
                                               'Site de dépôt :            ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
-                                          child: SizedBox(
-                                              height: 40,
-                                              width: 100,
-                                              child: DropdownButton(
-                                                items: yesNoList.map((yesNo) {
-                                                  return DropdownMenuItem(
-                                                      value: yesNo,
-                                                      child: Text(
-                                                          yesNo.toString()));
-                                                }).toList(),
-                                                value: depositSiteValue,
-                                                onChanged: (String? newValue) {
-                                                  setState(() {
-                                                    depositSiteValue =
-                                                        newValue!;
-                                                  });
-                                                },
-                                              )))
+                                          child: Center(
+                                              child: SizedBox(
+                                                  height: 40,
+                                                  width: 60,
+                                                  child: DropdownButton(
+                                                    style: defaultTextStyle,
+                                                    items:
+                                                        yesNoList.map((yesNo) {
+                                                      return DropdownMenuItem(
+                                                          value: yesNo,
+                                                          child: Text(yesNo
+                                                              .toString()));
+                                                    }).toList(),
+                                                    value: depositSiteValue,
+                                                    onChanged:
+                                                        (String? newValue) {
+                                                      setState(() {
+                                                        depositSiteValue =
+                                                            newValue!;
+                                                      });
+                                                    },
+                                                  ))))
                                     ],
                                   ),
                                   TableRow(
                                     children: [
                                       const TableCell(
                                           child: Text('Commentaire : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 controller: commentController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
@@ -829,7 +857,7 @@ class _SiteListState extends State<SiteList>
                                     site.libelle +
                                     ' a bien été supprimé.',
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16),
+                                style: defaultTextStyle,
                               )
                             ]),
                         action: SnackBarAction(
@@ -881,7 +909,6 @@ class _SiteListState extends State<SiteList>
   }
 
   void showAddPageSite() {
-    const TextStyle textStyle = TextStyle(fontSize: 16);
     TextEditingController libelleController = TextEditingController();
     TextEditingController correspondantController = TextEditingController();
     TextEditingController adressController = TextEditingController();
@@ -898,13 +925,12 @@ class _SiteListState extends State<SiteList>
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
-                insetPadding:
-                    const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
+                insetPadding: const EdgeInsets.all(50),
                 elevation: 8,
                 child: SingleChildScrollView(
                     child: SizedBox(
-                        width: 600,
-                        height: 700,
+                        width: 500,
+                        height: 525,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -928,11 +954,12 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Libellé* : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 textInputAction:
                                                     TextInputAction.next,
                                                 controller: libelleController,
@@ -954,11 +981,12 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Correspondant : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 textInputAction:
                                                     TextInputAction.next,
                                                 controller:
@@ -974,11 +1002,12 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Adresse* : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 textInputAction:
                                                     TextInputAction.next,
                                                 controller: adressController,
@@ -1000,11 +1029,12 @@ class _SiteListState extends State<SiteList>
                                       const TableCell(
                                           child: Text(
                                               'Complément d\'adresse : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 textInputAction:
                                                     TextInputAction.next,
                                                 controller: cpltController,
@@ -1019,11 +1049,12 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Code Postal : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 textInputAction:
                                                     TextInputAction.next,
                                                 controller: cpController,
@@ -1040,11 +1071,12 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Ville* : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 controller: cityController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
@@ -1063,7 +1095,7 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Site de prélèvement : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
                                               height: 40,
@@ -1082,7 +1114,7 @@ class _SiteListState extends State<SiteList>
                                       const TableCell(
                                           child: Text(
                                               'Site de dépôt :            ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
                                               height: 40,
@@ -1100,11 +1132,12 @@ class _SiteListState extends State<SiteList>
                                     children: [
                                       const TableCell(
                                           child: Text('Commentaire : ',
-                                              style: textStyle)),
+                                              style: defaultTextStyle)),
                                       TableCell(
                                           child: SizedBox(
-                                              height: 55,
+                                              height: 40,
                                               child: TextField(
+                                                style: defaultTextStyle,
                                                 controller: commentController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
@@ -1281,7 +1314,7 @@ class _SiteListState extends State<SiteList>
                           child: DropdownButtonHideUnderline(
                               child: DropdownButton(
                                   value: searchField,
-                                  style: const TextStyle(fontSize: 14),
+                                  style: defaultTextStyle,
                                   items: searchFieldList.map((searchFieldList) {
                                     return DropdownMenuItem(
                                         value: searchFieldList,
@@ -1300,6 +1333,7 @@ class _SiteListState extends State<SiteList>
                                   child: SizedBox(
                                       width: 100,
                                       child: DropdownButton(
+                                          style: defaultTextStyle,
                                           isExpanded: true,
                                           alignment:
                                               AlignmentDirectional.center,
@@ -1316,6 +1350,7 @@ class _SiteListState extends State<SiteList>
                                             searchSite();
                                           })))
                               : TextFormField(
+                                  style: defaultTextStyle,
                                   controller: _searchTextController,
                                   decoration: const InputDecoration(
                                       hintText: 'Recherche'),
@@ -1365,10 +1400,8 @@ class _SiteListState extends State<SiteList>
                                 onPressed: () {
                                   showLabelDialog();
                                 },
-                                child: const Padding(
-                                    padding: EdgeInsets.all(2),
-                                    child: Text('Générer\nétiquettes',
-                                        textAlign: TextAlign.center)))),
+                                child: const Text('Générer\nétiquettes',
+                                    textAlign: TextAlign.center))),
                       const Spacer(),
                       if (globals.user.siteRights > 1)
                         const Text('Sites\nsupprimés :'),
@@ -1393,10 +1426,12 @@ class _SiteListState extends State<SiteList>
                           tooltip: 'Actualiser l\'onglet',
                         ),
                       const Spacer(),
-                      const Text('Nombre de\nlignes affichées : '),
+                      const Text('Nombre de\nlignes affichées : ',
+                          style: defaultTextStyle),
                       Padding(
                           padding: const EdgeInsets.only(right: 15),
                           child: DropdownButton(
+                              style: defaultTextStyle,
                               value: numberDisplayed,
                               items: numberDisplayedList
                                   .map((numberDisplayedList) {
@@ -1434,40 +1469,45 @@ class _SiteListState extends State<SiteList>
                               ? popupMenu(site)
                               : null,
                           isThreeLine: false,
-                          title: Text(site['LIBELLE SITE']),
+                          title: Text(site['LIBELLE SITE'],
+                              style: defaultTextStyle),
                           subtitle: Row(children: [
                             SizedBox(
                                 width: 400,
-                                child: Text(searchField +
-                                    ' : ' +
-                                    (searchField.startsWith('Site')
-                                        ? (site[searchField
-                                                    .replaceAll('é', 'e')
-                                                    .replaceAll('è', 'e')
-                                                    .replaceAll('ô', 'o')
-                                                    .toUpperCase()] ==
-                                                '1'
-                                            ? 'Oui'
-                                            : 'Non')
-                                        : site[searchField
-                                            .replaceAll('é', 'e')
-                                            .toUpperCase()]))),
-                            Text(isAdvancedResearch
-                                ? advancedSearchField +
-                                    ' : ' +
-                                    (advancedSearchField.startsWith('Site')
-                                        ? (site[advancedSearchField
-                                                    .replaceAll('é', 'e')
-                                                    .replaceAll('è', 'e')
-                                                    .replaceAll('ô', 'o')
-                                                    .toUpperCase()] ==
-                                                '1'
-                                            ? 'Oui'
-                                            : 'Non')
-                                        : site[advancedSearchField
-                                            .replaceAll('é', 'e')
-                                            .toUpperCase()])
-                                : '')
+                                child: Text(
+                                    searchField +
+                                        ' : ' +
+                                        (searchField.startsWith('Site')
+                                            ? (site[searchField
+                                                        .replaceAll('é', 'e')
+                                                        .replaceAll('è', 'e')
+                                                        .replaceAll('ô', 'o')
+                                                        .toUpperCase()] ==
+                                                    '1'
+                                                ? 'Oui'
+                                                : 'Non')
+                                            : site[searchField
+                                                .replaceAll('é', 'e')
+                                                .toUpperCase()]),
+                                    style: defaultTextStyle)),
+                            Text(
+                                isAdvancedResearch
+                                    ? advancedSearchField +
+                                        ' : ' +
+                                        (advancedSearchField.startsWith('Site')
+                                            ? (site[advancedSearchField
+                                                        .replaceAll('é', 'e')
+                                                        .replaceAll('è', 'e')
+                                                        .replaceAll('ô', 'o')
+                                                        .toUpperCase()] ==
+                                                    '1'
+                                                ? 'Oui'
+                                                : 'Non')
+                                            : site[advancedSearchField
+                                                .replaceAll('é', 'e')
+                                                .toUpperCase()])
+                                    : '',
+                                style: defaultTextStyle)
                           ]),
                           onTap: () {
                             showDetailSite(Site.fromSnapshot(site));

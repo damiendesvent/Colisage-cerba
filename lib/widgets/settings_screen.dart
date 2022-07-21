@@ -217,6 +217,7 @@ class _SettingState extends State<Setting> {
                                             padding: const EdgeInsets.only(
                                                 right: 20),
                                             child: TextFormField(
+                                              style: defaultTextStyle,
                                               autofocus: true,
                                               initialValue: ip['PREFIXE IP'],
                                               onChanged: (newValue) {
@@ -358,7 +359,8 @@ class _SettingState extends State<Setting> {
                           child: Text(
                             'Ces paramètres sont inscrits dans la base de donnée et sont donc\ndépendants du serveur sur lequel il se trouve.',
                             style: TextStyle(
-                                fontSize: 14, color: Colors.grey.shade700),
+                                fontSize: defaultTextStyle.fontSize,
+                                color: Colors.grey.shade700),
                           )),
                       const Spacer(),
                       Table(
@@ -377,8 +379,10 @@ class _SettingState extends State<Setting> {
                                               const EdgeInsets.only(top: 20),
                                           child: Text(
                                             constant['Nom']!,
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize:
+                                                    defaultTextStyle.fontSize),
                                           )))),
                               TableCell(
                                   child: SizedBox(
@@ -389,6 +393,7 @@ class _SettingState extends State<Setting> {
                                           child: editedConstant ==
                                                   constant['CODE']
                                               ? TextFormField(
+                                                  style: defaultTextStyle,
                                                   initialValue:
                                                       constant['Valeur'],
                                                   onChanged: (newValue) {
@@ -402,7 +407,9 @@ class _SettingState extends State<Setting> {
                                                       const EdgeInsets.only(
                                                           top: 17),
                                                   child: Text(
-                                                      constant['Valeur']!))))),
+                                                      constant['Valeur']!,
+                                                      style:
+                                                          defaultTextStyle))))),
                               TableCell(
                                   child: editedConstant == constant['CODE']
                                       ? Row(

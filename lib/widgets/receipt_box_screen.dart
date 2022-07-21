@@ -7,24 +7,24 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-class ReceiptTubeScreen extends StatelessWidget {
-  const ReceiptTubeScreen({Key? key}) : super(key: key);
+class ReceiptBoxScreen extends StatelessWidget {
+  const ReceiptBoxScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: ReceiptTube());
+    return const Scaffold(body: ReceiptBox());
   }
 }
 
-class ReceiptTube extends StatefulWidget {
-  const ReceiptTube({Key? key}) : super(key: key);
+class ReceiptBox extends StatefulWidget {
+  const ReceiptBox({Key? key}) : super(key: key);
 
   @override
-  _ReceiptTubeState createState() => _ReceiptTubeState();
+  _ReceiptBoxState createState() => _ReceiptBoxState();
 }
 
-class _ReceiptTubeState extends State<ReceiptTube> {
-  TextEditingController tubeController = TextEditingController();
+class _ReceiptBoxState extends State<ReceiptBox> {
+  TextEditingController boxController = TextEditingController();
   bool submited = false;
   bool showResult = false;
   String result = '';
@@ -34,20 +34,20 @@ class _ReceiptTubeState extends State<ReceiptTube> {
     super.initState();
   }
 
-  Future searchLastTracaTube() async {
-    String phpUriTracaSearchTube =
-        Env.urlPrefix + 'Tracas/search_last_tube_traca.php';
-    http.Response res =
-        await http.post(Uri.parse(phpUriTracaSearchTube), body: {
-      'tube': tubeController.text,
+  Future searchLastTracaBox() async {
+    String phpUriTracaSearchBox =
+        Env.urlPrefix + 'Tracas/search_last_box_traca.php';
+    http.Response res = await http.post(Uri.parse(phpUriTracaSearchBox), body: {
+      'box': boxController.text,
     });
     if (res.body.isNotEmpty) {
-      var lastTracaTube = json.decode(res.body);
+      var lastTracaBox = json.decode(res.body);
       setState(() {
-        result = lastTracaTube == false
-            ? 'Aucune donnée disponible pour le tube'
+        result = lastTracaBox == false
+            ? 'Aucune donnée disponible pour le box'
             : 'Heure de réception : ' +
-                DateFormat("HH'h'mm le dd/MM/yyyy").format(DateTime.parse(lastTracaTube['DATE HEURE ENREGISTREMENT']));
+                DateFormat("HH'h'mm le dd/MM/yyyy").format(
+                    DateTime.parse(lastTracaBox['DATE HEURE ENREGISTREMENT']));
         showResult = true;
       });
     }
@@ -59,16 +59,16 @@ class _ReceiptTubeState extends State<ReceiptTube> {
         backgroundColor: backgroundColor,
         body: SingleChildScrollView(
             child: Dialog(
-                insetPadding: const EdgeInsets.all(50),
+                insetPadding: const EdgeInsets.all(30),
                 elevation: 8,
                 child: SizedBox(
-                    width: 600,
+                    width: 500,
                     height: 500,
                     child: Column(children: [
                       Padding(
                           padding: const EdgeInsets.all(10),
                           child: Text(
-                              'Recherche de la dernière réception d\'un tube',
+                              'Recherche de la dernière réception d\'une boîte',
                               style: TextStyle(
                                   fontSize: 18, color: Colors.grey.shade700))),
                       Padding(
@@ -77,21 +77,22 @@ class _ReceiptTubeState extends State<ReceiptTube> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('Tube :   '),
+                              const Text('Boîte :   ', style: defaultTextStyle),
                               SizedBox(
                                   width: 320,
                                   child: TextField(
+                                    style: defaultTextStyle,
                                     autofocus: true,
-                                    controller: tubeController,
+                                    controller: boxController,
                                     onSubmitted: (_) {
                                       setState(() {
                                         submited = true;
                                       });
-                                      if (tubeController.text.isNotEmpty) {
+                                      if (boxController.text.isNotEmpty) {
                                         setState(() {
                                           submited = false;
-                                          searchLastTracaTube();
-                                          tubeController.clear();
+                                          searchLastTracaBox();
+                                          boxController.clear();
                                         });
                                       }
                                     },
@@ -102,11 +103,11 @@ class _ReceiptTubeState extends State<ReceiptTube> {
                                     setState(() {
                                       submited = true;
                                     });
-                                    if (tubeController.text.isNotEmpty) {
+                                    if (boxController.text.isNotEmpty) {
                                       setState(() {
                                         submited = false;
-                                        searchLastTracaTube();
-                                        tubeController.clear();
+                                        searchLastTracaBox();
+                                        boxController.clear();
                                       });
                                     }
                                   },
@@ -116,11 +117,16 @@ class _ReceiptTubeState extends State<ReceiptTube> {
                           )),
                       if (showResult)
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                          SelectableText(result),
-                          IconButton(onPressed: () => Clipboard.setData(ClipboardData(text: result)), icon: const Icon(Icons.copy), tooltip: 'Copier',)
-                        ])
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SelectableText(result),
+                              IconButton(
+                                onPressed: () => Clipboard.setData(
+                                    ClipboardData(text: result)),
+                                icon: const Icon(Icons.copy),
+                                tooltip: 'Copier',
+                              )
+                            ])
                     ])))));
   }
 }
