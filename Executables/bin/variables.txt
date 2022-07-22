@@ -18,14 +18,14 @@ chemin_installation_serveur = C:/Serveur_colisage
 # Importation des fichiers PDA
 chemin_reception_fichier_PDA = C:/PDA_tracks/IN
 minute_synchro_pda_1 = 15
-minute_synchro_pda_2 = 39
+minute_synchro_pda_2 = 45
 
 # Sauvegarde de la base de données
 chemin_sauvegardes = C:/Backup
 prefixe_fichier_sauvegarde = colisage_
 # Pour le paramètre suivant, vous devez écrire : seconde, minute, heure ou jour
-type_sauvegarde = seconde
-frequence_sauvegarde = 15
+type_sauvegarde = heure
+frequence_sauvegarde = 4
 nombre_maximum_fichiers_sauvegarde = 16
 
 # Ecriture des fichiers txt avec dernière réception boite
@@ -33,7 +33,7 @@ chemin_reception_fichiers_boite = C:/Reception/IN
 chemin_envoi_fichiers_boite = C:/Reception/OUT
 # Pour le paramètre suivant, vous devez écrire : seconde, minute, heure ou jour
 type_synchronisation = heure
-frequence_synchronisation = 1
+frequence_synchronisation = 2
 
 # Ce paramètre correspond à l'heure à laquelle sont vidées automatiquement toutes les boîtes
 heure_nettoyage_boite = 6

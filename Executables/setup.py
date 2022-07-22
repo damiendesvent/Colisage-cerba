@@ -1,6 +1,7 @@
 import os
 import shutil
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog as fd
 from ctypes import windll
@@ -161,6 +162,9 @@ def start_stop_backup() :
 
 
 def install() :
+    #pb = ttk.Progressbar(root, orient='horizontal', mode='indeterminate', length=200)
+    #canvas1.create_window(450,20,window=pb)
+    #pb.start
     os.makedirs(extract_folder, exist_ok=True)
     if not os.listdir(extract_folder) :
         if os.path.isfile(zip_file) :
@@ -276,7 +280,7 @@ def stop_server() :
 
 def open_website() :
     if not subprocess.call('powershell get-process mamp -errorAction SilentlyContinue', creationflags=subprocess.CREATE_NO_WINDOW) :
-        webbrowser.open('https://' + ip)
+        webbrowser.open('http://' + ip)
     
     else :
         messagebox.showerror('Serveur non démarré', 'Le serveur n\'est pas démarré,\nappuyez d\'abord sur Démarrer le serveur')
@@ -284,7 +288,7 @@ def open_website() :
 
 def open_phpMyAdmin() :
     if not subprocess.call('powershell get-process mamp -errorAction SilentlyContinue', creationflags=subprocess.CREATE_NO_WINDOW) :
-        webbrowser.open('https://localhost/phpMyAdmin/')
+        webbrowser.open('http://localhost/phpMyAdmin/')
     
     else :
         messagebox.showerror('Serveur non démarré', 'Le serveur n\'est pas démarré,\nappuyez d\'abord sur Démarrer le serveur')
