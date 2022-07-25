@@ -312,9 +312,7 @@ class _RoadMapListState extends State<RoadMapList>
                                 color: Colors.white,
                               ),
                               Text(
-                                ' La feuille de route n° ' +
-                                    roadMap.code.toString() +
-                                    ' : ' +
+                                ' La feuille de route ' +
                                     roadMap.libelle +
                                     ' a bien été supprimé.',
                                 textAlign: TextAlign.center,
@@ -351,7 +349,6 @@ class _RoadMapListState extends State<RoadMapList>
   void onAddRoadMap(RoadMap roadMap) {
     String phpUriAddRoadMap = Env.urlPrefix + 'Road_maps/add_road_map.php';
     http.post(Uri.parse(phpUriAddRoadMap), body: {
-      "code": roadMap.code.toString(),
       "libelle": roadMap.libelle,
       "tel": roadMap.tel,
       "pda": roadMap.sortingNumer.toString(),
@@ -367,26 +364,26 @@ class _RoadMapListState extends State<RoadMapList>
         Duration(milliseconds: globals.milisecondWait), () => getRoadMapList());
   }
 
-  Future<bool> isRoadMap(String code) async {
+  Future<Map<String, bool>> isRoadMap(String libelle, String order) async {
     String phpUriDetailsRoadMap =
         Env.urlPrefix + 'Road_maps/details_road_map.php';
-    http.Response res = await http
-        .post(Uri.parse(phpUriDetailsRoadMap), body: {"searchCode": code});
-    if (res.body.isNotEmpty && res.body != '[]') {
-      return true;
-    }
-    return false;
+    http.Response res = await http.post(Uri.parse(phpUriDetailsRoadMap),
+        body: {"libelle": libelle, "order": order});
+    Map item = json.decode(res.body);
+    return {
+      'libelleExist': item['libelleExist'] != '0',
+      'orderExist': item['orderExist'] != '0'
+    };
   }
 
   void showAddPageRoadMap() {
-    TextEditingController codeController = TextEditingController();
     TextEditingController libelleController = TextEditingController();
     TextEditingController telController = TextEditingController();
     TextEditingController pdaController = TextEditingController();
     TextEditingController commentController = TextEditingController();
     bool submited = false;
-    String codeValueCheck = 'Veuillez entrer une valeur';
-    bool codeExisting = true;
+    String? libelleValueCheck;
+    String? pdaValueCheck;
 
     showDialog(
         barrierColor: myBarrierColor,
@@ -420,37 +417,6 @@ class _RoadMapListState extends State<RoadMapList>
                               children: [
                                 TableRow(
                                   children: [
-                                    TableCell(
-                                        child: Text('Code tournée* : ',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: defaultTextStyle
-                                                    .fontSize))),
-                                    TableCell(
-                                        child: SizedBox(
-                                            height: 50,
-                                            child: TextField(
-                                              style: defaultTextStyle,
-                                              controller: codeController,
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(
-                                                    4),
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly,
-                                              ],
-                                              decoration: InputDecoration(
-                                                  errorText: (codeController
-                                                                  .text
-                                                                  .isEmpty ||
-                                                              codeExisting) &&
-                                                          submited
-                                                      ? codeValueCheck
-                                                      : null),
-                                            )))
-                                  ],
-                                ),
-                                TableRow(
-                                  children: [
                                     const TableCell(
                                         child: Text('Libellé* : ',
                                             style: defaultTextStyle)),
@@ -458,6 +424,8 @@ class _RoadMapListState extends State<RoadMapList>
                                         child: SizedBox(
                                             height: 50,
                                             child: TextField(
+                                              textAlignVertical:
+                                                  TextAlignVertical.bottom,
                                               style: defaultTextStyle,
                                               controller: libelleController,
                                               inputFormatters: [
@@ -465,10 +433,13 @@ class _RoadMapListState extends State<RoadMapList>
                                                     35)
                                               ],
                                               decoration: InputDecoration(
-                                                  errorText: libelleController
-                                                              .text.isEmpty &&
-                                                          submited
-                                                      ? 'Veuillez entrer une valeur'
+                                                  errorStyle: TextStyle(
+                                                      fontSize: defaultTextStyle
+                                                              .fontSize! -
+                                                          4,
+                                                      height: 0.3),
+                                                  errorText: submited
+                                                      ? libelleValueCheck
                                                       : null),
                                             )))
                                   ],
@@ -500,6 +471,8 @@ class _RoadMapListState extends State<RoadMapList>
                                         child: SizedBox(
                                             height: 50,
                                             child: TextField(
+                                              textAlignVertical:
+                                                  TextAlignVertical.bottom,
                                               style: defaultTextStyle,
                                               controller: pdaController,
                                               inputFormatters: [
@@ -509,10 +482,13 @@ class _RoadMapListState extends State<RoadMapList>
                                                     .digitsOnly
                                               ],
                                               decoration: InputDecoration(
-                                                  errorText: pdaController
-                                                              .text.isEmpty &&
-                                                          submited
-                                                      ? 'Veuillez entrer une valeur'
+                                                  errorStyle: TextStyle(
+                                                      fontSize: defaultTextStyle
+                                                              .fontSize! -
+                                                          4,
+                                                      height: 0.3),
+                                                  errorText: submited
+                                                      ? pdaValueCheck
                                                       : null),
                                             )))
                                   ],
@@ -561,24 +537,32 @@ class _RoadMapListState extends State<RoadMapList>
                                           onPressed: () {
                                             setState(() {
                                               submited = true;
-                                              codeExisting = true;
                                             });
-                                            isRoadMap(codeController.text).then(
+                                            isRoadMap(libelleController.text,
+                                                    pdaController.text)
+                                                .then(
                                               (value) => setState(() {
-                                                codeExisting = value;
-                                                codeValueCheck = codeExisting
+                                                libelleValueCheck = value[
+                                                        'libelleExist']!
                                                     ? 'Feuille de route existante'
-                                                    : 'Veuillez entrer une valeur';
-                                                if (codeController
-                                                        .text.isNotEmpty &&
-                                                    libelleController
+                                                    : (libelleController
+                                                            .text.isEmpty
+                                                        ? 'Veuillez entrer une valeur'
+                                                        : null);
+                                                pdaValueCheck = value[
+                                                        'orderExist']!
+                                                    ? 'Ordre existant'
+                                                    : (pdaController
+                                                            .text.isEmpty
+                                                        ? 'Veuillez entrer une valeur'
+                                                        : null);
+                                                if (libelleController
                                                         .text.isNotEmpty &&
                                                     pdaController
                                                         .text.isNotEmpty &&
-                                                    !codeExisting) {
+                                                    !(value['libelleExist']! ||
+                                                        value['orderExist']!)) {
                                                   onAddRoadMap(RoadMap(
-                                                      code: int.parse(
-                                                          codeController.text),
                                                       libelle: libelleController
                                                           .text,
                                                       tel: telController.text,
@@ -831,7 +815,7 @@ class _RoadMapListState extends State<RoadMapList>
                                   isEditing = false;
                                 });
                               },
-                              icon: const Icon(Icons.clear, size: 30),
+                              icon: const Icon(Icons.clear, size: 26),
                               tooltip: 'Retour'),
                         )
                       ],

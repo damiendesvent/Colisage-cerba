@@ -1,3 +1,4 @@
+from concurrent.futures import thread
 import os
 import shutil
 import tkinter as tk
@@ -13,7 +14,9 @@ import mysql.connector
 from apscheduler.schedulers.background import BackgroundScheduler
 import glob
 import locale
-
+import threading
+import time
+import random
 locale.setlocale(locale.LC_TIME,'')
 
 # on lit le contenu du fichier variables.txt qui contient les variables
@@ -98,7 +101,7 @@ def import_traca_pda() :
                     box = 'NULL' if len(box) == 0 else '"' + box + '"'
                     comment = 'NULL' if len(comment) == 0 else '"' + comment + '"'
 
-                    query = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `CODE ORIGINE`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) VALUES ("' + user + '", (select `code tournee` from `entetes feuille de route` where `ordre affichage pda` = ' + tour + '), ' + site + ', ' + box + ', NULL, "' + action + '", NULL, "' + time + '", "' + actual_time + '", "' + pda_number + '", NULL, ' + car + ', ' + comment + ')'
+                    query = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `CODE ORIGINE`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) VALUES ("' + user + '", (select `code tournee` from `entetes feuille de route` where `ordre affichage pda` = ' + tour + ' LIMIT 1), ' + site + ', ' + box + ', NULL, "' + action + '", NULL, "' + time + '", "' + actual_time + '", "' + pda_number + '", NULL, ' + car + ', ' + comment + ')'
                     mycursor.execute(query)
                     mydb.commit()
                     
@@ -160,82 +163,123 @@ def start_stop_backup() :
     else :
         messagebox.showerror(title='Serveur web éteint', message='Veuillez allumer le serveur web\npour activer la sauvegarde automatique')
 
-
 def install() :
-    #pb = ttk.Progressbar(root, orient='horizontal', mode='indeterminate', length=200)
-    #canvas1.create_window(450,20,window=pb)
-    #pb.start
     os.makedirs(extract_folder, exist_ok=True)
     if not os.listdir(extract_folder) :
         if os.path.isfile(zip_file) :
-            shutil.unpack_archive(zip_file, extract_folder) # On extrait l'archive du serveur
-            
-            os.chdir(extract_folder)
-            path = os.getcwd()
-            path_w_slash = path.replace('\\','/')
-            # Cette partie modifie le fichier conf du serveur apache pour adapter les chemins d'accès
-            with open(apache_file_path, 'r') as conf_file :
-                conf_file_data = conf_file.read()
-                
-            conf_file_data = conf_file_data.replace(default_path, path_w_slash)   # On remplace les chemins d'accès
-            conf_file_data = conf_file_data.replace(default_antislash_path, path) # par ceux de l'ordinateur
-
-            with open(apache_file_path, 'w') as conf_file :
-                conf_file.write(conf_file_data)
-            
-            # Cette partie modifie le fichier main du site pour adapter l'IP 
-            with open(main_file_path, 'r') as main_file :
-                main_file_data = main_file.read()
-                
-            main_file_data = main_file_data.replace(default_ip, ip)   # On remplace l'IP defaut par l'IP locale de l'ordinateur
-
-            with open(main_file_path, 'w') as main_file :
-                main_file.write(main_file_data)
-
-            # Cette partie modifie le fichier conf du serveur mysql pour adapter les chemins d'accès
-            with open(my_file_path, 'r') as my_file :
-                my_file_data = my_file.read()
-
-            my_file_data = my_file_data.replace(default_path, path_w_slash)
-
-            with open(my_file_path, 'w') as my_file :
-                my_file.write(my_file_data)
-
-            # Cette partie modifie le fichier conf du serveur php pour adapter les chemins d'accès
-            with open(php_file_path, 'r') as php_file :
-                php_file_data = php_file.read()
-
-            php_file_data = php_file_data.replace(default_path, path_w_slash)
-            php_file_data = php_file_data.replace(default_antislash_path, path)
-            
-            with open(php_file_path, 'w') as php_file :
-                php_file.write(php_file_data)
-
-            messagebox.showinfo('Installation réussie','Le serveur est désormais installé')
-    
+            global textProgressBar
+            textProgressBar = canvas1.create_text(325,15, anchor='w', text='Installation en cours')
+            global pb
+            pb = ttk.Progressbar(root, orient='horizontal', mode='determinate', length=250)
+            global progressBar
+            progressBar = canvas1.create_window(450,35,window=pb)
+            t1 = threading.Thread(target=displayPb(1,500))
+            t2 = threading.Thread(target=install_server)
+            t1.start()
+            t2.start()
         else :
             messagebox.showerror('Problème de fichier', 'Le fichier MAMP.zip est introuvable,\nVérifiez qu\'il est bien présent.')
 
     else :
         messagebox.showerror('Serveur déjà installé', 'Le serveur est déjà installé, \ns\'il ne fonctionne pas corectement, appuyez sur Réparer')
+    
+
+def displayPb(start, stop) :
+    while pb['value'] < 95 :
+        pb['value'] += 0.5
+        root.update()
+        time.sleep(random.randrange(start,stop)/1000)
+
+
+def install_server() :
+    shutil.unpack_archive(zip_file, extract_folder) # On extrait l'archive du serveur
+    os.chdir(extract_folder)
+    path = os.getcwd()
+    path_w_slash = path.replace('\\','/')
+    # Cette partie modifie le fichier conf du serveur apache pour adapter les chemins d'accès
+    with open(apache_file_path, 'r') as conf_file :
+        conf_file_data = conf_file.read()
+        
+    conf_file_data = conf_file_data.replace(default_path, path_w_slash)   # On remplace les chemins d'accès
+    conf_file_data = conf_file_data.replace(default_antislash_path, path) # par ceux de l'ordinateur
+
+    with open(apache_file_path, 'w') as conf_file :
+        conf_file.write(conf_file_data)
+    
+    # Cette partie modifie le fichier main du site pour adapter l'IP 
+    with open(main_file_path, 'r') as main_file :
+        main_file_data = main_file.read()
+        
+    main_file_data = main_file_data.replace(default_ip, ip)   # On remplace l'IP defaut par l'IP locale de l'ordinateur
+
+    with open(main_file_path, 'w') as main_file :
+        main_file.write(main_file_data)
+
+    # Cette partie modifie le fichier conf du serveur mysql pour adapter les chemins d'accès
+    with open(my_file_path, 'r') as my_file :
+        my_file_data = my_file.read()
+
+    my_file_data = my_file_data.replace(default_path, path_w_slash)
+
+    with open(my_file_path, 'w') as my_file :
+        my_file.write(my_file_data)
+
+    # Cette partie modifie le fichier conf du serveur php pour adapter les chemins d'accès
+    with open(php_file_path, 'r') as php_file :
+        php_file_data = php_file.read()
+
+    php_file_data = php_file_data.replace(default_path, path_w_slash)
+    php_file_data = php_file_data.replace(default_antislash_path, path)
+    
+    with open(php_file_path, 'w') as php_file :
+        php_file.write(php_file_data)
+
+    canvas1.delete(progressBar)
+    canvas1.delete(textProgressBar)
+
+    messagebox.showinfo('Installation réussie','Le serveur est désormais installé')
 
 
 def repair() :
     safety_msg = messagebox.askyesno('Réparer le serveur', 'Etes-vous sûr de vouloir le réparer ?\nCela le réinitialisera et les données non sauvegardées seront perdues')
     if safety_msg :
+        stop_all()
         if os.path.isdir(extract_folder) :
-            shutil.rmtree(extract_folder)
+            global textProgressBar
+            textProgressBar = canvas1.create_text(325,15, anchor='w', text='Désinstallation en cours')
+            global pb
+            pb = ttk.Progressbar(root, orient='horizontal', mode='determinate', length=250)
+            global progressBar
+            progressBar = canvas1.create_window(450,35,window=pb)
+            t1 = threading.Thread(target=displayPb(1,350))
+            t2 = threading.Thread(target=uninstall_server(showMessage=False))
+            t1.start()
+            t2.start()
         install()
     
-
 def uninstall() :
     safety_msg = messagebox.askyesno('Désinstaller le serveur', 'Etes-vous sûr de vouloir le désinstaller ?')
     if safety_msg :
+        stop_all()
         if os.path.isdir(extract_folder) :
-            shutil.rmtree(extract_folder)
-            messagebox.showinfo('Désinstallation réussie','Le serveur a été désinstallé')
+            global textProgressBar
+            textProgressBar = canvas1.create_text(325,15, anchor='w', text='Désinstallation en cours')
+            global pb
+            pb = ttk.Progressbar(root, orient='horizontal', mode='determinate', length=250)
+            global progressBar
+            progressBar = canvas1.create_window(450,35,window=pb)
+            t1 = threading.Thread(target=displayPb(1,350))
+            t2 = threading.Thread(target=uninstall_server)
+            t1.start()
+            t2.start()
         else :
-            messagebox.showerror('Serveur non présent', 'Le serveur n\était pas présent au chemin d\'accès spécifié')
+            messagebox.showerror('Serveur non présent', 'Le serveur n\'était pas présent au chemin d\'accès spécifié')
+
+def uninstall_server(showMessage = True) :
+    shutil.rmtree(extract_folder, ignore_errors=True)
+    if showMessage : messagebox.showinfo('Désinstallation réussie','Le serveur a été désinstallé')
+    canvas1.delete(textProgressBar)
+    canvas1.delete(progressBar)
 
 
 def quit() :
@@ -248,17 +292,20 @@ def disable_event() :
 
 def start_stop_web_server() :
     global web_server_status
-    web_server_status = not web_server_status
-    if (web_server_status) :
-        launch_server()
-        cleaning_box_scheduler.resume()
+    if os.path.isfile(extract_folder + '/MAMP.exe') or web_server_status :
+        web_server_status = not web_server_status
+        if (web_server_status) :
+            launch_server()
+            cleaning_box_scheduler.resume()
+        else :
+            stop_server()
+            cleaning_box_scheduler.pause()
+            stop_all()
     else :
-        stop_server()
-        cleaning_box_scheduler.pause()
-        stop_all()
+        messagebox.showerror('Impossible de lancer le serveur', 'Serveur introuvable.\nVeuillez réessayer ou appuyer sur Réparer')
 
 def launch_server() :
-    if os.path.isfile(extract_folder + '/MAMP.exe') :
+    
         try : 
             subprocess.call('powershell Start-Process -FilePath ' + extract_folder + '/MAMP.exe -WindowStyle Minimized', creationflags=subprocess.CREATE_NO_WINDOW) 
             canvas1.itemconfigure(led_web_signal, fill='green')
@@ -268,8 +315,7 @@ def launch_server() :
         except ValueError: 
             messagebox.showerror('Impossible de lancer le serveur', 'Impossible de lancer le serveur.\nVeuillez réessayer ou appuyer sur Réparer')
 
-    else :
-        messagebox.showerror('Impossible de lancer le serveur', 'Serveur introuvable.\nVeuillez réessayer ou appuyer sur Réparer')
+    
 
 
 def stop_server() :
@@ -281,7 +327,6 @@ def stop_server() :
 def open_website() :
     if not subprocess.call('powershell get-process mamp -errorAction SilentlyContinue', creationflags=subprocess.CREATE_NO_WINDOW) :
         webbrowser.open('http://' + ip)
-    
     else :
         messagebox.showerror('Serveur non démarré', 'Le serveur n\'est pas démarré,\nappuyez d\'abord sur Démarrer le serveur')
 

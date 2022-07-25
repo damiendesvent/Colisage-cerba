@@ -44,7 +44,7 @@ class _ReceiptBoxState extends State<ReceiptBox> {
       var lastTracaBox = json.decode(res.body);
       setState(() {
         result = lastTracaBox == false
-            ? 'Aucune donnée disponible pour le box'
+            ? 'Aucune donnée disponible pour la boîte'
             : 'Heure de réception : ' +
                 DateFormat("HH'h'mm le dd/MM/yyyy").format(
                     DateTime.parse(lastTracaBox['DATE HEURE ENREGISTREMENT']));

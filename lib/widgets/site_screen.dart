@@ -502,6 +502,8 @@ class _SiteListState extends State<SiteList>
                                           child: SizedBox(
                                               height: 40,
                                               child: TextField(
+                                                textAlignVertical:
+                                                    TextAlignVertical.bottom,
                                                 style: defaultTextStyle,
                                                 controller: libelleController,
                                                 inputFormatters: [
@@ -509,6 +511,12 @@ class _SiteListState extends State<SiteList>
                                                       35)
                                                 ],
                                                 decoration: InputDecoration(
+                                                    errorStyle: TextStyle(
+                                                        fontSize:
+                                                            defaultTextStyle
+                                                                    .fontSize! -
+                                                                4,
+                                                        height: 0.3),
                                                     errorText: libelleController
                                                                 .text.isEmpty &&
                                                             submited
@@ -545,6 +553,8 @@ class _SiteListState extends State<SiteList>
                                           child: SizedBox(
                                               height: 40,
                                               child: TextField(
+                                                textAlignVertical:
+                                                    TextAlignVertical.bottom,
                                                 style: defaultTextStyle,
                                                 controller: adressController,
                                                 inputFormatters: [
@@ -552,6 +562,12 @@ class _SiteListState extends State<SiteList>
                                                       35)
                                                 ],
                                                 decoration: InputDecoration(
+                                                    errorStyle: TextStyle(
+                                                        fontSize:
+                                                            defaultTextStyle
+                                                                    .fontSize! -
+                                                                4,
+                                                        height: 0.3),
                                                     errorText: adressController
                                                                 .text.isEmpty &&
                                                             submited
@@ -597,12 +613,6 @@ class _SiteListState extends State<SiteList>
                                                   FilteringTextInputFormatter
                                                       .digitsOnly
                                                 ],
-                                                decoration: InputDecoration(
-                                                    errorText: cpController
-                                                                .text.isEmpty &&
-                                                            submited
-                                                        ? 'Veuillez entrer une valeur'
-                                                        : null),
                                               )))
                                     ],
                                   ),
@@ -615,6 +625,8 @@ class _SiteListState extends State<SiteList>
                                           child: SizedBox(
                                               height: 40,
                                               child: TextField(
+                                                textAlignVertical:
+                                                    TextAlignVertical.bottom,
                                                 style: defaultTextStyle,
                                                 controller: cityController,
                                                 inputFormatters: [
@@ -622,6 +634,12 @@ class _SiteListState extends State<SiteList>
                                                       35)
                                                 ],
                                                 decoration: InputDecoration(
+                                                    errorStyle: TextStyle(
+                                                        fontSize:
+                                                            defaultTextStyle
+                                                                    .fontSize! -
+                                                                4,
+                                                        height: 0.3),
                                                     errorText: cityController
                                                                 .text.isEmpty &&
                                                             submited
@@ -959,6 +977,8 @@ class _SiteListState extends State<SiteList>
                                           child: SizedBox(
                                               height: 40,
                                               child: TextField(
+                                                textAlignVertical:
+                                                    TextAlignVertical.bottom,
                                                 style: defaultTextStyle,
                                                 textInputAction:
                                                     TextInputAction.next,
@@ -968,6 +988,12 @@ class _SiteListState extends State<SiteList>
                                                       35)
                                                 ],
                                                 decoration: InputDecoration(
+                                                    errorStyle: TextStyle(
+                                                        fontSize:
+                                                            defaultTextStyle
+                                                                    .fontSize! -
+                                                                4,
+                                                        height: 0.3),
                                                     errorText: submited
                                                         ? libelleController
                                                                 .text.isEmpty
@@ -1007,6 +1033,8 @@ class _SiteListState extends State<SiteList>
                                           child: SizedBox(
                                               height: 40,
                                               child: TextField(
+                                                textAlignVertical:
+                                                    TextAlignVertical.bottom,
                                                 style: defaultTextStyle,
                                                 textInputAction:
                                                     TextInputAction.next,
@@ -1016,6 +1044,12 @@ class _SiteListState extends State<SiteList>
                                                       35)
                                                 ],
                                                 decoration: InputDecoration(
+                                                    errorStyle: TextStyle(
+                                                        fontSize:
+                                                            defaultTextStyle
+                                                                    .fontSize! -
+                                                                4,
+                                                        height: 0.3),
                                                     errorText: adressController
                                                                 .text.isEmpty &&
                                                             submited
@@ -1076,6 +1110,8 @@ class _SiteListState extends State<SiteList>
                                           child: SizedBox(
                                               height: 40,
                                               child: TextField(
+                                                textAlignVertical:
+                                                    TextAlignVertical.bottom,
                                                 style: defaultTextStyle,
                                                 controller: cityController,
                                                 inputFormatters: [
@@ -1083,6 +1119,12 @@ class _SiteListState extends State<SiteList>
                                                       35)
                                                 ],
                                                 decoration: InputDecoration(
+                                                    errorStyle: TextStyle(
+                                                        fontSize:
+                                                            defaultTextStyle
+                                                                    .fontSize! -
+                                                                4,
+                                                        height: 0.3),
                                                     errorText: cityController
                                                                 .text.isEmpty &&
                                                             submited

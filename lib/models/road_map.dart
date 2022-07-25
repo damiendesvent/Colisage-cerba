@@ -6,14 +6,14 @@ class RoadMap {
   final int sortingNumer;
 
   RoadMap({
-    required this.code,
+    this.code = 0,
     required this.libelle,
     required this.tel,
     required this.comment,
     required this.sortingNumer,
   });
 
-  factory RoadMap.fromSnapshot(Map<dynamic, dynamic>roadMap) {
+  factory RoadMap.fromSnapshot(Map<dynamic, dynamic> roadMap) {
     return RoadMap(
         code: int.parse(roadMap['CODE TOURNEE']),
         libelle: roadMap['LIBELLE TOURNEE'],

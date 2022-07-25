@@ -10,7 +10,7 @@ $comment = $_POST['comment'];
 
 $sqlQuery = 'UPDATE `details feuille de route` SET 
             `CODE SITE` = (SELECT `CODE SITE` FROM `sites` WHERE `libelle site` LIKE "'.$libelleSite.
-            '"), `HEURE ARRIVEE` = "'.$time.
+            '" LIMIT 1), `HEURE ARRIVEE` = "'.$time.
             '", `COMMENTAIRE` = "'.$comment.
             '", `PASSAGE SUR APPEL` = "'.$onCall.
             '" WHERE `CODE TOURNEE + AVANCEMENT` LIKE "'.$searchCode.'"';          

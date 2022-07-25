@@ -62,6 +62,8 @@ class _TubeListState extends State<TubeList> {
   final ScrollController _secondScrollController = ScrollController();
   String? boxErrorText;
   var ip = '';
+  String tempText = '';
+  int confirm = 0;
 
   void getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
@@ -279,8 +281,6 @@ class _TubeListState extends State<TubeList> {
     super.initState();
   }
 
-  int confirm = 0;
-
   String? tubeErrorText() {
     if (tubeController.text.isEmpty) {
       setState(() {});
@@ -295,7 +295,7 @@ class _TubeListState extends State<TubeList> {
         });
         return null;
       }
-      return 'Le tube a déjà été scanné, validez à nouveau pour confirmer';
+      return 'Le tube a déjà été scanné, bippez à nouveau pour confirmer';
     } else if (alreadyOnBoxTubes.contains(tubeController.text) &&
         action[0] == '1') {
       setState(() {
@@ -428,20 +428,9 @@ class _TubeListState extends State<TubeList> {
             }
             break;
           case '5':
-            setState(() {
-              confirm += 1;
-            });
-            if (confirm > 1) {
-              setState(() {
-                confirm = 0;
-                boxErrorText = null;
-              });
-              getListTube(boxController.text,
-                  removeTubes: true, resetStates: true);
-            }
-            setState(() {
-              boxErrorText = 'Valider à nouveau pour vider tous les tubes';
-            });
+            boxErrorText = null;
+            getListTube(boxController.text,
+                removeTubes: true, resetStates: true);
             break;
           case '6':
             getListTube(boxController.text, removeTubes: true);
@@ -520,6 +509,11 @@ class _TubeListState extends State<TubeList> {
                                                       fontSize: 15)),
                                               searchInputDecoration:
                                                   InputDecoration(
+                                                errorStyle: TextStyle(
+                                                    fontSize: defaultTextStyle
+                                                            .fontSize! -
+                                                        4,
+                                                    height: 0.3),
                                                 errorText: (siteController
                                                             .text.isEmpty &&
                                                         submited
@@ -592,6 +586,11 @@ class _TubeListState extends State<TubeList> {
                                                       fontSize: 15)),
                                               searchInputDecoration:
                                                   InputDecoration(
+                                                errorStyle: TextStyle(
+                                                    fontSize: defaultTextStyle
+                                                            .fontSize! -
+                                                        4,
+                                                    height: 0.3),
                                                 errorText: (userController
                                                             .text.isEmpty &&
                                                         submited
@@ -718,12 +717,22 @@ class _TubeListState extends State<TubeList> {
                                               child: SizedBox(
                                                   height: 50,
                                                   child: TextField(
+                                                    textAlignVertical:
+                                                        TextAlignVertical
+                                                            .bottom,
                                                     textInputAction:
                                                         TextInputAction.none,
                                                     style: defaultTextStyle,
                                                     autofocus: true,
                                                     controller: boxController,
                                                     decoration: InputDecoration(
+                                                        errorStyle: TextStyle(
+                                                            fontSize:
+                                                                defaultTextStyle
+                                                                        .fontSize! -
+                                                                    4,
+                                                            height: 0.3),
+                                                        errorMaxLines: 2,
                                                         errorText: submited
                                                             ? boxErrorText
                                                             : null),
@@ -736,6 +745,7 @@ class _TubeListState extends State<TubeList> {
                                                         submited = true;
                                                       });
                                                       checkBoxErrorText();
+                                                      onAddBag();
                                                     },
                                                   ))),
                                           IconButton(
@@ -745,6 +755,7 @@ class _TubeListState extends State<TubeList> {
                                                   submited = true;
                                                 });
                                                 checkBoxErrorText();
+                                                onAddBag();
                                               },
                                               icon: const Icon(Icons
                                                   .subdirectory_arrow_left))
@@ -770,16 +781,30 @@ class _TubeListState extends State<TubeList> {
                                 width: 220,
                                 height: 50,
                                 child: TextField(
+                                  textAlignVertical: TextAlignVertical.bottom,
                                   style: defaultTextStyle,
                                   textInputAction: TextInputAction.none,
                                   autofocus: true,
                                   controller: tubeController,
                                   decoration: InputDecoration(
+                                      errorStyle: TextStyle(
+                                          fontSize:
+                                              defaultTextStyle.fontSize! - 4,
+                                          height: 0.8),
+                                      errorMaxLines: 2,
                                       errorText:
                                           submited ? tubeErrorText() : null),
                                   onSubmitted: (_) {
                                     setState(() {
                                       submited = true;
+                                      if (tempText ==
+                                          tubeController.text.substring(
+                                              0,
+                                              tubeController.text.length ~/
+                                                  2)) {
+                                        tubeController.text = tempText;
+                                      }
+                                      tempText = tubeController.text;
                                     });
                                     if (tubeErrorText() == null) {
                                       action[0] == '1'
@@ -1102,13 +1127,14 @@ class _TubeListState extends State<TubeList> {
                                     )),
                                 if (alreadyOnBoxTubes.isNotEmpty &&
                                     !showBoxesDialog)
-                                  const Padding(
-                                    padding: EdgeInsets.fromLTRB(10, 0, 500, 5),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 20, 410, 5),
                                     child: Text(
                                       'Contenu :',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 18),
+                                          fontSize: defaultTextStyle.fontSize),
                                     ),
                                   ),
                                 if (alreadyOnBoxTubes.isNotEmpty &&
@@ -1152,14 +1178,14 @@ class _TubeListState extends State<TubeList> {
                                               ]),
                                       ]),
                                 if (tubes.isNotEmpty)
-                                  const Padding(
-                                    padding:
-                                        EdgeInsets.fromLTRB(10, 20, 410, 5),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        10, 20, 410, 5),
                                     child: Text(
                                       'Actions :',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 14),
+                                          fontSize: defaultTextStyle.fontSize),
                                     ),
                                   ),
                                 Table(

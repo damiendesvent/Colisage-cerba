@@ -236,12 +236,16 @@ class _BoxesPrintState extends State<BoxesPrint>
                       if (type == editedBoxType && !deleteBoxes)
                         TableCell(
                             child: TextFormField(
+                                textAlignVertical: TextAlignVertical.bottom,
                                 initialValue: type,
                                 controller: libelleController,
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(25),
                                 ],
                                 decoration: InputDecoration(
+                                  errorStyle: TextStyle(
+                                      fontSize: defaultTextStyle.fontSize! - 4,
+                                      height: 0.3),
                                   errorText: submited
                                       ? 'Veuillez entrer une valeur'
                                       : null,
@@ -314,6 +318,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                       if (type == editedBoxType && deleteBoxes)
                         TableCell(
                             child: TextFormField(
+                                textAlignVertical: TextAlignVertical.bottom,
                                 initialValue: maxDatatable[type].toString(),
                                 controller: maxValueController,
                                 inputFormatters: [
@@ -321,6 +326,9 @@ class _BoxesPrintState extends State<BoxesPrint>
                                   FilteringTextInputFormatter.digitsOnly,
                                 ],
                                 decoration: InputDecoration(
+                                  errorStyle: TextStyle(
+                                      fontSize: defaultTextStyle.fontSize! - 4,
+                                      height: 0.3),
                                   errorText: submited
                                       ? 'Veuillez entrer une valeur comprise entre 1 et ' +
                                           maxDatatable[type].toString()
@@ -603,6 +611,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                             child: SizedBox(
                                 height: 60,
                                 child: TextField(
+                                  textAlignVertical: TextAlignVertical.bottom,
                                   style: defaultTextStyle,
                                   controller: minBoxController,
                                   inputFormatters: [
@@ -610,6 +619,10 @@ class _BoxesPrintState extends State<BoxesPrint>
                                     LengthLimitingTextInputFormatter(4),
                                   ],
                                   decoration: InputDecoration(
+                                      errorStyle: TextStyle(
+                                          fontSize:
+                                              defaultTextStyle.fontSize! - 4,
+                                          height: 0.3),
                                       errorText: submited &&
                                               (minBoxController.text.isEmpty ||
                                                   int.parse(minBoxController
@@ -629,6 +642,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                             child: SizedBox(
                                 height: 60,
                                 child: TextField(
+                                  textAlignVertical: TextAlignVertical.bottom,
                                   style: defaultTextStyle,
                                   controller: maxBoxController,
                                   inputFormatters: [
@@ -636,6 +650,10 @@ class _BoxesPrintState extends State<BoxesPrint>
                                     LengthLimitingTextInputFormatter(4),
                                   ],
                                   decoration: InputDecoration(
+                                      errorStyle: TextStyle(
+                                          fontSize:
+                                              defaultTextStyle.fontSize! - 4,
+                                          height: 0.3),
                                       errorText: submited
                                           ? 'Valeur non valide'
                                           : null),
@@ -760,6 +778,8 @@ class _BoxesPrintState extends State<BoxesPrint>
                                   child: SizedBox(
                                       height: 60,
                                       child: TextField(
+                                          textAlignVertical:
+                                              TextAlignVertical.bottom,
                                           style: defaultTextStyle,
                                           controller: codeController,
                                           inputFormatters: [
@@ -767,6 +787,11 @@ class _BoxesPrintState extends State<BoxesPrint>
                                             UpperCaseTextFormatter()
                                           ],
                                           decoration: InputDecoration(
+                                            errorStyle: TextStyle(
+                                                fontSize:
+                                                    defaultTextStyle.fontSize! -
+                                                        4,
+                                                height: 0.3),
                                             errorText:
                                                 (codeController.text.isEmpty ||
                                                             codeExisting) &&
@@ -784,6 +809,8 @@ class _BoxesPrintState extends State<BoxesPrint>
                                   child: SizedBox(
                                       height: 60,
                                       child: TextField(
+                                          textAlignVertical:
+                                              TextAlignVertical.bottom,
                                           style: defaultTextStyle,
                                           controller: libelleController,
                                           inputFormatters: [
@@ -791,6 +818,11 @@ class _BoxesPrintState extends State<BoxesPrint>
                                                 25),
                                           ],
                                           decoration: InputDecoration(
+                                            errorStyle: TextStyle(
+                                                fontSize:
+                                                    defaultTextStyle.fontSize! -
+                                                        4,
+                                                height: 0.3),
                                             errorText: libelleController
                                                         .text.isEmpty &&
                                                     submited
@@ -1056,6 +1088,9 @@ class _BoxesPrintState extends State<BoxesPrint>
                                                         height: 60,
                                                         width: 130,
                                                         child: TextFormField(
+                                                          textAlignVertical:
+                                                              TextAlignVertical
+                                                                  .bottom,
                                                           style:
                                                               defaultTextStyle,
                                                           readOnly: boxType2 ==
@@ -1070,6 +1105,12 @@ class _BoxesPrintState extends State<BoxesPrint>
                                                                 4)
                                                           ],
                                                           decoration: InputDecoration(
+                                                              errorStyle: TextStyle(
+                                                                  fontSize:
+                                                                      defaultTextStyle
+                                                                              .fontSize! -
+                                                                          4,
+                                                                  height: 0.3),
                                                               hintText:
                                                                   'N° début',
                                                               errorText: submited &&
@@ -1090,6 +1131,9 @@ class _BoxesPrintState extends State<BoxesPrint>
                                                         height: 60,
                                                         width: 130,
                                                         child: TextFormField(
+                                                          textAlignVertical:
+                                                              TextAlignVertical
+                                                                  .bottom,
                                                           style:
                                                               defaultTextStyle,
                                                           readOnly: boxType2 ==
@@ -1104,6 +1148,12 @@ class _BoxesPrintState extends State<BoxesPrint>
                                                                 4),
                                                           ],
                                                           decoration: InputDecoration(
+                                                              errorStyle: TextStyle(
+                                                                  fontSize:
+                                                                      defaultTextStyle
+                                                                              .fontSize! -
+                                                                          4,
+                                                                  height: 0.3),
                                                               hintText:
                                                                   'N° fin',
                                                               errorText: submited

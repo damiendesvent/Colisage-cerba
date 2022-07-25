@@ -124,9 +124,14 @@ class _SqlAppState extends State<SqlApp> {
                           SizedBox(
                               width: 1000,
                               child: TextField(
+                                textAlignVertical: TextAlignVertical.bottom,
                                 style: defaultTextStyle,
                                 controller: queryController,
                                 decoration: InputDecoration(
+                                    errorStyle: TextStyle(
+                                        fontSize:
+                                            defaultTextStyle.fontSize! - 4,
+                                        height: 0.3),
                                     hintText: 'SELECT * from sites',
                                     errorText: ((queryController.text.isEmpty ||
                                                 !validQuery) &&

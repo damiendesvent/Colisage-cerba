@@ -369,6 +369,8 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                         child: SizedBox(
                                             height: 50,
                                             child: TextField(
+                                                textAlignVertical:
+                                                    TextAlignVertical.bottom,
                                                 style: defaultTextStyle,
                                                 controller: codeController,
                                                 inputFormatters: [
@@ -378,6 +380,11 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                                       .digitsOnly,
                                                 ],
                                                 decoration: InputDecoration(
+                                                  errorStyle: TextStyle(
+                                                      fontSize: defaultTextStyle
+                                                              .fontSize! -
+                                                          4,
+                                                      height: 0.3),
                                                   errorText: ((codeController
                                                                   .text
                                                                   .isEmpty ||
@@ -407,6 +414,11 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                                       fontSize: 15)),
                                               searchInputDecoration:
                                                   InputDecoration(
+                                                errorStyle: TextStyle(
+                                                    fontSize: defaultTextStyle
+                                                            .fontSize! -
+                                                        4,
+                                                    height: 0.3),
                                                 errorText: (siteController
                                                             .text.isEmpty &&
                                                         submited
@@ -434,6 +446,8 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                         child: SizedBox(
                                             height: 50,
                                             child: TextField(
+                                                textAlignVertical:
+                                                    TextAlignVertical.bottom,
                                                 style: defaultTextStyle,
                                                 textAlign: TextAlign.center,
                                                 controller: timeController,
@@ -444,6 +458,11 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                                       .allow(RegExp('[0-9h]'))
                                                 ],
                                                 decoration: InputDecoration(
+                                                  errorStyle: TextStyle(
+                                                      fontSize: defaultTextStyle
+                                                              .fontSize! -
+                                                          4,
+                                                      height: 0.3),
                                                   hintText: 'au format 00h00',
                                                   errorText: (timeController
                                                                   .text.length <
@@ -942,7 +961,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
             style: defaultTextStyle)),
         DataCell(SelectableText(roadMapDetail['HEURE ARRIVEE'],
             style: defaultTextStyle)),
-        DataCell(SelectableText(roadMapDetail['COMMENTAIRE'],
+        DataCell(SelectableText(roadMapDetail['COMMENTAIRE'] ?? '',
             style: defaultTextStyle)),
         DataCell(SelectableText(
             roadMapDetail['PASSAGE SUR APPEL'] == '1' ? 'Oui' : 'Non',

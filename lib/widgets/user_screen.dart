@@ -426,6 +426,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                         height: 40,
                                         child: TextField(
                                             style: defaultTextStyle,
+                                            textAlignVertical:
+                                                TextAlignVertical.bottom,
                                             textInputAction:
                                                 TextInputAction.next,
                                             controller: codeController,
@@ -435,6 +437,11 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                               UpperCaseTextFormatter(),
                                             ],
                                             decoration: InputDecoration(
+                                              errorStyle: TextStyle(
+                                                  fontSize: defaultTextStyle
+                                                          .fontSize! -
+                                                      4,
+                                                  height: 0.3),
                                               errorText: (codeController
                                                               .text.isEmpty ||
                                                           codeExisting) &&
@@ -453,6 +460,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                         height: 40,
                                         child: TextField(
                                             style: defaultTextStyle,
+                                            textAlignVertical:
+                                                TextAlignVertical.bottom,
                                             textInputAction:
                                                 TextInputAction.next,
                                             controller: firstnameController,
@@ -461,6 +470,11 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                   20),
                                             ],
                                             decoration: InputDecoration(
+                                              errorStyle: TextStyle(
+                                                  fontSize: defaultTextStyle
+                                                          .fontSize! -
+                                                      4,
+                                                  height: 0.3),
                                               errorText: firstnameController
                                                           .text.isEmpty &&
                                                       submited
@@ -478,6 +492,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                         height: 40,
                                         child: TextField(
                                             style: defaultTextStyle,
+                                            textAlignVertical:
+                                                TextAlignVertical.bottom,
                                             textInputAction:
                                                 TextInputAction.next,
                                             controller: lastnameController,
@@ -486,6 +502,11 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                   20),
                                             ],
                                             decoration: InputDecoration(
+                                              errorStyle: TextStyle(
+                                                  fontSize: defaultTextStyle
+                                                          .fontSize! -
+                                                      4,
+                                                  height: 0.3),
                                               errorText: lastnameController
                                                           .text.isEmpty &&
                                                       submited
@@ -502,6 +523,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                         height: 40,
                                         child: TextField(
                                             style: defaultTextStyle,
+                                            textAlignVertical:
+                                                TextAlignVertical.bottom,
                                             textInputAction:
                                                 TextInputAction.next,
                                             controller: functionController,
@@ -510,6 +533,11 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                   35),
                                             ],
                                             decoration: InputDecoration(
+                                              errorStyle: TextStyle(
+                                                  fontSize: defaultTextStyle
+                                                          .fontSize! -
+                                                      4,
+                                                  height: 0.3),
                                               errorText: functionController
                                                           .text.isEmpty &&
                                                       submited
@@ -526,6 +554,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                         height: 40,
                                         child: TextField(
                                             style: defaultTextStyle,
+                                            textAlignVertical:
+                                                TextAlignVertical.bottom,
                                             obscureText: true,
                                             controller: passwordController,
                                             inputFormatters: [
@@ -533,6 +563,11 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                   24),
                                             ],
                                             decoration: InputDecoration(
+                                              errorStyle: TextStyle(
+                                                  fontSize: defaultTextStyle
+                                                          .fontSize! -
+                                                      4,
+                                                  height: 0.3),
                                               errorText: passwordController
                                                               .text.length <
                                                           4 &&
@@ -853,6 +888,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                         height: 45,
                                         child: TextField(
                                             style: defaultTextStyle,
+                                            textAlignVertical:
+                                                TextAlignVertical.bottom,
                                             textInputAction:
                                                 TextInputAction.next,
                                             controller: firstnameController,
@@ -861,6 +898,11 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                   20),
                                             ],
                                             decoration: InputDecoration(
+                                              errorStyle: TextStyle(
+                                                  fontSize: defaultTextStyle
+                                                          .fontSize! -
+                                                      4,
+                                                  height: 0.3),
                                               errorText: firstnameController
                                                           .text.isEmpty &&
                                                       submited
@@ -878,6 +920,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                         height: 45,
                                         child: TextField(
                                             style: defaultTextStyle,
+                                            textAlignVertical:
+                                                TextAlignVertical.bottom,
                                             textInputAction:
                                                 TextInputAction.next,
                                             controller: lastnameController,
@@ -886,6 +930,11 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                   20),
                                             ],
                                             decoration: InputDecoration(
+                                              errorStyle: TextStyle(
+                                                  fontSize: defaultTextStyle
+                                                          .fontSize! -
+                                                      4,
+                                                  height: 0.3),
                                               errorText: lastnameController
                                                           .text.isEmpty &&
                                                       submited
@@ -902,6 +951,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                         height: 45,
                                         child: TextField(
                                             style: defaultTextStyle,
+                                            textAlignVertical:
+                                                TextAlignVertical.bottom,
                                             textInputAction:
                                                 TextInputAction.next,
                                             controller: functionController,
@@ -910,6 +961,11 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                   35),
                                             ],
                                             decoration: InputDecoration(
+                                              errorStyle: TextStyle(
+                                                  fontSize: defaultTextStyle
+                                                          .fontSize! -
+                                                      4,
+                                                  height: 0.3),
                                               errorText: functionController
                                                           .text.isEmpty &&
                                                       submited
@@ -1361,9 +1417,16 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                         width: 50,
                                         child: TextField(
                                           style: defaultTextStyle,
+                                          textAlignVertical:
+                                              TextAlignVertical.bottom,
                                           obscureText: true,
                                           controller: passwordController,
                                           decoration: InputDecoration(
+                                              errorStyle: TextStyle(
+                                                  fontSize: defaultTextStyle
+                                                          .fontSize! -
+                                                      4,
+                                                  height: 0.3),
                                               hintText: 'Nouveau mot de passe',
                                               errorText: submited &&
                                                       passwordController
@@ -1382,9 +1445,16 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                         width: 50,
                                         child: TextField(
                                           style: defaultTextStyle,
+                                          textAlignVertical:
+                                              TextAlignVertical.bottom,
                                           obscureText: true,
                                           controller: repeatPasswordController,
                                           decoration: InputDecoration(
+                                              errorStyle: TextStyle(
+                                                  fontSize: defaultTextStyle
+                                                          .fontSize! -
+                                                      4,
+                                                  height: 0.3),
                                               hintText:
                                                   'Répêter le nouveau mot de passe',
                                               errorText: submited &&
