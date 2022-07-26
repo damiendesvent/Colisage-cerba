@@ -97,7 +97,6 @@ class _SettingState extends State<Setting> {
         body: {'code': code, 'prefix': prefix, 'site': site});
     Future.delayed(Duration(milliseconds: globals.milisecondWait), () {
       getIpTable();
-      Navigator.of(context).pop();
     });
   }
 
@@ -123,10 +122,6 @@ class _SettingState extends State<Setting> {
                       http.post(Uri.parse(phpUriDeleteIp),
                           body: {'code': code});
                       Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
-                          Text('L\'association liée au préfixe ' +
-                              prefix +
-                              ' a bien été supprimée.')));
                       Future.delayed(
                           Duration(milliseconds: globals.milisecondWait),
                           () => getIpTable());
@@ -139,7 +134,6 @@ class _SettingState extends State<Setting> {
   void onAddIp(String prefix, String site) {
     String phpUriAddIp = Env.urlPrefix + 'IPs/add_IP.php';
     http.post(Uri.parse(phpUriAddIp), body: {'prefix': prefix, 'site': site});
-    Navigator.of(context).pop();
     Future.delayed(
         Duration(milliseconds: globals.milisecondWait), () => getIpTable());
   }
@@ -198,6 +192,9 @@ class _SettingState extends State<Setting> {
                                       child: IconButton(
                                           onPressed: () {
                                             setState(() {
+                                              prefixIp = null;
+                                              site = null;
+                                              editedIP = null;
                                               ipList.add({
                                                 'CODE': '0',
                                                 'PREFIXE IP': '',
@@ -230,7 +227,7 @@ class _SettingState extends State<Setting> {
                                 TableCell(
                                     child: editedIP == ip['CODE']
                                         ? SearchField(
-                                            //searchStyle: textStyle,
+                                            searchStyle: defaultTextStyle,
                                             textInputAction:
                                                 TextInputAction.none,
                                             initialValue: site == null
@@ -294,6 +291,12 @@ class _SettingState extends State<Setting> {
                                                   site = null;
                                                   editedIP = null;
                                                 });
+                                                Future.delayed(
+                                                    Duration(
+                                                        milliseconds: globals
+                                                                .milisecondWait *
+                                                            10),
+                                                    () => setState(() {}));
                                               },
                                             ),
                                           ])

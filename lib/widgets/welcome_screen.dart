@@ -77,6 +77,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
+    super.initState();
     _tabController = TabController(
         length: globals.mainWidgetTabs.length,
         vsync: this,
@@ -88,7 +89,6 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
     });
     getConstants();
     getIPandSite();
-    super.initState();
     initializeTimer();
   }
 

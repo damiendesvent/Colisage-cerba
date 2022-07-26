@@ -66,9 +66,9 @@ class _RoadMapListState extends State<RoadMapList>
 
   @override
   void initState() {
+    super.initState();
     getRoadMapList();
 
-    super.initState();
   }
 
   Future searchRoadMap() async {

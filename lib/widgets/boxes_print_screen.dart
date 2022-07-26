@@ -908,9 +908,8 @@ class _BoxesPrintState extends State<BoxesPrint>
 
   @override
   void initState() {
-    getBoxTypeList();
-
     super.initState();
+    getBoxTypeList();
   }
 
   @override

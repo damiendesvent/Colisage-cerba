@@ -1004,9 +1004,9 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
 
   @override
   void initState() {
+    super.initState();
     getDetailsRoadMapList();
     getSiteList();
-    super.initState();
   }
 
   bool isAdvancedResearch = false;

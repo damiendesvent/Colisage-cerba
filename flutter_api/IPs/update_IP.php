@@ -6,7 +6,7 @@ $code = $_POST['code'];
 $prefix = $_POST['prefix'];
 $site = $_POST['site'];
 
-$sqlQuery = 'UPDATE `CORRESPONDANCE IP` SET `PREFIXE IP` = "'.$prefix.'", `SITE` = (SELECT `CODE SITE` from SITES WHERE `LIBELLE SITE` = "'.$site.'") WHERE `CODE` = '.$code;
+$sqlQuery = 'UPDATE `CORRESPONDANCE IP` SET `PREFIXE IP` = "'.$prefix.'", `SITE` = (SELECT `CODE SITE` from SITES WHERE `LIBELLE SITE` = "'.$site.'" LIMIT 1) WHERE `CODE` = '.$code;
 
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();

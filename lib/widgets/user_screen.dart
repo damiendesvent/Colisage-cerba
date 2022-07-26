@@ -1707,8 +1707,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
 
   @override
   void initState() {
-    getUserList();
     super.initState();
+    getUserList();
   }
 
   @override

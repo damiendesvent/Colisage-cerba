@@ -31,12 +31,13 @@ class _TubeListState extends State<TubeList> {
   TextEditingController userController = TextEditingController();
   TextEditingController boxController = TextEditingController();
   TextEditingController tubeController = TextEditingController();
-  TextEditingController tourneeController = TextEditingController();
+  TextEditingController roadMapController = TextEditingController();
   TextEditingController carController = TextEditingController();
   TextEditingController commentController = TextEditingController();
   bool submited = false;
   List sites = [];
   List users = [];
+  List roadMaps = [];
   static const List<String> actionsList = [
     '1 : Ajouter un tube dans un sachet/boîte',
     '2 : Enlever un tube d\'un sachet/boîte',
@@ -47,10 +48,11 @@ class _TubeListState extends State<TubeList> {
   ];
   String action = actionsList.first;
   final formKey = GlobalKey<FormState>();
+  final roadMapKey = GlobalKey<FormState>();
   bool showBoxDialog = false;
   bool showBoxesDialog = false;
   bool showTubeDialog = false;
-  bool showTourneeDialog = false;
+  bool showRoadMapDialog = false;
   bool showCarDialog = false;
   bool showCommentDialog = false;
   bool showValidation = false;
@@ -64,6 +66,10 @@ class _TubeListState extends State<TubeList> {
   var ip = '';
   String tempText = '';
   int confirm = 0;
+  bool canChooseSite =
+      globals.user.siteRights > 1 || globals.currentSite.isEmpty;
+  bool canChooseUser = globals.user.userRights > 1;
+  late FocusNode roadMapFocusNode;
 
   void getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
@@ -73,6 +79,18 @@ class _TubeListState extends State<TubeList> {
       List items = json.decode(res.body);
       setState(() {
         sites = items.map((item) => item['LIBELLE SITE']).toList();
+      });
+    }
+  }
+
+  void getRoadMapList() async {
+    String phpUriRoadMapList = Env.urlPrefix + 'Road_maps/list_road_map.php';
+    http.Response res = await http.post(Uri.parse(phpUriRoadMapList),
+        body: {"limit": '100000', "delete": 'false'});
+    if (res.body.isNotEmpty) {
+      List items = json.decode(res.body);
+      setState(() {
+        roadMaps = items.map((item) => item['LIBELLE TOURNEE']).toList();
       });
     }
   }
@@ -140,8 +158,11 @@ class _TubeListState extends State<TubeList> {
           .substring(0, userController.text.indexOf(':') - 1),
       'site': siteController.text,
       'box': boxController.text,
+      'tournee': roadMapController.text,
       'tube': tube,
       'action': action,
+      'car': carController.text,
+      'comment': commentController.text,
       'registering': DateTime.now()
           .toString()
           .substring(0, DateTime.now().toString().length - 4),
@@ -166,14 +187,14 @@ class _TubeListState extends State<TubeList> {
       showBoxDialog = false;
       showBoxesDialog = false;
       showTubeDialog = false;
-      showTourneeDialog = false;
+      showRoadMapDialog = false;
       showCarDialog = false;
       showCommentDialog = false;
       showValidation = false;
       tubes = [];
       boxController.clear();
       tubeController.clear();
-      tourneeController.clear();
+      roadMapController.clear();
       carController.clear();
       commentController.clear();
     });
@@ -276,9 +297,10 @@ class _TubeListState extends State<TubeList> {
 
   @override
   void initState() {
-    getSiteList();
-    getUserList();
     super.initState();
+    if (canChooseSite) getSiteList();
+    if (canChooseUser) getUserList();
+    roadMapFocusNode = FocusNode();
   }
 
   String? tubeErrorText() {
@@ -381,7 +403,7 @@ class _TubeListState extends State<TubeList> {
                   setState(() {
                     boxErrorText = null;
                     submited = false;
-                    showTourneeDialog = true;
+                    showRoadMapDialog = true;
                   });
                 } else {
                   setState(() {
@@ -398,7 +420,7 @@ class _TubeListState extends State<TubeList> {
                 setState(() {
                   boxErrorText = null;
                   submited = false;
-                  showTourneeDialog = true;
+                  showRoadMapDialog = true;
                 });
                 break;
             }
@@ -422,7 +444,7 @@ class _TubeListState extends State<TubeList> {
                   }
                 });
                 setState(() {
-                  showTourneeDialog = true;
+                  showRoadMapDialog = true;
                 });
                 break;
             }
@@ -474,24 +496,27 @@ class _TubeListState extends State<TubeList> {
                                   height: 50,
                                   child: showBoxDialog
                                       ? Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              0, 14, 0, 0),
+                                          padding:
+                                              const EdgeInsets.only(top: 15),
                                           child: Text(
                                             siteController.text,
                                             style: defaultTextStyle,
                                           ))
-                                      : globals.user.settingsRights
+                                      : canChooseSite
                                           ? SearchField(
+                                              itemHeight: 30,
                                               searchStyle: defaultTextStyle,
                                               onSubmit: (_) {
                                                 formKey.currentState!
                                                     .validate();
                                               },
                                               textInputAction:
-                                                  TextInputAction.none,
-                                              initialValue:
-                                                  SearchFieldListItem<String>(
-                                                      sites[4]),
+                                                  TextInputAction.next,
+                                              initialValue: SearchFieldListItem<
+                                                      String>(
+                                                  globals.currentSite.isEmpty
+                                                      ? sites[0]
+                                                      : globals.currentSite),
                                               controller: siteController,
                                               validator: (x) {
                                                 if (!sites.contains(x) ||
@@ -506,7 +531,9 @@ class _TubeListState extends State<TubeList> {
                                                   style: TextStyle(
                                                       color:
                                                           Colors.red.shade900,
-                                                      fontSize: 15)),
+                                                      fontSize: defaultTextStyle
+                                                              .fontSize! -
+                                                          3)),
                                               searchInputDecoration:
                                                   InputDecoration(
                                                 errorStyle: TextStyle(
@@ -531,9 +558,8 @@ class _TubeListState extends State<TubeList> {
                                                   .toList(),
                                             )
                                           : Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      0, 14, 0, 0),
+                                              padding: const EdgeInsets.only(
+                                                  top: 15),
                                               child: Text(
                                                 siteController.text =
                                                     globals.currentSite,
@@ -553,15 +579,19 @@ class _TubeListState extends State<TubeList> {
                                   height: 50,
                                   child: showBoxDialog
                                       ? Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              0, 14, 0, 0),
+                                          padding:
+                                              const EdgeInsets.only(top: 15),
                                           child: Text(
                                             userController.text,
                                             style: defaultTextStyle,
                                           ))
-                                      : globals.user.settingsRights
+                                      : canChooseUser
                                           ? SearchField(
+                                              itemHeight: 30,
                                               searchStyle: defaultTextStyle,
+                                              onSubmit: (_) => formKey
+                                                  .currentState!
+                                                  .validate(),
                                               initialValue: SearchFieldListItem<
                                                       String>(
                                                   globals.user.code +
@@ -583,7 +613,9 @@ class _TubeListState extends State<TubeList> {
                                                   style: TextStyle(
                                                       color:
                                                           Colors.red.shade900,
-                                                      fontSize: 15)),
+                                                      fontSize: defaultTextStyle
+                                                              .fontSize! -
+                                                          3)),
                                               searchInputDecoration:
                                                   InputDecoration(
                                                 errorStyle: TextStyle(
@@ -608,9 +640,8 @@ class _TubeListState extends State<TubeList> {
                                                   .toList(),
                                             )
                                           : Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      0, 14, 0, 0),
+                                              padding: const EdgeInsets.only(
+                                                  top: 15),
                                               child: Text(
                                                 userController.text =
                                                     globals.user.code +
@@ -634,8 +665,8 @@ class _TubeListState extends State<TubeList> {
                                   height: 50,
                                   child: showBoxDialog
                                       ? Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              0, 25, 0, 0),
+                                          padding:
+                                              const EdgeInsets.only(top: 16),
                                           child: Text(
                                             action,
                                             style: defaultTextStyle,
@@ -677,6 +708,9 @@ class _TubeListState extends State<TubeList> {
                               userController.text.isNotEmpty &&
                               formKey.currentState!.validate()) {
                             setState(() {
+                              if ('34'.contains(action[0])) {
+                                getRoadMapList();
+                              }
                               submited = false;
                               showBoxDialog = true;
                               showTubeDialog = false;
@@ -703,10 +737,10 @@ class _TubeListState extends State<TubeList> {
                           TableCell(
                               child: SizedBox(
                                   height: 50,
-                                  child: showTubeDialog || showTourneeDialog
+                                  child: showTubeDialog || showRoadMapDialog
                                       ? Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              0, 14, 0, 0),
+                                          padding:
+                                              const EdgeInsets.only(top: 21),
                                           child: Text(
                                             boxController.text,
                                             style: defaultTextStyle,
@@ -746,6 +780,15 @@ class _TubeListState extends State<TubeList> {
                                                       });
                                                       checkBoxErrorText();
                                                       onAddBag();
+                                                      if ('34'.contains(
+                                                          action[0])) {
+                                                        setState(() {
+                                                          roadMapFocusNode =
+                                                              FocusNode();
+                                                        });
+                                                        roadMapFocusNode
+                                                            .requestFocus();
+                                                      }
                                                     },
                                                   ))),
                                           IconButton(
@@ -756,6 +799,14 @@ class _TubeListState extends State<TubeList> {
                                                 });
                                                 checkBoxErrorText();
                                                 onAddBag();
+                                                if ('34'.contains(action[0])) {
+                                                  setState(() {
+                                                    roadMapFocusNode =
+                                                        FocusNode();
+                                                  });
+                                                  roadMapFocusNode
+                                                      .requestFocus();
+                                                }
                                               },
                                               icon: const Icon(Icons
                                                   .subdirectory_arrow_left))
@@ -900,171 +951,225 @@ class _TubeListState extends State<TubeList> {
                         ],
                       ),
                     ]),
-              if (showTourneeDialog)
-                Table(
-                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                    columnWidths: const {
-                      0: FixedColumnWidth(160),
-                      1: FractionColumnWidth(0.6)
-                    },
-                    children: [
-                      TableRow(
+              if (showRoadMapDialog)
+                Form(
+                    key: roadMapKey,
+                    child: Table(
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
+                        columnWidths: const {
+                          0: FixedColumnWidth(160),
+                          1: FractionColumnWidth(0.6)
+                        },
                         children: [
-                          const TableCell(
-                              child: Text('Code tournée : ',
-                                  style: defaultTextStyle)),
-                          TableCell(
-                              child: SizedBox(
-                                  height: 50,
-                                  child: showCarDialog
-                                      ? Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              0, 14, 0, 0),
-                                          child: Text(
-                                            tourneeController.text.isEmpty
-                                                ? 'Aucun'
-                                                : tourneeController.text,
-                                            style: defaultTextStyle,
-                                          ))
-                                      : Row(children: [
-                                          SizedBox(
-                                              width: 220,
-                                              height: 50,
-                                              child: TextField(
+                          TableRow(
+                            children: [
+                              const TableCell(
+                                  child: Text('Tournée : ',
+                                      style: defaultTextStyle)),
+                              TableCell(
+                                  child: SizedBox(
+                                      height: 50,
+                                      child: showCarDialog
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 15),
+                                              child: Text(
+                                                roadMapController.text.isEmpty
+                                                    ? 'Aucune'
+                                                    : roadMapController.text,
+                                                style: defaultTextStyle,
+                                              ))
+                                          : Row(children: [
+                                              SizedBox(
+                                                  width: 220,
+                                                  child: SearchField(
+                                                    focusNode: roadMapFocusNode,
+                                                    itemHeight: 30,
+                                                    searchStyle:
+                                                        defaultTextStyle,
+                                                    controller:
+                                                        roadMapController,
+                                                    validator: (x) {
+                                                      if (!roadMaps
+                                                              .contains(x) ||
+                                                          x!.isEmpty) {
+                                                        return 'Veuillez entrer une feuille de route valide';
+                                                      }
+                                                      return null;
+                                                    },
+                                                    emptyWidget: Text(
+                                                        'Aucune feuille de route trouvée',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                            color: Colors
+                                                                .red.shade900,
+                                                            fontSize:
+                                                                defaultTextStyle
+                                                                        .fontSize! -
+                                                                    3)),
+                                                    searchInputDecoration:
+                                                        InputDecoration(
+                                                      hintText:
+                                                          'Aucune si vide',
+                                                      errorStyle: TextStyle(
+                                                          fontSize:
+                                                              defaultTextStyle
+                                                                      .fontSize! -
+                                                                  4,
+                                                          height: 0.3),
+                                                      errorText: (siteController
+                                                                  .text
+                                                                  .isEmpty &&
+                                                              submited
+                                                          ? 'Veuillez entrer une valeur'
+                                                          : null),
+                                                    ),
+                                                    suggestions: roadMaps
+                                                        .map(
+                                                          (e) =>
+                                                              SearchFieldListItem<
+                                                                  String>(
+                                                            e,
+                                                            item: e,
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                    onSubmit: (_) {
+                                                      if (roadMapKey
+                                                          .currentState!
+                                                          .validate()) {
+                                                        setState(() {
+                                                          showCarDialog = true;
+                                                        });
+                                                      }
+                                                    },
+                                                  )),
+                                              IconButton(
+                                                  tooltip: 'Valider',
+                                                  onPressed: () {
+                                                    if (roadMapKey.currentState!
+                                                        .validate()) {
+                                                      setState(() {
+                                                        showCarDialog = true;
+                                                      });
+                                                    }
+                                                  },
+                                                  icon: const Icon(Icons
+                                                      .subdirectory_arrow_left))
+                                            ])))
+                            ],
+                          ),
+                          if (showCarDialog)
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Code voiture : ',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 50,
+                                        child: showCommentDialog
+                                            ? Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 15),
+                                                child: Text(
+                                                  carController.text.isEmpty
+                                                      ? 'Aucun'
+                                                      : carController.text,
                                                   style: defaultTextStyle,
-                                                  autofocus: true,
-                                                  controller: tourneeController,
-                                                  decoration:
-                                                      const InputDecoration(
-                                                          hintText:
-                                                              'Aucun si vide'),
-                                                  inputFormatters: [
-                                                    FilteringTextInputFormatter
-                                                        .digitsOnly
-                                                  ],
-                                                  onSubmitted: (_) {
-                                                    setState(() {
-                                                      showCarDialog = true;
-                                                    });
-                                                  })),
-                                          IconButton(
-                                              tooltip: 'Valider',
-                                              onPressed: () {
-                                                setState(() {
-                                                  showCarDialog = true;
-                                                });
-                                              },
-                                              icon: const Icon(Icons
-                                                  .subdirectory_arrow_left))
-                                        ])))
-                        ],
-                      ),
-                      if (showCarDialog)
-                        TableRow(
-                          children: [
-                            const TableCell(
-                                child: Text('Code voiture : ',
-                                    style: defaultTextStyle)),
-                            TableCell(
-                                child: SizedBox(
-                                    height: 50,
-                                    child: showCommentDialog
-                                        ? Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0, 14, 0, 0),
-                                            child: Text(
-                                              carController.text.isEmpty
-                                                  ? 'Aucun'
-                                                  : carController.text,
-                                              style: defaultTextStyle,
-                                            ))
-                                        : Row(children: [
-                                            SizedBox(
-                                                width: 220,
-                                                height: 50,
-                                                child: TextField(
-                                                    style: defaultTextStyle,
-                                                    autofocus: true,
-                                                    controller: carController,
-                                                    decoration:
-                                                        const InputDecoration(
-                                                            hintText:
-                                                                'Aucun si vide'),
-                                                    inputFormatters: [
-                                                      FilteringTextInputFormatter
-                                                          .digitsOnly
-                                                    ],
-                                                    onSubmitted: (_) {
+                                                ))
+                                            : Row(children: [
+                                                SizedBox(
+                                                    width: 220,
+                                                    height: 50,
+                                                    child: TextField(
+                                                        style: defaultTextStyle,
+                                                        autofocus: true,
+                                                        controller:
+                                                            carController,
+                                                        decoration:
+                                                            const InputDecoration(
+                                                                hintText:
+                                                                    'Aucun si vide'),
+                                                        inputFormatters: [
+                                                          FilteringTextInputFormatter
+                                                              .digitsOnly
+                                                        ],
+                                                        onSubmitted: (_) {
+                                                          setState(() {
+                                                            showCommentDialog =
+                                                                true;
+                                                          });
+                                                        })),
+                                                IconButton(
+                                                    tooltip: 'Valider',
+                                                    onPressed: () {
                                                       setState(() {
                                                         showCommentDialog =
                                                             true;
                                                       });
-                                                    })),
-                                            IconButton(
-                                                tooltip: 'Valider',
-                                                onPressed: () {
-                                                  setState(() {
-                                                    showCommentDialog = true;
-                                                  });
-                                                },
-                                                icon: const Icon(Icons
-                                                    .subdirectory_arrow_left))
-                                          ])))
-                          ],
-                        ),
-                      if (showCommentDialog)
-                        TableRow(
-                          children: [
-                            const TableCell(
-                                child: Text('Commentaire : ',
-                                    style: defaultTextStyle)),
-                            TableCell(
-                                child: SizedBox(
-                                    height: 50,
-                                    child: showValidation
-                                        ? Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0, 14, 0, 0),
-                                            child: Text(
-                                              commentController.text.isEmpty
-                                                  ? 'Aucun'
-                                                  : commentController.text,
-                                              style: defaultTextStyle,
-                                            ))
-                                        : Row(children: [
-                                            SizedBox(
-                                                width: 220,
-                                                height: 50,
-                                                child: TextField(
-                                                    style: defaultTextStyle,
-                                                    autofocus: true,
-                                                    controller:
-                                                        commentController,
-                                                    decoration:
-                                                        const InputDecoration(
-                                                            hintText:
-                                                                'Aucun si vide'),
-                                                    onSubmitted: (_) {
+                                                    },
+                                                    icon: const Icon(Icons
+                                                        .subdirectory_arrow_left))
+                                              ])))
+                              ],
+                            ),
+                          if (showCommentDialog)
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                    child: Text('Commentaire : ',
+                                        style: defaultTextStyle)),
+                                TableCell(
+                                    child: SizedBox(
+                                        height: 50,
+                                        child: showValidation
+                                            ? Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 15),
+                                                child: Text(
+                                                  commentController.text.isEmpty
+                                                      ? 'Aucun'
+                                                      : commentController.text,
+                                                  style: defaultTextStyle,
+                                                ))
+                                            : Row(children: [
+                                                SizedBox(
+                                                    width: 220,
+                                                    height: 50,
+                                                    child: TextField(
+                                                        style: defaultTextStyle,
+                                                        autofocus: true,
+                                                        controller:
+                                                            commentController,
+                                                        decoration:
+                                                            const InputDecoration(
+                                                                hintText:
+                                                                    'Aucun si vide'),
+                                                        onSubmitted: (_) {
+                                                          setState(() {
+                                                            showValidation =
+                                                                true;
+                                                          });
+                                                        })),
+                                                IconButton(
+                                                    tooltip: 'Valider',
+                                                    onPressed: () {
                                                       setState(() {
                                                         showValidation = true;
                                                       });
-                                                    })),
-                                            IconButton(
-                                                tooltip: 'Valider',
-                                                onPressed: () {
-                                                  setState(() {
-                                                    showValidation = true;
-                                                  });
-                                                },
-                                                icon: const Icon(Icons
-                                                    .subdirectory_arrow_left))
-                                          ])))
-                          ],
-                        ),
-                    ]),
+                                                    },
+                                                    icon: const Icon(Icons
+                                                        .subdirectory_arrow_left))
+                                              ])))
+                              ],
+                            ),
+                        ])),
               if (showValidation)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                  padding: const EdgeInsets.only(top: 15),
                   child: ElevatedButton(
                     style: myButtonStyle,
                     child: Text((action[0] == '3' ? 'Ramasser' : 'Déposer') +

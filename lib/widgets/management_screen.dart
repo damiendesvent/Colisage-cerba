@@ -32,6 +32,7 @@ class _ManagementState extends State<Management>
 
   @override
   void initState() {
+    super.initState();
     _tabController = TabController(
         length: globals.managementWidgetTabs.length,
         vsync: this,
@@ -44,7 +45,6 @@ class _ManagementState extends State<Management>
     setState(() {
       _widgetIndex = globals.managementWidgetTabs.length ~/ 2;
     });
-    super.initState();
   }
 
   @override

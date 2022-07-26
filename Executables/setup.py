@@ -132,7 +132,7 @@ def backup(changeDisplay = True) :
         mycursor.execute(query)
         synchronizing_time = mycursor.fetchone()
         actual_time = datetime.now()
-        if (synchronizing_time[0].month + 1)%12 != actual_time.month and changeDisplay :
+        if synchronizing_time != None and synchronizing_time[0].month % 12 != actual_time.month and (synchronizing_time[0].month + 1) % 12 != actual_time.month and changeDisplay :
             mycursor.execute('INSERT INTO `backup_tracabilite` SELECT * FROM `tracabilite`')
             mydb.commit()
             subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite --where="`date heure synchronisation` BETWEEN \'' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00\' AND \'' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59\'" > ' + backup_path + '/tracabilites/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql', shell=True)
@@ -173,7 +173,7 @@ def install() :
             pb = ttk.Progressbar(root, orient='horizontal', mode='determinate', length=250)
             global progressBar
             progressBar = canvas1.create_window(450,35,window=pb)
-            t1 = threading.Thread(target=displayPb(1,500))
+            t1 = threading.Thread(target=displayPb(1,600))
             t2 = threading.Thread(target=install_server)
             t1.start()
             t2.start()
@@ -251,7 +251,7 @@ def repair() :
             pb = ttk.Progressbar(root, orient='horizontal', mode='determinate', length=250)
             global progressBar
             progressBar = canvas1.create_window(450,35,window=pb)
-            t1 = threading.Thread(target=displayPb(1,350))
+            t1 = threading.Thread(target=displayPb(1,450))
             t2 = threading.Thread(target=uninstall_server(showMessage=False))
             t1.start()
             t2.start()
@@ -268,7 +268,7 @@ def uninstall() :
             pb = ttk.Progressbar(root, orient='horizontal', mode='determinate', length=250)
             global progressBar
             progressBar = canvas1.create_window(450,35,window=pb)
-            t1 = threading.Thread(target=displayPb(1,350))
+            t1 = threading.Thread(target=displayPb(1,450))
             t2 = threading.Thread(target=uninstall_server)
             t1.start()
             t2.start()
@@ -438,8 +438,8 @@ def reception() :
 def clean_boxes() :
     mydb = mysql.connector.connect(host='localhost', user='root', password='root', database='cerba')
     mycursor = mydb.cursor()
-    sqlQuery = 'UPDATE `tube` SET `CODE SITE` = 0'
-    mycursor.execute(sqlQuery)
+    mycursor.execute('UPDATE `tube` SET `CODE SITE` = 0')
+    mycursor.execute('DELETE FROM `boite` WHERE `TYPE BOITE` = "SAC"')
     mydb.commit()
     mycursor.close()
     mydb.close()

@@ -89,8 +89,8 @@ class _SiteListState extends State<SiteList>
 
   @override
   void initState() {
-    getSiteList();
     super.initState();
+    getSiteList();
   }
 
   void searchSite() async {
