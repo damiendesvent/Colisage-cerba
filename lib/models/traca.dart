@@ -12,6 +12,8 @@ class Traca {
   final String pgm;
   final int lettrage;
   final int car;
+  final String picture;
+  final String signing;
   final String comment;
 
   Traca({
@@ -28,6 +30,8 @@ class Traca {
     required this.pgm,
     required this.lettrage,
     required this.car,
+    required this.picture,
+    required this.signing,
     required this.comment,
   });
 
@@ -46,6 +50,8 @@ class Traca {
         pgm: traca['CODE ORIGINE'],
         lettrage: int.parse(traca['NUMERO LETTRAGE'] ?? '0'),
         car: int.parse(traca['CODE VOITURE'] ?? '0'),
+        picture:traca['PHOTO'] ?? '',
+        signing: traca['SIGNATURE'] ?? '',
         comment: traca['COMMENTAIRE'] ?? '');
   }
 }

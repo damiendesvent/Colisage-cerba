@@ -992,8 +992,8 @@ class _TubeListState extends State<TubeList> {
                                                         roadMapController,
                                                     validator: (x) {
                                                       if (!roadMaps
-                                                              .contains(x) ||
-                                                          x!.isEmpty) {
+                                                              .contains(x) &&
+                                                          x!.isNotEmpty) {
                                                         return 'Veuillez entrer une feuille de route valide';
                                                       }
                                                       return null;
@@ -1355,7 +1355,8 @@ class _TubeListState extends State<TubeList> {
 
   @override
   Widget build(BuildContext context) {
-    if (sites.isNotEmpty && users.isNotEmpty) {
+    if ((!canChooseSite || sites.isNotEmpty) &&
+        (!canChooseUser || users.isNotEmpty)) {
       if (MediaQuery.of(context).size.width > 1060 || !showTubeDialog) {
         return Scrollbar(
             controller: _mainScrollController,

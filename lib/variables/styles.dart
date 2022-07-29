@@ -27,7 +27,7 @@ ButtonStyle myButtonStyle = ButtonStyle(
 );
 
 SnackBar mySnackBar(Text text,
-    {double width = 600,
+    {double width = 500,
     Color color = const Color(0xFF2e7d32),
     Icon icon = const Icon(
       Icons.check,

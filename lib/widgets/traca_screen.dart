@@ -450,7 +450,7 @@ class _TracaListState extends State<TracaList>
             elevation: 8,
             child: SingleChildScrollView(
                 child: SizedBox(
-                    height: 550,
+                    height: 610,
                     width: 500,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -523,7 +523,7 @@ class _TracaListState extends State<TracaList>
                               TableRow(
                                 children: [
                                   const TableCell(
-                                      child: Text('Boite : ',
+                                      child: Text('Boîte/Sachet : ',
                                           style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
@@ -640,6 +640,46 @@ class _TracaListState extends State<TracaList>
                                               style: defaultTextStyle)))
                                 ],
                               ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Image : ',
+                                          style: defaultTextStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 30,
+                                          child: traca.picture.isNotEmpty
+                                              ? TextButton(
+                                                  onPressed: () =>
+                                                      showImage(traca.picture),
+                                                  child: Text(traca.picture,
+                                                      style: defaultTextStyle))
+                                              : const Center(
+                                                  child: Text('Aucune',
+                                                      style:
+                                                          defaultTextStyle))))
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  const TableCell(
+                                      child: Text('Signature : ',
+                                          style: defaultTextStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 30,
+                                          child: traca.signing.isNotEmpty
+                                              ? TextButton(
+                                                  onPressed: () =>
+                                                      showImage(traca.signing),
+                                                  child: Text(traca.signing,
+                                                      style: defaultTextStyle))
+                                              : const Center(
+                                                  child: Text('Aucune',
+                                                      style:
+                                                          defaultTextStyle))))
+                                ],
+                              ),
                             ]),
                         Padding(
                           padding: const EdgeInsets.all(15),
@@ -734,6 +774,21 @@ class _TracaListState extends State<TracaList>
                                     child: const Text('Valider'))
                               ])),
                     ])))));
+  }
+
+  void showImage(String image) async {
+    String phpUriGetImageUrl = Env.urlPrefix + 'Scripts/get_image_url.php';
+    http.Response res =
+        await http.post(Uri.parse(phpUriGetImageUrl), body: {'image': image});
+    if (res.body.isNotEmpty) {
+      showDialog(
+          barrierColor: myBarrierColor,
+          context: context,
+          builder: (_) => Dialog(
+              insetPadding: const EdgeInsets.all(20),
+              elevation: 8,
+              child: Image.network(json.decode(res.body))));
+    }
   }
 
   final ScrollController _scrollController = ScrollController();
@@ -1014,7 +1069,6 @@ class TracaData extends DataTableSource {
         onSelectChanged: (bool? selected) {
           if (selected!) {
             onRowSelected(Traca.fromSnapshot(data[index]));
-            //notifyListeners();
           }
         },
         cells: [

@@ -10,7 +10,7 @@ $stmt -> execute();
 $backupPath = $stmt -> fetch(PDO::FETCH_ASSOC);
 
 try{
-    if (is_file($backupPath['Valeur'].'/tracabilites/tracabilite_'.$backup.'.sql')) {
+    if (is_file($backupPath['Valeur'].$backup.'.sql')) {
         $str = explode("\n" , shell_exec('wmic process where "name=\'mysqld.exe\'" get ExecutablePath'))[1];
         $mysqlPath = str_replace("mysqld.exe", '', $str);
         $mysqlPath = str_replace(' ', '', $mysqlPath);

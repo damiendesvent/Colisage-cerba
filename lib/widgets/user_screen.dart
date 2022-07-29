@@ -1410,7 +1410,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                             children: [
                               TableRow(children: [
                                 const TableCell(
-                                    child: Text('Mot de passe* :   ',
+                                    child: Text('Nouveau mot de passe* :   ',
                                         style: defaultTextStyle)),
                                 TableCell(
                                     child: SizedBox(
@@ -1438,7 +1438,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                               ]),
                               TableRow(children: [
                                 const TableCell(
-                                    child: Text('Répêter le mot de passe* :   ',
+                                    child: Text(
+                                        'Répêter le nouveau mot de passe* :   ',
                                         style: defaultTextStyle)),
                                 TableCell(
                                     child: SizedBox(

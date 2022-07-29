@@ -202,9 +202,8 @@ class _BoxesPrintState extends State<BoxesPrint>
 
   Widget displayBoxes() {
     bool submited = false;
-    TextEditingController? maxValueController;
-    TextEditingController? libelleController;
-
+    String maxValue = '';
+    String libelle = '';
     return StatefulBuilder(
         builder: (context, setState) => Container(
             padding: const EdgeInsets.all(5),
@@ -238,7 +237,9 @@ class _BoxesPrintState extends State<BoxesPrint>
                             child: TextFormField(
                                 textAlignVertical: TextAlignVertical.bottom,
                                 initialValue: type,
-                                controller: libelleController,
+                                onChanged: (newValue) => setState(() {
+                                      libelle = newValue;
+                                    }),
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(25),
                                 ],
@@ -320,7 +321,9 @@ class _BoxesPrintState extends State<BoxesPrint>
                             child: TextFormField(
                                 textAlignVertical: TextAlignVertical.bottom,
                                 initialValue: maxDatatable[type].toString(),
-                                controller: maxValueController,
+                                onChanged: (newValue) => setState(() {
+                                      maxValue = newValue;
+                                    }),
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(4),
                                   FilteringTextInputFormatter.digitsOnly,
@@ -330,7 +333,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                       fontSize: defaultTextStyle.fontSize! - 4,
                                       height: 0.3),
                                   errorText: submited
-                                      ? 'Veuillez entrer une valeur comprise entre 1 et ' +
+                                      ? 'Valeur non comprise entre 1 et ' +
                                           maxDatatable[type].toString()
                                       : null,
                                   errorMaxLines: 3,
@@ -371,17 +374,16 @@ class _BoxesPrintState extends State<BoxesPrint>
                                     submited = true;
                                   });
                                   if (deleteBoxes) {
-                                    if ((maxValueController!.text == ''
+                                    if ((maxValue == ''
                                             ? 9999
-                                            : int.parse(
-                                                maxValueController.text)) <=
+                                            : int.parse(maxValue)) <=
                                         maxDatatable[type]!) {
-                                      onDeleteBoxes(maxValueController.text);
+                                      onDeleteBoxes(maxValue);
                                     }
                                   } else {
-                                    if (libelleController!.text.isNotEmpty) {
+                                    if (libelle.isNotEmpty) {
                                       onUpdate(
-                                          libelle: libelleController.text,
+                                          libelle: libelle,
                                           acronyme: boxTypesAcronymeList[
                                               boxTypesLibelleList
                                                   .indexOf(type)]);
@@ -410,6 +412,7 @@ class _BoxesPrintState extends State<BoxesPrint>
                                           icon: const Icon(Icons.edit),
                                           onPressed: () {
                                             setState(() {
+                                              libelle = type;
                                               submited = false;
                                               editedBoxType = type;
                                               deleteBoxes = false;
@@ -421,6 +424,8 @@ class _BoxesPrintState extends State<BoxesPrint>
                                           icon: const Icon(Icons.delete),
                                           onPressed: () {
                                             setState(() {
+                                              maxValue =
+                                                  maxDatatable[type].toString();
                                               submited = false;
                                               editedBoxType = type;
                                               deleteBoxes = true;

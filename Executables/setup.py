@@ -1,4 +1,6 @@
+from codecs import ignore_errors
 from concurrent.futures import thread
+from genericpath import isfile
 import os
 import shutil
 import tkinter as tk
@@ -39,10 +41,13 @@ with open('bin/variables.txt') as variables_file :
     my_file_path = variableDict['my_file_path']
     php_file_path = variableDict['php_file_path']
     pda_track_in_directory = variableDict['chemin_reception_fichier_PDA']
+    images_in_directory = variableDict['chemin_reception_images_PDA']
     minute_synchro_pda_1 = int(variableDict['minute_synchro_pda_1'])
     minute_synchro_pda_2 = int(variableDict['minute_synchro_pda_2'])
     backup_path = variableDict['chemin_sauvegardes']
     backup_prefix = variableDict['prefixe_fichier_sauvegarde']
+    records_traca_path = variableDict['chemin_archives_tracabilites']
+    records_prefix = variableDict['prefixe_fichier_archive']
     type_backup_frequence = variableDict['type_sauvegarde']
     interval_backup_time = int(variableDict['frequence_sauvegarde'])
     last_reception_in_directory = variableDict['chemin_reception_fichiers_boite']
@@ -92,16 +97,18 @@ def import_traca_pda() :
                     action = traca[17:20]
                     box = traca[20:40].strip()
                     time = datetime(year = int(traca[42:46]), month = int(traca[46:48]), day = int(traca[48:50]), hour = int(traca[50:52]), minute = int(traca[52:54]), second = int(traca[54:56])).strftime('%Y-%m-%d %H:%M:%S')
-                    image = traca[56:80]
-                    signing = traca[80:104]
+                    image = traca[56:80].strip()
+                    signing = traca[80:104].strip()
                     comment = traca[104:152].strip()
 
                     actual_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
                     box = 'NULL' if len(box) == 0 else '"' + box + '"'
+                    image = 'NULL' if len(image) == 0 else '"' + image + '"'
+                    signing = 'NULL' if len(signing) == 0 else '"' + signing + '"'
                     comment = 'NULL' if len(comment) == 0 else '"' + comment + '"'
 
-                    query = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `CODE ORIGINE`, `NUMERO LETTRAGE`, `CODE VOITURE`, `COMMENTAIRE`) VALUES ("' + user + '", (select `code tournee` from `entetes feuille de route` where `ordre affichage pda` = ' + tour + ' LIMIT 1), ' + site + ', ' + box + ', NULL, "' + action + '", NULL, "' + time + '", "' + actual_time + '", "' + pda_number + '", NULL, ' + car + ', ' + comment + ')'
+                    query = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `CODE ORIGINE`, `NUMERO LETTRAGE`, `CODE VOITURE`, `PHOTO`, `SIGNATURE`,`COMMENTAIRE`) VALUES ("' + user + '", (select `code tournee` from `entetes feuille de route` where `ordre affichage pda` = ' + tour + ' LIMIT 1), ' + site + ', ' + box + ', NULL, "' + action + '", NULL, "' + time + '", "' + actual_time + '", "' + pda_number + '", NULL, ' + car + ', ' + image + ', ' + signing + ', ' + comment + ')'
                     mycursor.execute(query)
                     mydb.commit()
                     
@@ -109,6 +116,17 @@ def import_traca_pda() :
 
         mycursor.close()
         mydb.close()
+
+        os.makedirs(images_in_directory, exist_ok=True)
+        imagesList = os.listdir(images_in_directory)
+        for image_name in imagesList :
+            image_src_path = images_in_directory + '/' + image_name
+            image_dst_path = extract_folder + '/htdocs/flutter_api/Images/' + image_name
+            print('src : '+image_src_path)
+            print('dst : ' + image_dst_path)
+            if os.path.isfile(image_dst_path) :
+                os.unlink(image_dst_path)
+            shutil.move(image_src_path, image_dst_path)
         
         canvas1.itemconfigure(displayed_pda_signal, text='Programmation : chaque heure à ' + str(minute_synchro_pda_1) + ' et ' + str(minute_synchro_pda_2) + '\nService PDA en marche\nDernière synchronisation :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
 
@@ -117,7 +135,7 @@ def import_traca_pda() :
 
 
 def backup(changeDisplay = True) :
-    os.makedirs(backup_path + '/tracabilites/', exist_ok=True)
+    os.makedirs(records_traca_path, exist_ok=True)
     try :
         backup_files = sorted(glob.glob('*.sql', root_dir=backup_path))
         while len(backup_files) > max_backup_files :
@@ -132,10 +150,32 @@ def backup(changeDisplay = True) :
         mycursor.execute(query)
         synchronizing_time = mycursor.fetchone()
         actual_time = datetime.now()
+
+        # la partie qui suit est dédiée à la création des archives de traçabilité
         if synchronizing_time != None and synchronizing_time[0].month % 12 != actual_time.month and (synchronizing_time[0].month + 1) % 12 != actual_time.month and changeDisplay :
-            mycursor.execute('INSERT INTO `backup_tracabilite` SELECT * FROM `tracabilite`')
+            mycursor.execute('TRUNCATE `backup_tracabilite`')
             mydb.commit()
-            subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite --where="`date heure synchronisation` BETWEEN \'' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00\' AND \'' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59\'" > ' + backup_path + '/tracabilites/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql', shell=True)
+            mycursor.execute('INSERT INTO `backup_tracabilite` SELECT * FROM `tracabilite` WHERE `date heure synchronisation` BETWEEN "' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00" AND "' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59"')
+            mydb.commit()
+            mycursor.execute('SELECT PHOTO,SIGNATURE FROM `backup_tracabilite`')
+            items = mycursor.fetchall()
+            files = os.listdir(extract_folder + '/htdocs/flutter_api/Images')
+            os.makedirs(records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B'), exist_ok=True)
+            for picture,signing in items :
+                if picture != None :
+                    for file in files :
+                        if picture in file and not os.isfile(records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file) :
+                            shutil.move(extract_folder + '/htdocs/flutter_api/Images/' + file, records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file)
+                            break
+                if signing != None :
+                    for file in files :
+                        if signing in file and not os.isfile(records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file) :
+                            shutil.move(extract_folder + '/htdocs/flutter_api/Images/' + file, records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file)
+                            break
+            if os.isfile(records_traca_path + '/' + records_prefix + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql') :
+                subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite > ' + records_traca_path + '/' + records_prefix + synchronizing_time[0].strftime('%Y-%m_%B') + actual_time.strftime('%Y-%m-%d_%H-%M-%S') + '.sql', shell=True)
+            else :
+                subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite > ' + records_traca_path + '/' + records_prefix + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql', shell=True)
             secondQuery = 'DELETE FROM `tracabilite` WHERE `date heure synchronisation` BETWEEN \'' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00\' AND \'' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59\''
             mycursor.execute(secondQuery)
             mycursor.execute('TRUNCATE `backup_tracabilite`')
@@ -166,7 +206,7 @@ def start_stop_backup() :
 def install() :
     os.makedirs(extract_folder, exist_ok=True)
     if not os.listdir(extract_folder) :
-        if os.path.isfile(zip_file) :
+        if os.path.isfile('bin/' + zip_file) :
             global textProgressBar
             textProgressBar = canvas1.create_text(325,15, anchor='w', text='Installation en cours')
             global pb
@@ -192,7 +232,7 @@ def displayPb(start, stop) :
 
 
 def install_server() :
-    shutil.unpack_archive(zip_file, extract_folder) # On extrait l'archive du serveur
+    shutil.unpack_archive('bin/' + zip_file, extract_folder) # On extrait l'archive du serveur
     os.chdir(extract_folder)
     path = os.getcwd()
     path_w_slash = path.replace('\\','/')
@@ -436,13 +476,18 @@ def reception() :
     mydb.close()
 
 def clean_boxes() :
-    mydb = mysql.connector.connect(host='localhost', user='root', password='root', database='cerba')
-    mycursor = mydb.cursor()
-    mycursor.execute('UPDATE `tube` SET `CODE SITE` = 0')
-    mycursor.execute('DELETE FROM `boite` WHERE `TYPE BOITE` = "SAC"')
-    mydb.commit()
-    mycursor.close()
-    mydb.close()
+    if (web_server_status) :
+        try :
+            mydb = mysql.connector.connect(host='localhost', user='root', password='root', database='cerba')
+            mycursor = mydb.cursor()
+            mycursor.execute('DELETE FROM `tube`')
+            mydb.commit()
+            mycursor.execute('DELETE FROM `boite` WHERE `TYPE BOITE` = "SAC"')
+            mydb.commit()
+            mycursor.close()
+            mydb.close()
+        except Exception as e :
+            messagebox.showerror(title='Problème du vidage automatique des boîtes', message='Impossible de vider automatiquement les boîtes. Cette erreur a été rencontrée : ' + str(e))
 
 global ip
 ip = socket.gethostbyname(socket.gethostname())

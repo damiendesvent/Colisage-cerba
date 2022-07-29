@@ -17,6 +17,7 @@ chemin_installation_serveur = C:/Serveur_colisage
 
 # Importation des fichiers PDA
 chemin_reception_fichier_PDA = C:/PDA_tracks/IN
+chemin_reception_images_PDA = C:/PDA_tracks/IN/JPG
 minute_synchro_pda_1 = 15
 minute_synchro_pda_2 = 45
 

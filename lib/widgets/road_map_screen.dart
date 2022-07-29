@@ -178,9 +178,7 @@ class _RoadMapListState extends State<RoadMapList>
                 textAlign: TextAlign.center,
               ),
               content: Text(
-                'Êtes-vous sûr de vouloir restaurer \nla feuille de route n°' +
-                    roadMap.code.toString() +
-                    ' : ' +
+                'Êtes-vous sûr de vouloir restaurer \nla feuille de route ' +
                     roadMap.libelle +
                     ' ?',
                 textAlign: TextAlign.center,
@@ -278,9 +276,7 @@ class _RoadMapListState extends State<RoadMapList>
                 textAlign: TextAlign.center,
               ),
               content: Text(
-                'Êtes-vous sûr de vouloir supprimer \nla feuille de route n°' +
-                    roadMap.code.toString() +
-                    ' : ' +
+                'Êtes-vous sûr de vouloir supprimer \nla feuille de route ' +
                     roadMap.libelle +
                     ' ?',
                 textAlign: TextAlign.center,
@@ -356,8 +352,8 @@ class _RoadMapListState extends State<RoadMapList>
     });
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
-      Text('La feuille de route n° ' +
-          roadMap.code.toString() +
+      Text('La feuille de route ' +
+          roadMap.libelle +
           ' a bien été ajouté'),
     ));
     Future.delayed(

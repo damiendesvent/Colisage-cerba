@@ -75,6 +75,185 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
     }
   }
 
+  void changePassword() {
+    String phpUriResetPassword =
+        Env.urlPrefix + 'Users/reset_password_user.php';
+    bool submited = false;
+    String oldPassword = '';
+    String newPassword = '';
+    String repeatedPassword = '';
+    showDialog(
+        barrierColor: myBarrierColor,
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
+                insetPadding:
+                    const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
+                elevation: 8,
+                child: SizedBox(
+                    width: 600,
+                    height: 300,
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Text(
+                            'Changement de mot de passe',
+                            style: TextStyle(
+                                fontSize: 18, color: Colors.grey.shade700),
+                          )),
+                      const Spacer(),
+                      Table(
+                          defaultVerticalAlignment:
+                              TableCellVerticalAlignment.middle,
+                          defaultColumnWidth: const FractionColumnWidth(0.4),
+                          children: [
+                            TableRow(children: [
+                              const TableCell(
+                                  child: Text('Ancien mot de passe :   ',
+                                      style: defaultTextStyle)),
+                              TableCell(
+                                  child: SizedBox(
+                                      width: 50,
+                                      child: TextField(
+                                        textInputAction: TextInputAction.next,
+                                        style: defaultTextStyle,
+                                        textAlignVertical:
+                                            TextAlignVertical.bottom,
+                                        obscureText: true,
+                                        onChanged: (newValue) => setState(() {
+                                          oldPassword = newValue;
+                                        }),
+                                        decoration: InputDecoration(
+                                            errorStyle: TextStyle(
+                                                fontSize:
+                                                    defaultTextStyle.fontSize! -
+                                                        4,
+                                                height: 0.3),
+                                            hintText: 'ancien mot de passe',
+                                            errorText: submited &&
+                                                    globals.user.password !=
+                                                        oldPassword
+                                                ? 'Ancien mot de passe incorrect'
+                                                : null),
+                                      )))
+                            ]),
+                            TableRow(children: [
+                              const TableCell(
+                                  child: Text('Nouveau mot de passe :   ',
+                                      style: defaultTextStyle)),
+                              TableCell(
+                                  child: SizedBox(
+                                      width: 50,
+                                      child: TextField(
+                                        textInputAction: TextInputAction.next,
+                                        style: defaultTextStyle,
+                                        textAlignVertical:
+                                            TextAlignVertical.bottom,
+                                        obscureText: true,
+                                        onChanged: (newValue) => setState(() {
+                                          newPassword = newValue;
+                                        }),
+                                        decoration: InputDecoration(
+                                            errorStyle: TextStyle(
+                                                fontSize:
+                                                    defaultTextStyle.fontSize! -
+                                                        4,
+                                                height: 0.3),
+                                            hintText: 'nouveau mot de passe',
+                                            errorText: submited &&
+                                                    newPassword.length < 4
+                                                ? 'Veuillez entrer au moins 4 caractères'
+                                                : null),
+                                      )))
+                            ]),
+                            TableRow(children: [
+                              const TableCell(
+                                  child: Text(
+                                      'Répéter le nouveau mot de passe :   ',
+                                      style: defaultTextStyle)),
+                              TableCell(
+                                  child: SizedBox(
+                                      width: 50,
+                                      child: TextField(
+                                        textInputAction: TextInputAction.done,
+                                        style: defaultTextStyle,
+                                        textAlignVertical:
+                                            TextAlignVertical.bottom,
+                                        obscureText: true,
+                                        onChanged: (newValue) => setState(() {
+                                          repeatedPassword = newValue;
+                                        }),
+                                        decoration: InputDecoration(
+                                            errorStyle: TextStyle(
+                                                fontSize:
+                                                    defaultTextStyle.fontSize! -
+                                                        4,
+                                                height: 0.3),
+                                            hintText:
+                                                'répéter le nouveau mot de passe',
+                                            errorText: submited &&
+                                                    repeatedPassword !=
+                                                        newPassword
+                                                ? 'Mots de passe différents'
+                                                : null),
+                                      )))
+                            ])
+                          ]),
+                      Center(
+                          child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 30),
+                              child: SizedBox(
+                                  width: 231,
+                                  child: Row(children: [
+                                    ElevatedButton(
+                                        style: myButtonStyle,
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Row(children: const [
+                                          Icon(Icons.clear),
+                                          Text('Annuler')
+                                        ])),
+                                    const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10)),
+                                    ElevatedButton(
+                                      style: myButtonStyle,
+                                      onPressed: () {
+                                        setState(() {
+                                          submited = true;
+                                        });
+                                        if (oldPassword ==
+                                                globals.user.password &&
+                                            newPassword.length > 3 &&
+                                            newPassword == repeatedPassword) {
+                                          http.post(
+                                              Uri.parse(phpUriResetPassword),
+                                              body: {
+                                                'code': globals.user.code,
+                                                'password': newPassword
+                                              });
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(mySnackBar(const Text(
+                                                  ' Votre mot de passe a bien été modifié')));
+                                          Navigator.of(context).pop();
+                                        }
+                                      },
+                                      child: Row(children: const [
+                                        Icon(Icons.check),
+                                        Text(' Valider')
+                                      ]),
+                                    )
+                                  ])))),
+                      const Spacer(),
+                    ])));
+          });
+        });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -131,8 +310,18 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                         ),
                         actions: <Widget>[
                           Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 5),
+                              padding: const EdgeInsets.only(top: 5),
+                              child: IconButton(
+                                  tooltip: 'Changer de mot de passe',
+                                  onPressed: () {
+                                    changePassword();
+                                  },
+                                  icon: const Icon(
+                                    Icons.manage_accounts,
+                                    size: 28,
+                                  ))),
+                          Padding(
+                              padding: const EdgeInsets.only(right: 15, top: 5),
                               child: IconButton(
                                   tooltip: 'Se déconnecter',
                                   onPressed: () {
