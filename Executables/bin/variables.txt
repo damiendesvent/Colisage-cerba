@@ -24,9 +24,11 @@ minute_synchro_pda_2 = 45
 # Sauvegarde de la base de données
 chemin_sauvegardes = C:/Backup
 prefixe_fichier_sauvegarde = colisage_
+chemin_archives_tracabilites = C:/Backup/tracabilites
+prefixe_fichier_archive = tracabilite_
 # Pour le paramètre suivant, vous devez écrire : seconde, minute, heure ou jour
-type_sauvegarde = heure
-frequence_sauvegarde = 4
+type_sauvegarde = seconde
+frequence_sauvegarde = 20
 nombre_maximum_fichiers_sauvegarde = 16
 
 # Ecriture des fichiers txt avec dernière réception boite
