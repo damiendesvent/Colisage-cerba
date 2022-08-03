@@ -27,7 +27,7 @@ prefixe_fichier_sauvegarde = colisage_
 chemin_archives_tracabilites = C:/Backup/tracabilites
 # Pour le paramètre suivant, vous devez écrire : seconde, minute, heure ou jour
 type_sauvegarde = seconde
-frequence_sauvegarde = 20
+moments_sauvegarde = 10,20,40
 nombre_maximum_fichiers_sauvegarde = 16
 
 # Ecriture des fichiers txt avec dernière réception boite

@@ -8,7 +8,6 @@ $sqlQuery = 'SELECT Valeur from `constantes` WHERE Nom = "Emplacement des archiv
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
 $backupPath = $stmt -> fetch(PDO::FETCH_ASSOC);
-
 try{
     $img_directory = str_replace('Backup_traca','',getcwd()).'Images/Backup/';
     if (!is_dir($img_directory)) {mkdir($img_directory);}
@@ -16,10 +15,29 @@ try{
         $str = explode("\n" , shell_exec('wmic process where "name=\'mysqld.exe\'" get ExecutablePath'))[1];
         $mysqlPath = str_replace("mysqld.exe", '', $str);
         $mysqlPath = str_replace(' ', '', $mysqlPath);
-        system($mysqlPath.'mysql -u root -proot cerba < '.$backupPath['Valeur'].'/tracabilite_'.$backup.'.sql');
+        exec($mysqlPath.'mysql -u root -proot cerba < '.$backupPath['Valeur'].'/tracabilite_'.$backup.'.sql');
         $files = scandir($backupPath['Valeur'].'/tracabilite_'.$backup);
         for ($i = 2; $i < count($files); $i++) {
             copy($backupPath['Valeur'].'/tracabilite_'.$backup.'/'.$files[$i], $img_directory.$files[$i]);
+        }
+    }
+    elseif (is_file($backupPath['Valeur'].'/tracabilite_'.$backup.'.sql.zip')) {
+        $str = explode("\n" , shell_exec('wmic process where "name=\'mysqld.exe\'" get ExecutablePath'))[1];
+        $mysqlPath = str_replace("mysqld.exe", '', $str);
+        $mysqlPath = str_replace(' ', '', $mysqlPath);
+        $zip = new ZipArchive;
+        if ($zip->open($backupPath['Valeur'].'/tracabilite_'.$backup.'.sql.zip') == true) {
+            $zip->extractTo($backupPath['Valeur'].'/');
+            $zip->close();
+            exec($mysqlPath.'mysql -u root -proot cerba < '.$backupPath['Valeur'].'/tracabilite_'.$backup.'.sql');
+            $files = scandir($backupPath['Valeur'].'/tracabilite_'.$backup);
+            for ($i = 2; $i < count($files); $i++) {
+                copy($backupPath['Valeur'].'/tracabilite_'.$backup.'/'.$files[$i], $img_directory.$files[$i]);
+            }
+            unlink($backupPath['Valeur'].'/tracabilite_'.$backup.'.sql');
+        }
+        else {
+            die;
         }
     }
     else {

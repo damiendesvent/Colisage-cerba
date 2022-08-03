@@ -14,6 +14,7 @@ for ($i = 0; $i < count($backup_files) - 2; $i++) {
     if (strpos($backup_files[$i], 'sql') !== false) {
     $file = str_replace('tracabilite_', '', $backup_files[$i]);
     $file = str_replace('.sql', '', $file);
+    $file = str_replace('.zip', '', $file);
     array_push($files, $file);
     }
 }

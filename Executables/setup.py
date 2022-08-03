@@ -48,7 +48,7 @@ with open('bin/variables.txt') as variables_file :
     backup_prefix = variableDict['prefixe_fichier_sauvegarde']
     records_traca_path = variableDict['chemin_archives_tracabilites']
     type_backup_frequence = variableDict['type_sauvegarde']
-    interval_backup_time = int(variableDict['frequence_sauvegarde'])
+    interval_backup_time = variableDict['moments_sauvegarde']
     last_reception_in_directory = variableDict['chemin_reception_fichiers_boite']
     last_reception_out_directory = variableDict['chemin_envoi_fichiers_boite']
     type_reception_frequence = variableDict['type_synchronisation']
@@ -132,14 +132,17 @@ def import_traca_pda() :
 
 
 def backup(changeDisplay = True) :
+    actual_time = datetime.now()
     os.makedirs(records_traca_path, exist_ok=True)
     try :
-        backup_files = sorted(glob.glob('*.sql', root_dir=backup_path))
+        backup_files = sorted(glob.glob('*.sql', root_dir=backup_path) + glob.glob('*.sql.zip', root_dir=backup_path))
         while len(backup_files) > max_backup_files :
             os.unlink(backup_path + '/' + backup_files[0])
-            backup_files = sorted(glob.glob('*.sql', root_dir=backup_path))
-        subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba > ' + backup_path + '/' + backup_prefix + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.sql', shell=True) 
-        if changeDisplay : canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nen marche\nDernière sauvegarde :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
+            backup_files = sorted(glob.glob('*.sql', root_dir=backup_path) + glob.glob('*.sql.zip', root_dir=backup_path))
+        subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba > ' + backup_path + '/' + backup_prefix + actual_time.strftime('%Y-%m-%d_%H-%M-%S') + '.sql', shell=True) 
+        shutil.make_archive(backup_path + '/' + backup_prefix + actual_time.strftime('%Y-%m-%d_%H-%M-%S') + '.sql', 'zip', root_dir=backup_path + '/', base_dir=backup_prefix + actual_time.strftime('%Y-%m-%d_%H-%M-%S') + '.sql')
+        os.unlink(backup_path + '/' + backup_prefix + actual_time.strftime('%Y-%m-%d_%H-%M-%S') + '.sql')
+        if changeDisplay : canvas1.itemconfigure(displayed_backup_signal, text='Lorsqu\'un.e ' + type_backup_frequence + '\nvaut ' + str(interval_backup_time) + '\nService de sauvegarde\nen marche\nDernière sauvegarde :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S'), fill='green')
         
         mydb = mysql.connector.connect(host='localhost', user='root', password='root', database='cerba')
         mycursor = mydb.cursor(buffered=True)
@@ -149,7 +152,6 @@ def backup(changeDisplay = True) :
             query = 'SELECT `DATE HEURE SYNCHRONISATION` FROM `tracabilite` ORDER BY `DATE HEURE SYNCHRONISATION` ASC LIMIT 1'
             mycursor.execute(query)
             synchronizing_time = mycursor.fetchone()
-            actual_time = datetime.now()
 
             # la partie qui suit est dédiée à la création des archives de traçabilité
             if synchronizing_time != None and synchronizing_time[0].month % 12 != actual_time.month and (synchronizing_time[0].month + 1) % 12 != actual_time.month and changeDisplay :
@@ -172,10 +174,14 @@ def backup(changeDisplay = True) :
                             if signing in file and not os.path.isfile(records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file) :
                                 shutil.move(extract_folder + '/htdocs/flutter_api/Images/' + file, records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file)
                                 break
-                if os.path.isfile(records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql') :
+                if os.path.isfile(records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql') or os.path.isfile(records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql.zip') :
                     subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite > ' + records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + actual_time.strftime('%Y-%m-%d_%H-%M-%S') + '.sql', shell=True)
+                    shutil.make_archive(records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + actual_time.strftime('%Y-%m-%d_%H-%M-%S') + '.sql', 'zip', root_dir=records_traca_path + '/', base_dir='tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + actual_time.strftime('%Y-%m-%d_%H-%M-%S') + '.sql')
+                    os.unlink(records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + actual_time.strftime('%Y-%m-%d_%H-%M-%S') + '.sql')
                 else :
                     subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite > ' + records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql', shell=True)
+                    shutil.make_archive(records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql', 'zip', root_dir=records_traca_path + '/', base_dir='tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql')
+                    os.unlink(records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql')
                 secondQuery = 'DELETE FROM `tracabilite` WHERE `date heure synchronisation` BETWEEN \'' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00\' AND \'' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59\''
                 mycursor.execute(secondQuery)
                 mycursor.execute('TRUNCATE `backup_tracabilite`')
@@ -184,7 +190,7 @@ def backup(changeDisplay = True) :
         mycursor.close()
         mydb.close()
     except Exception as e :
-        canvas1.itemconfigure(displayed_backup_signal, text= 'Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nErreur à :\n' +  datetime.now().strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
+        canvas1.itemconfigure(displayed_backup_signal, text='Lorsqu\'un.e ' + type_backup_frequence + '\nvaut ' + str(interval_backup_time) + '\nErreur à :\n' +  actual_time.strftime('%d/%m/%Y à %H:%M:%S') + '\n' + str(e), fill='orange')
         
 
 # cette fonction sert de switch au service backup en activant ou désactivant la tache planifiée + en mettant à jour l'affichage
@@ -194,11 +200,11 @@ def start_stop_backup() :
         backup_status = not backup_status
         if backup_status :
             canvas1.itemconfigure(led_backup_signal, fill='green')
-            canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nen marche\nDernière sauvegarde :\n', fill='green')
+            canvas1.itemconfigure(displayed_backup_signal, text='Lorsqu\'un.e ' + type_backup_frequence + '\nvaut ' + str(interval_backup_time) + '\nService de sauvegarde\nen marche\nDernière sauvegarde :\n', fill='green')
             backup_scheduler.resume()
         else :
             canvas1.itemconfigure(led_backup_signal, fill='red')
-            canvas1.itemconfigure(displayed_backup_signal, text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService de sauvegarde\nà l\'arrêt', fill='red')
+            canvas1.itemconfigure(displayed_backup_signal, text='Lorsqu\'un.e ' + type_backup_frequence + '\nvaut ' + str(interval_backup_time) + '\nService de sauvegarde\nà l\'arrêt', fill='red')
             backup_scheduler.pause()
     else :
         messagebox.showerror(title='Serveur web éteint', message='Veuillez allumer le serveur web\npour activer la sauvegarde automatique')
@@ -417,10 +423,17 @@ def open_variables_file() :
 def import_backup() :
     if (web_server_status) :
         backup(changeDisplay=False)
-        filename = fd.askopenfilename(filetypes=(('fichier sql', '*.sql'),('tous les fichiers', '*.*')))
+        filename = fd.askopenfilename(filetypes=(('fichier sql', '*.sql *.sql.zip'),('tous les fichiers', '*.*')))
         if (len(filename) > 0) :
             try :
-                subprocess.run(extract_folder + '/bin/mysql/bin/mysql -u root -proot cerba < "' + filename + '"', shell=True)
+                if filename.endswith('zip') :
+                    os.makedirs(extract_folder + '/tmp/import/', exist_ok=True)
+                    shutil.unpack_archive(filename, extract_folder + '/tmp/import/')
+                    filename = extract_folder + '/tmp/import/' + filename.split('/')[-1]
+                    subprocess.run(extract_folder + '/bin/mysql/bin/mysql -u root -proot cerba < "' + filename[:-4] + '"', shell=True)
+                    os.unlink(filename[:-4])
+                else :
+                    subprocess.run(extract_folder + '/bin/mysql/bin/mysql -u root -proot cerba < "' + filename + '"', shell=True)
                 messagebox.showinfo(title='Importation réussie', message='L\'importation du fichier ' + filename.split('/')[-1] + ' est terminée')
             except Exception as e:
                 messagebox.showerror(title='Impossible d\'importer le fichier', message=str(e))
@@ -514,14 +527,16 @@ cleaning_box_scheduler.add_job(clean_boxes, 'cron', hour=cleaning_hour, timezone
 cleaning_box_scheduler.start(paused=True)
 
 backup_scheduler = BackgroundScheduler()
-if (type_backup_frequence == 'seconde') :
-    backup_scheduler.add_job(backup, 'interval', seconds=interval_backup_time, timezone='Europe/Berlin')
-elif (type_backup_frequence == 'minute') :
-    backup_scheduler.add_job(backup, 'interval', minutes=interval_backup_time, timezone='Europe/Berlin')
-elif (type_backup_frequence == 'heure') :
-    backup_scheduler.add_job(backup, 'interval', hours=interval_backup_time, timezone='Europe/Berlin')
-elif (type_backup_frequence == 'jour') :
-    backup_scheduler.add_job(backup, 'interval', days=interval_backup_time, timezone='Europe/Berlin')    
+backup_times = interval_backup_time.split(',')
+for backup_time in backup_times :
+    if (type_backup_frequence == 'seconde') :
+        backup_scheduler.add_job(backup, 'cron', second=int(backup_time), timezone='Europe/Berlin')
+    elif (type_backup_frequence == 'minute') :
+        backup_scheduler.add_job(backup, 'cron', minute=int(backup_time), timezone='Europe/Berlin')
+    elif (type_backup_frequence == 'heure') :
+        backup_scheduler.add_job(backup, 'cron', hour=int(backup_time), timezone='Europe/Berlin')
+    elif (type_backup_frequence == 'jour') :
+        backup_scheduler.add_job(backup, 'cron', day=int(backup_time), timezone='Europe/Berlin')    
 backup_scheduler.start(paused=True)
 
 reception_scheduler = BackgroundScheduler()
@@ -590,7 +605,7 @@ canvas1.create_line(450,180,450,400) # deuxième ligne verticale
 backup_title = canvas1.create_text(560,170, anchor='center', text='Sauvegarde automatique', font='Helvetica 13 bold')
 
 led_backup_signal = canvas1.create_oval(460,190,480,210, fill='red')
-displayed_backup_signal = canvas1.create_text(460,230, width=200, anchor= 'nw', text='Intervalle : ' + type_backup_frequence + '\nFréquence : ' + str(interval_backup_time) + '\nService sauvegarde à l\'arrêt', fill='red')
+displayed_backup_signal = canvas1.create_text(460,230, width=200, anchor= 'nw', text='Lorsqu\'un.e ' + type_backup_frequence + '\nvaut ' + str(interval_backup_time) + '\nService sauvegarde à l\'arrêt', fill='red')
 
 backup_button = tk.Button(text='Activer/Désactiver\nla sauvegarde\nautomatique', command=start_stop_backup, bg='black', fg='white')
 canvas1.create_window(510,380, window=backup_button)
