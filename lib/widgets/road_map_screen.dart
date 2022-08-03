@@ -68,7 +68,6 @@ class _RoadMapListState extends State<RoadMapList>
   void initState() {
     super.initState();
     getRoadMapList();
-
   }
 
   Future searchRoadMap() async {
@@ -173,6 +172,8 @@ class _RoadMapListState extends State<RoadMapList>
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,
@@ -238,6 +239,8 @@ class _RoadMapListState extends State<RoadMapList>
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text('Confirmation', textAlign: TextAlign.center),
               content: const Text(
                   'Êtes-vous sûr de vouloir générer\nune mise à jour qui sera accessible\npour tous les PDA ?',
@@ -271,6 +274,8 @@ class _RoadMapListState extends State<RoadMapList>
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,
@@ -352,9 +357,7 @@ class _RoadMapListState extends State<RoadMapList>
     });
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
-      Text('La feuille de route ' +
-          roadMap.libelle +
-          ' a bien été ajouté'),
+      Text('La feuille de route ' + roadMap.libelle + ' a bien été ajouté'),
     ));
     Future.delayed(
         Duration(milliseconds: globals.milisecondWait), () => getRoadMapList());
@@ -387,6 +390,8 @@ class _RoadMapListState extends State<RoadMapList>
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding:
                     const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
                 elevation: 8,

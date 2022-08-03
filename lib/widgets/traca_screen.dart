@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../variables/globals.dart' as globals;
 import '../variables/env.sample.dart';
 import '../models/traca.dart';
@@ -41,10 +42,9 @@ class _TracaListState extends State<TracaList>
   final _searchTextController = TextEditingController();
   final _advancedSearchTextController = TextEditingController();
   final _secondAdvancedSearchTextController = TextEditingController();
-  static const numberDisplayedList = [15, 25, 50, 100, 250];
+  static const numberDisplayedList = [15, 25, 50, 100, 250, 500];
   int numberDisplayed = numberDisplayedList.first;
   static const searchFieldList = [
-    'Code tracabilité',
     'Utilisateur',
     'Libellé tournée',
     'Libellé site',
@@ -59,7 +59,7 @@ class _TracaListState extends State<TracaList>
   String advancedSearchField = searchFieldList[1];
   String secondAdvancedSearchField = searchFieldList[2];
   bool _isAscending = false;
-  int _currentSortColumn = 0;
+  int _currentSortColumn = 8;
   int i = 0;
   int isAdvancedResearch = 0;
   String beginDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -74,7 +74,7 @@ class _TracaListState extends State<TracaList>
   void getTracaList() async {
     String phpUriTracaList = Env.urlPrefix + 'Tracas/list_traca.php';
     http.Response res = await http.post(Uri.parse(phpUriTracaList), body: {
-      "backup": backupMode ? 'true' : 'false',
+      "backup": backupMode.toString(),
       "limit": numberDisplayedList.last.toString(),
       "order": searchFieldList[_currentSortColumn].toUpperCase(),
       "isAscending": _isAscending.toString(),
@@ -103,6 +103,115 @@ class _TracaListState extends State<TracaList>
     }
   }
 
+  void exportTraca({required int limit, bool selectAll = false}) async {
+    String phpUriExportTraca = Env.urlPrefix + 'Scripts/export_traca.php';
+    http.Response res = await http.post(Uri.parse(phpUriExportTraca), body: {
+      "backup": backupMode.toString(),
+      "field": searchField.toUpperCase(),
+      "advancedField": advancedSearchField.toUpperCase(),
+      "secondAdvancedField": secondAdvancedSearchField.toUpperCase(),
+      "searchText": selectAll
+          ? ''
+          : (searchField.contains('Date')
+              ? beginDate + ' ' + beginTime + '__' + endDate + ' ' + endTime
+              : _searchTextController.text),
+      "advancedSearchText": selectAll
+          ? ''
+          : (isAdvancedResearch > 0
+              ? (advancedSearchField.contains('Date')
+                  ? beginDate + ' ' + beginTime + '__' + endDate + ' ' + endTime
+                  : _advancedSearchTextController.text)
+              : ''),
+      "secondAdvancedSearchText": selectAll
+          ? ''
+          : (isAdvancedResearch > 1
+              ? (secondAdvancedSearchField.contains('Date')
+                  ? beginDate + ' ' + beginTime + '__' + endDate + ' ' + endTime
+                  : _secondAdvancedSearchTextController.text)
+              : ''),
+      "limit": limit.toString(),
+      "order": selectAll
+          ? 'CODE TRACABILITE'
+          : searchFieldList[_currentSortColumn].toUpperCase(),
+      "isAscending": selectAll ? 'false' : _isAscending.toString(),
+    });
+    if (res.body.isNotEmpty) {
+      launchUrl(Uri.parse(json.decode(res.body)), webOnlyWindowName: '_blank');
+    }
+  }
+
+  void showDialogExportTraca() {
+    List<int> numbers = [10, 50, 100, 500, 1000, 10000];
+    int number = numbers[3];
+    showDialog(
+        barrierColor: myBarrierColor,
+        context: context,
+        builder: (_) => StatefulBuilder(
+            builder: (context, setState) => AlertDialog(
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(25))),
+                  title: Center(
+                      child: Text('Exporter la traçabilité en .CSV',
+                          style: TextStyle(
+                              fontSize: 16, color: Colors.grey.shade700))),
+                  titlePadding: const EdgeInsets.fromLTRB(24, 10, 24, 20),
+                  content: const Text(
+                    'Vous pouvez exporter la traçabilité sélectionnée par votre recherche\nou exporter un nombre donné de la traçabilité totale.\n\nA noter : pour exporter la traçabilité issue des archives, il faut d\'abord la sélectionner puis lancer l\'exportation',
+                    style: defaultTextStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                  actions: [
+                    Center(
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Padding(
+                          padding: const EdgeInsets.only(right: 40),
+                          child: TextButton(
+                              onPressed: () =>
+                                  exportTraca(limit: numberDisplayedList.last),
+                              child: Text(
+                                'Exporter les ' +
+                                    tracas.length.toString() +
+                                    '\néléments sélectionnés',
+                                style: defaultTextStyle,
+                                textAlign: TextAlign.center,
+                              ))),
+                      TextButton(
+                          onPressed: () =>
+                              exportTraca(limit: number, selectAll: true),
+                          child: SizedBox(
+                            width: 200,
+                            child: Row(
+                              children: [
+                                const Text(
+                                  'Exporter les \nderniers éléments ',
+                                  style: defaultTextStyle,
+                                  textAlign: TextAlign.center,
+                                ),
+                                Padding(
+                                    padding: const EdgeInsets.only(bottom: 20),
+                                    child: DropdownButton(
+                                        isDense: true,
+                                        value: number,
+                                        style: TextStyle(
+                                            fontSize: defaultTextStyle.fontSize,
+                                            color: Colors.blue),
+                                        items: numbers.map((item) {
+                                          return DropdownMenuItem(
+                                              value: item,
+                                              child: Text(item.toString()));
+                                        }).toList(),
+                                        onChanged: (int? newValue) =>
+                                            setState(() {
+                                              number = newValue!;
+                                            }))),
+                              ],
+                            ),
+                          ))
+                    ]))
+                  ],
+                )));
+  }
+
   @override
   void initState() {
     getTracaList();
@@ -113,7 +222,7 @@ class _TracaListState extends State<TracaList>
   Future searchTraca() async {
     String phpUriTracaSearch = Env.urlPrefix + 'Tracas/search_traca.php';
     http.Response res = await http.post(Uri.parse(phpUriTracaSearch), body: {
-      "backup": backupMode ? 'true' : 'false',
+      "backup": backupMode.toString(),
       "field": searchField.toUpperCase(),
       "advancedField": advancedSearchField.toUpperCase(),
       "secondAdvancedField": secondAdvancedSearchField.toUpperCase(),
@@ -446,6 +555,8 @@ class _TracaListState extends State<TracaList>
         barrierColor: myBarrierColor,
         context: context,
         builder: (_) => Dialog(
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(25))),
             insetPadding: const EdgeInsets.all(20),
             elevation: 8,
             child: SingleChildScrollView(
@@ -778,8 +889,8 @@ class _TracaListState extends State<TracaList>
 
   void showImage(String image) async {
     String phpUriGetImageUrl = Env.urlPrefix + 'Scripts/get_image_url.php';
-    http.Response res =
-        await http.post(Uri.parse(phpUriGetImageUrl), body: {'image': image});
+    http.Response res = await http.post(Uri.parse(phpUriGetImageUrl),
+        body: {'image': image, 'backup': backupMode.toString()});
     if (res.body.isNotEmpty) {
       showDialog(
           barrierColor: myBarrierColor,
@@ -922,15 +1033,17 @@ class _TracaListState extends State<TracaList>
                       tooltip: 'Recherche simple'),
                 const Spacer(),
                 if (globals.shouldDisplaySyncButton)
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        getTracaList();
-                      });
-                    },
-                    icon: const Icon(Icons.sync),
-                    tooltip: 'Actualiser l\'onglet',
-                  ),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            getTracaList();
+                          });
+                        },
+                        icon: const Icon(Icons.sync),
+                        tooltip: 'Actualiser l\'onglet',
+                      )),
                 if (backupMode)
                   ElevatedButton(
                       style: myButtonStyle,
@@ -949,6 +1062,15 @@ class _TracaListState extends State<TracaList>
                         'Accéder aux\n archives',
                         textAlign: TextAlign.center,
                       )),
+                const Spacer(),
+                ElevatedButton(
+                  style: myButtonStyle,
+                  onPressed: () => showDialogExportTraca(),
+                  child: const Text(
+                    'Exporter\nen CSV',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
                 const Spacer(),
                 const Text(
                   'Nombre de\nlignes affichées : ',
@@ -989,13 +1111,6 @@ class _TracaListState extends State<TracaList>
                                 sortColumnIndex: _currentSortColumn,
                                 sortAscending: _isAscending,
                                 columns: [
-                                  DataColumn(
-                                      label: Text(
-                                        'Code\ntracabilité',
-                                        textAlign: TextAlign.center,
-                                        style: titleStyle,
-                                      ),
-                                      onSort: sorting('CODE TRACABILITE')),
                                   DataColumn(
                                       label: Text('Utilisateur',
                                           style: titleStyle),
@@ -1072,8 +1187,6 @@ class TracaData extends DataTableSource {
           }
         },
         cells: [
-          DataCell(SelectableText(data[index]['CODE TRACABILITE'],
-              style: defaultTextStyle)),
           DataCell(SelectableText(data[index]['UTILISATEUR'],
               style: defaultTextStyle)),
           DataCell(SizedBox(

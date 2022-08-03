@@ -8,23 +8,24 @@ final Color backgroundColor = Colors.lightBlue.shade50
 const Color myBarrierColor = Colors.black26;
 
 ButtonStyle myButtonStyle = ButtonStyle(
-  textStyle: MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-    return states.contains(MaterialState.disabled) ? null : defaultTextStyle;
-  }),
-  foregroundColor:
-      MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-    return states.contains(MaterialState.disabled) ? null : Colors.white;
-  }),
-  backgroundColor:
-      MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-    return states.contains(MaterialState.disabled) ? null : themeMainColor;
-  }),
-  padding: MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-    return states.contains(MaterialState.disabled)
-        ? null
-        : const EdgeInsets.all(10);
-  }),
-);
+    textStyle: MaterialStateProperty.resolveWith((Set<MaterialState> states) {
+  return states.contains(MaterialState.disabled) ? null : defaultTextStyle;
+}), foregroundColor:
+        MaterialStateProperty.resolveWith((Set<MaterialState> states) {
+  return states.contains(MaterialState.disabled) ? null : Colors.white;
+}), backgroundColor:
+        MaterialStateProperty.resolveWith((Set<MaterialState> states) {
+  return states.contains(MaterialState.disabled) ? null : themeMainColor;
+}), padding: MaterialStateProperty.resolveWith((Set<MaterialState> states) {
+  return states.contains(MaterialState.disabled)
+      ? null
+      : const EdgeInsets.all(10);
+}), shape: MaterialStateProperty.resolveWith((Set<MaterialState> states) {
+  return states.contains(MaterialState.disabled)
+      ? null
+      : const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)));
+}));
 
 SnackBar mySnackBar(Text text,
     {double width = 500,

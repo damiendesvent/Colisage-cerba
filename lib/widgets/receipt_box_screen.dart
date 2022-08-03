@@ -59,6 +59,8 @@ class _ReceiptBoxState extends State<ReceiptBox> {
         backgroundColor: backgroundColor,
         body: SingleChildScrollView(
             child: Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding: const EdgeInsets.all(30),
                 elevation: 8,
                 child: SizedBox(

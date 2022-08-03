@@ -136,6 +136,8 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,
@@ -220,6 +222,8 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,
@@ -333,6 +337,8 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding:
                     const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
                 elevation: 8,
@@ -360,7 +366,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                 TableRow(
                                   children: [
                                     TableCell(
-                                        child: Text('Code étape* : ',
+                                        child: Text('Code avancement* : ',
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: defaultTextStyle

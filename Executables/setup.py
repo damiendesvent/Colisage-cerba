@@ -47,7 +47,6 @@ with open('bin/variables.txt') as variables_file :
     backup_path = variableDict['chemin_sauvegardes']
     backup_prefix = variableDict['prefixe_fichier_sauvegarde']
     records_traca_path = variableDict['chemin_archives_tracabilites']
-    records_prefix = variableDict['prefixe_fichier_archive']
     type_backup_frequence = variableDict['type_sauvegarde']
     interval_backup_time = int(variableDict['frequence_sauvegarde'])
     last_reception_in_directory = variableDict['chemin_reception_fichiers_boite']
@@ -122,8 +121,6 @@ def import_traca_pda() :
         for image_name in imagesList :
             image_src_path = images_in_directory + '/' + image_name
             image_dst_path = extract_folder + '/htdocs/flutter_api/Images/' + image_name
-            print('src : '+image_src_path)
-            print('dst : ' + image_dst_path)
             if os.path.isfile(image_dst_path) :
                 os.unlink(image_dst_path)
             shutil.move(image_src_path, image_dst_path)
@@ -146,40 +143,43 @@ def backup(changeDisplay = True) :
         
         mydb = mysql.connector.connect(host='localhost', user='root', password='root', database='cerba')
         mycursor = mydb.cursor(buffered=True)
-        query = 'SELECT `DATE HEURE SYNCHRONISATION` FROM `tracabilite` ORDER BY `DATE HEURE SYNCHRONISATION` ASC LIMIT 1'
-        mycursor.execute(query)
-        synchronizing_time = mycursor.fetchone()
-        actual_time = datetime.now()
+        mycursor.execute('SHOW TABLES LIKE "tracabilite"')
+        tableExist = mycursor.fetchone()
+        if tableExist != None :
+            query = 'SELECT `DATE HEURE SYNCHRONISATION` FROM `tracabilite` ORDER BY `DATE HEURE SYNCHRONISATION` ASC LIMIT 1'
+            mycursor.execute(query)
+            synchronizing_time = mycursor.fetchone()
+            actual_time = datetime.now()
 
-        # la partie qui suit est dédiée à la création des archives de traçabilité
-        if synchronizing_time != None and synchronizing_time[0].month % 12 != actual_time.month and (synchronizing_time[0].month + 1) % 12 != actual_time.month and changeDisplay :
-            mycursor.execute('TRUNCATE `backup_tracabilite`')
-            mydb.commit()
-            mycursor.execute('INSERT INTO `backup_tracabilite` SELECT * FROM `tracabilite` WHERE `date heure synchronisation` BETWEEN "' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00" AND "' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59"')
-            mydb.commit()
-            mycursor.execute('SELECT PHOTO,SIGNATURE FROM `backup_tracabilite`')
-            items = mycursor.fetchall()
-            files = os.listdir(extract_folder + '/htdocs/flutter_api/Images')
-            os.makedirs(records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B'), exist_ok=True)
-            for picture,signing in items :
-                if picture != None :
-                    for file in files :
-                        if picture in file and not os.isfile(records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file) :
-                            shutil.move(extract_folder + '/htdocs/flutter_api/Images/' + file, records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file)
-                            break
-                if signing != None :
-                    for file in files :
-                        if signing in file and not os.isfile(records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file) :
-                            shutil.move(extract_folder + '/htdocs/flutter_api/Images/' + file, records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file)
-                            break
-            if os.isfile(records_traca_path + '/' + records_prefix + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql') :
-                subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite > ' + records_traca_path + '/' + records_prefix + synchronizing_time[0].strftime('%Y-%m_%B') + actual_time.strftime('%Y-%m-%d_%H-%M-%S') + '.sql', shell=True)
-            else :
-                subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite > ' + records_traca_path + '/' + records_prefix + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql', shell=True)
-            secondQuery = 'DELETE FROM `tracabilite` WHERE `date heure synchronisation` BETWEEN \'' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00\' AND \'' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59\''
-            mycursor.execute(secondQuery)
-            mycursor.execute('TRUNCATE `backup_tracabilite`')
-            mydb.commit()
+            # la partie qui suit est dédiée à la création des archives de traçabilité
+            if synchronizing_time != None and synchronizing_time[0].month % 12 != actual_time.month and (synchronizing_time[0].month + 1) % 12 != actual_time.month and changeDisplay :
+                mycursor.execute('TRUNCATE `backup_tracabilite`')
+                mydb.commit()
+                mycursor.execute('INSERT INTO `backup_tracabilite` SELECT * FROM `tracabilite` WHERE `date heure synchronisation` BETWEEN "' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00" AND "' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59"')
+                mydb.commit()
+                mycursor.execute('SELECT PHOTO,SIGNATURE FROM `backup_tracabilite`')
+                items = mycursor.fetchall()
+                files = os.listdir(extract_folder + '/htdocs/flutter_api/Images')
+                os.makedirs(records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B'), exist_ok=True)
+                for picture,signing in items :
+                    if picture != None :
+                        for file in files :
+                            if picture in file and not os.path.isfile(records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file) :
+                                shutil.move(extract_folder + '/htdocs/flutter_api/Images/' + file, records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file)
+                                break
+                    if signing != None :
+                        for file in files :
+                            if signing in file and not os.path.isfile(records_traca_path + '/' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file) :
+                                shutil.move(extract_folder + '/htdocs/flutter_api/Images/' + file, records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '/' + file)
+                                break
+                if os.path.isfile(records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql') :
+                    subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite > ' + records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + actual_time.strftime('%Y-%m-%d_%H-%M-%S') + '.sql', shell=True)
+                else :
+                    subprocess.run(extract_folder + '/bin/mysql/bin/mysqldump -u root -proot cerba backup_tracabilite > ' + records_traca_path + '/tracabilite_' + synchronizing_time[0].strftime('%Y-%m_%B') + '.sql', shell=True)
+                secondQuery = 'DELETE FROM `tracabilite` WHERE `date heure synchronisation` BETWEEN \'' + synchronizing_time[0].strftime('%Y-%m') + '-01-00:00:00\' AND \'' + synchronizing_time[0].strftime('%Y-%m') + '-31-23:59:59\''
+                mycursor.execute(secondQuery)
+                mycursor.execute('TRUNCATE `backup_tracabilite`')
+                mydb.commit()
 
         mycursor.close()
         mydb.close()
@@ -213,7 +213,7 @@ def install() :
             pb = ttk.Progressbar(root, orient='horizontal', mode='determinate', length=250)
             global progressBar
             progressBar = canvas1.create_window(450,35,window=pb)
-            t1 = threading.Thread(target=displayPb(1,600))
+            t1 = threading.Thread(target=displayPb(1,800))
             t2 = threading.Thread(target=install_server)
             t1.start()
             t2.start()
@@ -291,7 +291,7 @@ def repair() :
             pb = ttk.Progressbar(root, orient='horizontal', mode='determinate', length=250)
             global progressBar
             progressBar = canvas1.create_window(450,35,window=pb)
-            t1 = threading.Thread(target=displayPb(1,450))
+            t1 = threading.Thread(target=displayPb(1,550))
             t2 = threading.Thread(target=uninstall_server(showMessage=False))
             t1.start()
             t2.start()
@@ -308,7 +308,7 @@ def uninstall() :
             pb = ttk.Progressbar(root, orient='horizontal', mode='determinate', length=250)
             global progressBar
             progressBar = canvas1.create_window(450,35,window=pb)
-            t1 = threading.Thread(target=displayPb(1,450))
+            t1 = threading.Thread(target=displayPb(1,550))
             t2 = threading.Thread(target=uninstall_server)
             t1.start()
             t2.start()

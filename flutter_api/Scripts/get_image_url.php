@@ -3,8 +3,9 @@ header("Content-Type: application/json");
 
 
 $image = $_POST['image'];
+$backup = $_POST['backup'];
 
-$url_image = "Images/$image";
+$url_image = $backup == 'true' ? "Images/Backup/$image" : "Images/$image";
 $url_prefix = "http://$_SERVER[HTTP_HOST]/flutter_api/";
 
 if (file_exists('../'.$url_image.'.jpg')) {

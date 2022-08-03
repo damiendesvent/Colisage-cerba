@@ -216,6 +216,8 @@ class _SiteListState extends State<SiteList>
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,
@@ -283,6 +285,8 @@ class _SiteListState extends State<SiteList>
         barrierColor: myBarrierColor,
         context: context,
         builder: (_) => Dialog(
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(25))),
             insetPadding: const EdgeInsets.all(50),
             elevation: 8,
             child: SingleChildScrollView(
@@ -467,6 +471,8 @@ class _SiteListState extends State<SiteList>
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding:
                     const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
                 elevation: 8,
@@ -830,6 +836,8 @@ class _SiteListState extends State<SiteList>
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,
@@ -943,6 +951,8 @@ class _SiteListState extends State<SiteList>
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding: const EdgeInsets.all(50),
                 elevation: 8,
                 child: SingleChildScrollView(
@@ -1301,6 +1311,8 @@ class _SiteListState extends State<SiteList>
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,

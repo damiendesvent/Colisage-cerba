@@ -25,7 +25,6 @@ minute_synchro_pda_2 = 45
 chemin_sauvegardes = C:/Backup
 prefixe_fichier_sauvegarde = colisage_
 chemin_archives_tracabilites = C:/Backup/tracabilites
-prefixe_fichier_archive = tracabilite_
 # Pour le paramètre suivant, vous devez écrire : seconde, minute, heure ou jour
 type_sauvegarde = seconde
 frequence_sauvegarde = 20

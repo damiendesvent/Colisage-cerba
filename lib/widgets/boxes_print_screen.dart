@@ -111,6 +111,8 @@ class _BoxesPrintState extends State<BoxesPrint>
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,
@@ -493,6 +495,8 @@ class _BoxesPrintState extends State<BoxesPrint>
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,
@@ -545,6 +549,8 @@ class _BoxesPrintState extends State<BoxesPrint>
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,
@@ -605,6 +611,8 @@ class _BoxesPrintState extends State<BoxesPrint>
         context: context,
         builder: (_) => StatefulBuilder(
             builder: (context, setState) => AlertDialog(
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(25))),
                   title: Text('Impression d\'étiquettes ' + libelle),
                   content: Table(
                     defaultVerticalAlignment: TableCellVerticalAlignment.middle,

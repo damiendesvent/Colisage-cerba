@@ -52,6 +52,12 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   String? settingsAccessStatus;
   final List<String> yesNoList = ['Oui', 'Non'];
   final List<String> accessRightsList = ['Acun', 'Affichage', 'Gestion'];
+  final List<String> userRightsList = [
+    'Acun',
+    'Affichage',
+    'Gestion',
+    'Super Gestion'
+  ];
   bool isAdvancedResearch = false;
   static const searchFieldList = [
     'Code utilisateur',
@@ -189,6 +195,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,
@@ -274,6 +282,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text(
                 'Confirmation',
                 textAlign: TextAlign.center,
@@ -385,7 +395,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
     String siteRights = accessRightsList[0];
     String roadMapRights = accessRightsList[0];
     String boxRights = accessRightsList[0];
-    String userRights = accessRightsList[0];
+    String userRights = userRightsList[0];
     String executeSqlStatus = yesNoList[1];
     String settingsAccessStatus = yesNoList[1];
 
@@ -395,6 +405,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding: const EdgeInsets.all(20),
                 elevation: 8,
                 child: SingleChildScrollView(
@@ -664,7 +676,11 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                 child: DropdownButton(
                                                     value: userRights,
                                                     style: defaultTextStyle,
-                                                    items: accessRightsList
+                                                    items: (globals.user
+                                                                    .userRights >
+                                                                2
+                                                            ? userRightsList
+                                                            : accessRightsList)
                                                         .map((value) {
                                                       return DropdownMenuItem(
                                                           value: value,
@@ -677,58 +693,68 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                       });
                                                     })))))
                               ]),
-                              TableRow(children: [
-                                const TableCell(
-                                    child: Text('Accès au panneau SQL :',
-                                        style: defaultTextStyle)),
-                                TableCell(
-                                    child: Center(
-                                        child: SizedBox(
-                                            height: 40,
-                                            child: DropdownButtonHideUnderline(
-                                                child: DropdownButton(
-                                                    value: executeSqlStatus,
-                                                    style: defaultTextStyle,
-                                                    items:
-                                                        yesNoList.map((value) {
-                                                      return DropdownMenuItem(
-                                                          value: value,
-                                                          child: Text(value));
-                                                    }).toList(),
-                                                    onChanged:
-                                                        (String? newValue) {
-                                                      setState(() {
-                                                        executeSqlStatus =
-                                                            newValue!;
-                                                      });
-                                                    })))))
-                              ]),
-                              TableRow(children: [
-                                const TableCell(
-                                    child: Text('Accès aux paramètres :',
-                                        style: defaultTextStyle)),
-                                TableCell(
-                                    child: Center(
-                                        child: SizedBox(
-                                            height: 40,
-                                            child: DropdownButtonHideUnderline(
-                                                child: DropdownButton(
-                                                    value: settingsAccessStatus,
-                                                    style: defaultTextStyle,
-                                                    items:
-                                                        yesNoList.map((value) {
-                                                      return DropdownMenuItem(
-                                                          value: value,
-                                                          child: Text(value));
-                                                    }).toList(),
-                                                    onChanged:
-                                                        (String? newValue) {
-                                                      setState(() {
-                                                        settingsAccessStatus =
-                                                            newValue!;
-                                                      });
-                                                    })))))
-                              ]),
+                              if (globals.user.userRights > 2)
+                                TableRow(children: [
+                                  const TableCell(
+                                      child: Text('Accès au panneau SQL :',
+                                          style: defaultTextStyle)),
+                                  TableCell(
+                                      child: Center(
+                                          child: SizedBox(
+                                              height: 40,
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                      child: DropdownButton(
+                                                          value:
+                                                              executeSqlStatus,
+                                                          style:
+                                                              defaultTextStyle,
+                                                          items: yesNoList
+                                                              .map((value) {
+                                                            return DropdownMenuItem(
+                                                                value: value,
+                                                                child: Text(
+                                                                    value));
+                                                          }).toList(),
+                                                          onChanged: (String?
+                                                              newValue) {
+                                                            setState(() {
+                                                              executeSqlStatus =
+                                                                  newValue!;
+                                                            });
+                                                          })))))
+                                ]),
+                              if (globals.user.userRights > 2)
+                                TableRow(children: [
+                                  const TableCell(
+                                      child: Text('Accès aux paramètres :',
+                                          style: defaultTextStyle)),
+                                  TableCell(
+                                      child: Center(
+                                          child: SizedBox(
+                                              height: 40,
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                      child: DropdownButton(
+                                                          value:
+                                                              settingsAccessStatus,
+                                                          style:
+                                                              defaultTextStyle,
+                                                          items: yesNoList
+                                                              .map((value) {
+                                                            return DropdownMenuItem(
+                                                                value: value,
+                                                                child: Text(
+                                                                    value));
+                                                          }).toList(),
+                                                          onChanged: (String?
+                                                              newValue) {
+                                                            setState(() {
+                                                              settingsAccessStatus =
+                                                                  newValue!;
+                                                            });
+                                                          })))))
+                                ]),
                             ],
                           ),
                           Center(
@@ -847,7 +873,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
     String siteRights = accessRightsList[user.siteRights];
     String roadMapRights = accessRightsList[user.roadMapRights];
     String boxRights = accessRightsList[user.boxRights];
-    String userRights = accessRightsList[user.userRights];
+    String userRights = userRightsList[user.userRights];
     String executeSqlStatus = yesNoList[user.sqlExecute ? 0 : 1];
     String settingsAccessStatus = yesNoList[user.settingsRights ? 0 : 1];
 
@@ -857,6 +883,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding: const EdgeInsets.all(20),
                 elevation: 8,
                 child: SingleChildScrollView(
@@ -1061,7 +1089,11 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                 child: DropdownButton(
                                                     value: userRights,
                                                     style: defaultTextStyle,
-                                                    items: accessRightsList
+                                                    items: (globals.user
+                                                                    .userRights >
+                                                                2
+                                                            ? userRightsList
+                                                            : accessRightsList)
                                                         .map((value) {
                                                       return DropdownMenuItem(
                                                           value: value,
@@ -1074,58 +1106,68 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                       });
                                                     })))))
                               ]),
-                              TableRow(children: [
-                                const TableCell(
-                                    child: Text('Accès au panneau SQL :',
-                                        style: defaultTextStyle)),
-                                TableCell(
-                                    child: Center(
-                                        child: SizedBox(
-                                            height: 45,
-                                            child: DropdownButtonHideUnderline(
-                                                child: DropdownButton(
-                                                    value: executeSqlStatus,
-                                                    style: defaultTextStyle,
-                                                    items:
-                                                        yesNoList.map((value) {
-                                                      return DropdownMenuItem(
-                                                          value: value,
-                                                          child: Text(value));
-                                                    }).toList(),
-                                                    onChanged:
-                                                        (String? newValue) {
-                                                      setState(() {
-                                                        executeSqlStatus =
-                                                            newValue!;
-                                                      });
-                                                    })))))
-                              ]),
-                              TableRow(children: [
-                                const TableCell(
-                                    child: Text('Accès aux paramètres :',
-                                        style: defaultTextStyle)),
-                                TableCell(
-                                    child: Center(
-                                        child: SizedBox(
-                                            height: 45,
-                                            child: DropdownButtonHideUnderline(
-                                                child: DropdownButton(
-                                                    value: settingsAccessStatus,
-                                                    style: defaultTextStyle,
-                                                    items:
-                                                        yesNoList.map((value) {
-                                                      return DropdownMenuItem(
-                                                          value: value,
-                                                          child: Text(value));
-                                                    }).toList(),
-                                                    onChanged:
-                                                        (String? newValue) {
-                                                      setState(() {
-                                                        settingsAccessStatus =
-                                                            newValue!;
-                                                      });
-                                                    })))))
-                              ]),
+                              if (globals.user.userRights > 2)
+                                TableRow(children: [
+                                  const TableCell(
+                                      child: Text('Accès au panneau SQL :',
+                                          style: defaultTextStyle)),
+                                  TableCell(
+                                      child: Center(
+                                          child: SizedBox(
+                                              height: 45,
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                      child: DropdownButton(
+                                                          value:
+                                                              executeSqlStatus,
+                                                          style:
+                                                              defaultTextStyle,
+                                                          items: yesNoList
+                                                              .map((value) {
+                                                            return DropdownMenuItem(
+                                                                value: value,
+                                                                child: Text(
+                                                                    value));
+                                                          }).toList(),
+                                                          onChanged: (String?
+                                                              newValue) {
+                                                            setState(() {
+                                                              executeSqlStatus =
+                                                                  newValue!;
+                                                            });
+                                                          })))))
+                                ]),
+                              if (globals.user.userRights > 2)
+                                TableRow(children: [
+                                  const TableCell(
+                                      child: Text('Accès aux paramètres :',
+                                          style: defaultTextStyle)),
+                                  TableCell(
+                                      child: Center(
+                                          child: SizedBox(
+                                              height: 45,
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                      child: DropdownButton(
+                                                          value:
+                                                              settingsAccessStatus,
+                                                          style:
+                                                              defaultTextStyle,
+                                                          items: yesNoList
+                                                              .map((value) {
+                                                            return DropdownMenuItem(
+                                                                value: value,
+                                                                child: Text(
+                                                                    value));
+                                                          }).toList(),
+                                                          onChanged: (String?
+                                                              newValue) {
+                                                            setState(() {
+                                                              settingsAccessStatus =
+                                                                  newValue!;
+                                                            });
+                                                          })))))
+                                ]),
                             ],
                           ),
                           Center(
@@ -1215,6 +1257,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding: const EdgeInsets.all(20),
                 elevation: 8,
                 child: SingleChildScrollView(
@@ -1384,6 +1428,8 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding:
                     const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
                 elevation: 8,

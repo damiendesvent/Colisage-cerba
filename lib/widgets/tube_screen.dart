@@ -334,7 +334,9 @@ class _TubeListState extends State<TubeList> {
       setState(() {});
       return 'La boîte est pleine';
     } else {
-      setState(() {});
+      setState(() {
+        confirm = 0;
+      });
       return null;
     }
   }
@@ -455,13 +457,35 @@ class _TubeListState extends State<TubeList> {
                 removeTubes: true, resetStates: true);
             break;
           case '6':
-            getListTube(boxController.text, removeTubes: true);
-            onAddTraca(action: 'REC');
-            setState(() {
-              tubes.add(boxController.text);
-              boxErrorText = null;
-              showBoxesDialog = true;
-            });
+            if (tubes.contains(boxController.text)) {
+              setState(() {
+                confirm += 1;
+              });
+              if (confirm > 1) {
+                getListTube(boxController.text, removeTubes: true);
+                onAddTraca(action: 'REC');
+                setState(() {
+                  confirm = 0;
+                  tubes.add(boxController.text);
+                  boxErrorText = null;
+                  showBoxesDialog = true;
+                });
+              } else {
+                setState(() {
+                  boxErrorText =
+                      'La boîte a déjà été scannée, bippez à nouveau pour confirmer';
+                });
+              }
+            } else {
+              getListTube(boxController.text, removeTubes: true);
+              onAddTraca(action: 'REC');
+              setState(() {
+                confirm = 0;
+                tubes.add(boxController.text);
+                boxErrorText = null;
+                showBoxesDialog = true;
+              });
+            }
         }
       }
     });
@@ -696,7 +720,8 @@ class _TubeListState extends State<TubeList> {
                   style: ButtonStyle(
                       backgroundColor: myButtonStyle.backgroundColor,
                       foregroundColor: myButtonStyle.foregroundColor,
-                      padding: myButtonStyle.padding),
+                      padding: myButtonStyle.padding,
+                      shape: myButtonStyle.shape),
                   child: const Text('Valider', style: defaultTextStyle),
                   onPressed: showBoxDialog
                       ? null
@@ -765,7 +790,7 @@ class _TubeListState extends State<TubeList> {
                                                                 defaultTextStyle
                                                                         .fontSize! -
                                                                     4,
-                                                            height: 0.3),
+                                                            height: 0.8),
                                                         errorMaxLines: 2,
                                                         errorText: submited
                                                             ? boxErrorText

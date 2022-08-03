@@ -105,6 +105,8 @@ class _SettingState extends State<Setting> {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25))),
               title: const Text('Confirmation'),
               content: Text(
                   'Êtes-vous sûr de vouloir supprimer\nl\'assiociation du préfixe ' +
@@ -148,6 +150,8 @@ class _SettingState extends State<Setting> {
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(25))),
                 insetPadding:
                     const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
                 elevation: 8,

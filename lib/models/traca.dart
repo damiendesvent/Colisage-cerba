@@ -39,7 +39,7 @@ class Traca {
     return Traca(
         code: int.parse(traca['CODE TRACABILITE']),
         user: traca['UTILISATEUR'],
-        tournee: traca['LIBELLE TOURNEE'],
+        tournee: traca['LIBELLE TOURNEE'] ?? '',
         site: traca['LIBELLE SITE'],
         box: traca['BOITE'] ?? '',
         tube: traca['TUBE'] ?? '',
@@ -50,7 +50,7 @@ class Traca {
         pgm: traca['CODE ORIGINE'],
         lettrage: int.parse(traca['NUMERO LETTRAGE'] ?? '0'),
         car: int.parse(traca['CODE VOITURE'] ?? '0'),
-        picture:traca['PHOTO'] ?? '',
+        picture: traca['PHOTO'] ?? '',
         signing: traca['SIGNATURE'] ?? '',
         comment: traca['COMMENTAIRE'] ?? '');
   }
