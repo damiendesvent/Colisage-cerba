@@ -1739,9 +1739,27 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                       )
                     ]))),
                 body: snapshot.data.isEmpty
-                    ? const Center(
-                        child: Text(
-                            'Aucun utilisateur ne correspond à votre recherche.'))
+                    ? Center(
+                        child:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
+                        const Padding(
+                            padding: EdgeInsets.only(bottom: 15),
+                            child: Text(
+                                'Aucun utilisateur ne correspond à votre recherche.',
+                                style: defaultTextStyle)),
+                        ElevatedButton(
+                            style: myButtonStyle,
+                            onPressed: () {
+                              setState(() {
+                                _searchTextController.clear();
+                                _advancedSearchTextController.clear();
+                                showDeleteUser = false;
+                              });
+                              getUserList();
+                            },
+                            child: const Text('Afficher tous les utilisateurs',
+                                style: defaultTextStyle))
+                      ]))
                     : Row(
                         children: [
                           Expanded(
@@ -1801,7 +1819,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                   DataColumn(
                                                       label: Row(children: [
                                                     const Text(
-                                                        'Utilisateurs\nsupprimées :'),
+                                                        'Utilisateurs\nsupprimés :'),
                                                     Switch(
                                                         value: showDeleteUser,
                                                         onChanged: (newValue) {

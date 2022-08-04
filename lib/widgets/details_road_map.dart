@@ -1160,9 +1160,33 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                       height:
                                           MediaQuery.of(context).size.height -
                                               348,
-                                      child: const Center(
-                                          child: Text(
-                                              'Aucune étape ne correspond à votre recherche.')))
+                                      child: Center(
+                                          child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                            const Padding(
+                                                padding:
+                                                    EdgeInsets.only(bottom: 15),
+                                                child: Text(
+                                                    'Aucune étape ne correspond à votre recherche.',
+                                                    style: defaultTextStyle)),
+                                            ElevatedButton(
+                                                style: myButtonStyle,
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _searchTextController
+                                                        .clear();
+                                                    _advancedSearchTextController
+                                                        .clear();
+                                                    showDeleteDetailRoadMap =
+                                                        false;
+                                                  });
+                                                  getDetailsRoadMapList();
+                                                },
+                                                child: const Text(
+                                                    'Afficher toutes les étapes',
+                                                    style: defaultTextStyle))
+                                          ])))
                                   : DataTable(
                                       columnSpacing: 0,
                                       headingRowHeight: 50,
