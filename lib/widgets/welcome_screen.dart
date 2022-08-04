@@ -24,7 +24,7 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
   Timer? timer;
-  int minTabWidth = 800;
+  int minTabWidth = 935;
   int _widgetIndex = 1;
   late TabController _tabController;
 
@@ -59,6 +59,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
         globals.milisecondWait = int.parse(items[2]['Valeur']);
         globals.shouldKeepAlive = items[3]['Valeur'] == 'Oui';
         globals.inactivityTimeOut = int.parse(items[4]['Valeur']);
+        globals.maxCapacityBox = int.parse(items[6]['Valeur']);
       });
     }
   }
@@ -370,6 +371,15 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                                 if (MediaQuery.of(context).size.width >
                                     minTabWidth)
                                   const Text(" Réception boîte")
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.phone),
+                                if (MediaQuery.of(context).size.width >
+                                    minTabWidth)
+                                  const Text(" Appels")
                               ],
                             ),
                             if (globals.user.siteRights +

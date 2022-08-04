@@ -280,7 +280,6 @@ class _TracaListState extends State<TracaList>
                         setState(() {
                           advancedSearchField = newAdvancedSearchField!;
                         });
-                        searchTraca();
                       }))),
           SizedBox(
               width: 360,
@@ -718,24 +717,15 @@ class _TracaListState extends State<TracaList>
                               TableRow(
                                 children: [
                                   const TableCell(
-                                      child: Text('Lettrage : ',
-                                          style: defaultTextStyle)),
-                                  TableCell(
-                                      child: SizedBox(
-                                          height: 30,
-                                          child: Text(traca.lettrage.toString(),
-                                              style: defaultTextStyle)))
-                                ],
-                              ),
-                              TableRow(
-                                children: [
-                                  const TableCell(
                                       child: Text('Code voiture : ',
                                           style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
                                           height: 30,
-                                          child: Text(traca.car.toString(),
+                                          child: Text(
+                                              traca.car == 0
+                                                  ? ''
+                                                  : traca.car.toString(),
                                               style: defaultTextStyle)))
                                 ],
                               ),
@@ -1104,7 +1094,9 @@ class _TracaListState extends State<TracaList>
                         child: SingleChildScrollView(
                             controller: _scrollController,
                             child: PaginatedDataTable(
-                                rowsPerPage: numberDisplayed,
+                                rowsPerPage: numberDisplayed < tracas.length
+                                    ? numberDisplayed
+                                    : tracas.length,
                                 showFirstLastButtons: true,
                                 showCheckboxColumn: false,
                                 columnSpacing: 0,
@@ -1122,7 +1114,8 @@ class _TracaListState extends State<TracaList>
                                       label: Text('Site', style: titleStyle),
                                       onSort: sorting('LIBELLE SITE')),
                                   DataColumn(
-                                      label: Text('Boite', style: titleStyle),
+                                      label: Text('Boîte/Sachet',
+                                          style: titleStyle),
                                       onSort: sorting('BOITE')),
                                   DataColumn(
                                       label: Text('Tube', style: titleStyle),

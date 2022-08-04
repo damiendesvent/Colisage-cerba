@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:colisage_cerba/widgets/call_screen.dart';
 import 'package:flutter/material.dart';
 import '../variables/styles.dart';
 import 'package:http/http.dart' as http;
@@ -56,6 +57,7 @@ class _LogInFormState extends State<LogInForm> {
               const TracaScreen(),
               const TubeScreen(),
               const ReceiptBoxScreen(),
+              const CallScreen(),
               if (globals.user.siteRights +
                       globals.user.roadMapRights +
                       globals.user.boxRights +

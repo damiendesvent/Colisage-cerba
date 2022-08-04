@@ -12,6 +12,8 @@ $accents_replace    = array('a','a','a','a','a','a','a','A','A','A','A','A','e',
 'e','e','E','E','E','E','i','i','i','i','I','I','I','I','oe','o','o','o','o','o','o',
 'O','O','O','O','O','u','u','u','U','U','U','c','C','N','n'); 
 
+if (!is_dir($directory_path)) {mkdir($directory_path, 0777, true);}
+
 // Création du fichier COLFRE.txt avec les entêtes de feuilles de route :
 $colfre_file = fopen($directory_path.'/COLFRE.txt','w');
 

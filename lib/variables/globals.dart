@@ -14,6 +14,7 @@ String pdaTrackInDirectory = '/';
 int inactivityTimeOut = 15;
 String ip = '';
 String currentSite = '';
+int maxCapacityBox = 50;
 
 User user = User(
     code: '',
@@ -45,4 +46,3 @@ RoadMap detailedRoadMap =
 
 List<Widget> mainWidgetTabs = [];
 List<Widget> managementWidgetTabs = [];
-

@@ -330,7 +330,8 @@ class _TubeListState extends State<TubeList> {
         return null;
       }
       return 'Le tube est déjà présent, validez à nouveau pour confirmer';
-    } else if (alreadyOnBoxTubes.length + tubes.length >= 50) {
+    } else if (alreadyOnBoxTubes.length + tubes.length >=
+        globals.maxCapacityBox) {
       setState(() {});
       return 'La boîte est pleine';
     } else {
@@ -951,7 +952,8 @@ class _TubeListState extends State<TubeList> {
                                   padding: const EdgeInsets.only(bottom: 15),
                                   child: Text(
                                     alreadyOnBoxTubes.length.toString() +
-                                        ' / 50',
+                                        ' / ' +
+                                        globals.maxCapacityBox.toString(),
                                     style: defaultTextStyle,
                                     textAlign: TextAlign.center,
                                   )))
@@ -970,7 +972,8 @@ class _TubeListState extends State<TubeList> {
                                               : alreadyOnBoxTubes.length -
                                                   tubes.length)
                                           .toString() +
-                                      ' / 50',
+                                      ' / ' +
+                                      globals.maxCapacityBox.toString(),
                                   style: defaultTextStyle,
                                   textAlign: TextAlign.center))
                         ],
