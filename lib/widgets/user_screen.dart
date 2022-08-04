@@ -43,7 +43,6 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   bool _isAscending = true;
   int _currentSortColumn = 0;
   late List users;
-  String? editingUser;
   String? siteRights;
   String? roadMapRights;
   String? boxRights;
@@ -177,7 +176,6 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
       "settingsAccess": myUser.settingsRights ? 'true' : 'false',
     });
     setState(() {
-      editingUser = null;
       siteRights = null;
       roadMapRights = null;
       boxRights = null;
@@ -412,7 +410,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                 child: SingleChildScrollView(
                     child: SizedBox(
                         width: 550,
-                        height: 600,
+                        height: globals.user.userRights > 2 ? 600 : 500,
                         child:
                             Column(mainAxisSize: MainAxisSize.min, children: [
                           Padding(
@@ -664,35 +662,36 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                       });
                                                     })))))
                               ]),
-                              TableRow(children: [
-                                const TableCell(
-                                    child: Text('Droits utilisateurs :',
-                                        style: defaultTextStyle)),
-                                TableCell(
-                                    child: Center(
-                                        child: SizedBox(
-                                            height: 40,
-                                            child: DropdownButtonHideUnderline(
-                                                child: DropdownButton(
-                                                    value: userRights,
-                                                    style: defaultTextStyle,
-                                                    items: (globals.user
-                                                                    .userRights >
-                                                                2
-                                                            ? userRightsList
-                                                            : accessRightsList)
-                                                        .map((value) {
-                                                      return DropdownMenuItem(
-                                                          value: value,
-                                                          child: Text(value));
-                                                    }).toList(),
-                                                    onChanged:
-                                                        (String? newValue) {
-                                                      setState(() {
-                                                        userRights = newValue!;
-                                                      });
-                                                    })))))
-                              ]),
+                              if (globals.user.userRights > 2)
+                                TableRow(children: [
+                                  const TableCell(
+                                      child: Text('Droits utilisateurs :',
+                                          style: defaultTextStyle)),
+                                  TableCell(
+                                      child: Center(
+                                          child: SizedBox(
+                                              height: 40,
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                      child: DropdownButton(
+                                                          value: userRights,
+                                                          style:
+                                                              defaultTextStyle,
+                                                          items: userRightsList
+                                                              .map((value) {
+                                                            return DropdownMenuItem(
+                                                                value: value,
+                                                                child: Text(
+                                                                    value));
+                                                          }).toList(),
+                                                          onChanged: (String?
+                                                              newValue) {
+                                                            setState(() {
+                                                              userRights =
+                                                                  newValue!;
+                                                            });
+                                                          })))))
+                                ]),
                               if (globals.user.userRights > 2)
                                 TableRow(children: [
                                   const TableCell(
@@ -890,7 +889,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                 child: SingleChildScrollView(
                     child: SizedBox(
                         width: 550,
-                        height: 600,
+                        height: globals.user.userRights > 2 ? 600 : 500,
                         child:
                             Column(mainAxisSize: MainAxisSize.min, children: [
                           Padding(
@@ -1077,35 +1076,36 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                       });
                                                     })))))
                               ]),
-                              TableRow(children: [
-                                const TableCell(
-                                    child: Text('Droits utilisateurs :',
-                                        style: defaultTextStyle)),
-                                TableCell(
-                                    child: Center(
-                                        child: SizedBox(
-                                            height: 45,
-                                            child: DropdownButtonHideUnderline(
-                                                child: DropdownButton(
-                                                    value: userRights,
-                                                    style: defaultTextStyle,
-                                                    items: (globals.user
-                                                                    .userRights >
-                                                                2
-                                                            ? userRightsList
-                                                            : accessRightsList)
-                                                        .map((value) {
-                                                      return DropdownMenuItem(
-                                                          value: value,
-                                                          child: Text(value));
-                                                    }).toList(),
-                                                    onChanged:
-                                                        (String? newValue) {
-                                                      setState(() {
-                                                        userRights = newValue!;
-                                                      });
-                                                    })))))
-                              ]),
+                              if (globals.user.userRights > 2)
+                                TableRow(children: [
+                                  const TableCell(
+                                      child: Text('Droits utilisateurs :',
+                                          style: defaultTextStyle)),
+                                  TableCell(
+                                      child: Center(
+                                          child: SizedBox(
+                                              height: 45,
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                      child: DropdownButton(
+                                                          value: userRights,
+                                                          style:
+                                                              defaultTextStyle,
+                                                          items: userRightsList
+                                                              .map((value) {
+                                                            return DropdownMenuItem(
+                                                                value: value,
+                                                                child: Text(
+                                                                    value));
+                                                          }).toList(),
+                                                          onChanged: (String?
+                                                              newValue) {
+                                                            setState(() {
+                                                              userRights =
+                                                                  newValue!;
+                                                            });
+                                                          })))))
+                                ]),
                               if (globals.user.userRights > 2)
                                 TableRow(children: [
                                   const TableCell(
@@ -1221,7 +1221,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                                 roadMapRights),
                                                     boxRights: accessRightsList
                                                         .indexOf(boxRights),
-                                                    userRights: accessRightsList
+                                                    userRights: userRightsList
                                                         .indexOf(userRights),
                                                     sqlExecute:
                                                         executeSqlStatus ==
@@ -1264,7 +1264,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                 child: SingleChildScrollView(
                     child: SizedBox(
                         width: 550,
-                        height: 600,
+                        height: globals.user.userRights > 2 ? 600 : 500,
                         child:
                             Column(mainAxisSize: MainAxisSize.min, children: [
                           Padding(
@@ -1366,31 +1366,35 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                     child: SizedBox(
                                         height: 45,
                                         child: SelectableText(
-                                            accessRightsList[user.userRights],
+                                            userRightsList[user.userRights],
                                             style: defaultTextStyle)))
                               ]),
-                              TableRow(children: [
-                                const TableCell(
-                                    child: Text('Accès au panneau SQL :',
-                                        style: defaultTextStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 45,
-                                        child: SelectableText(
-                                            yesNoList[user.sqlExecute ? 0 : 1],
-                                            style: defaultTextStyle)))
-                              ]),
-                              TableRow(children: [
-                                const TableCell(
-                                    child: Text('Accès aux paramètres :',
-                                        style: defaultTextStyle)),
-                                TableCell(
-                                    child: SizedBox(
-                                        height: 45,
-                                        child: SelectableText(
-                                            yesNoList[user.sqlExecute ? 0 : 1],
-                                            style: defaultTextStyle)))
-                              ]),
+                              if (globals.user.userRights > 2)
+                                TableRow(children: [
+                                  const TableCell(
+                                      child: Text('Accès au panneau SQL :',
+                                          style: defaultTextStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 45,
+                                          child: SelectableText(
+                                              yesNoList[
+                                                  user.sqlExecute ? 0 : 1],
+                                              style: defaultTextStyle)))
+                                ]),
+                              if (globals.user.userRights > 2)
+                                TableRow(children: [
+                                  const TableCell(
+                                      child: Text('Accès aux paramètres :',
+                                          style: defaultTextStyle)),
+                                  TableCell(
+                                      child: SizedBox(
+                                          height: 45,
+                                          child: SelectableText(
+                                              yesNoList[
+                                                  user.sqlExecute ? 0 : 1],
+                                              style: defaultTextStyle)))
+                                ]),
                             ],
                           ),
                           Center(
@@ -1572,149 +1576,13 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   }
 
   List<DataCell> dataCells(Map<dynamic, dynamic> user) {
-    if (user['CODE UTILISATEUR'] == editingUser) {
-      siteRights ??= accessRightsList[int.parse(user['DROITS SITE'])];
-      roadMapRights ??=
-          accessRightsList[int.parse(user['DROITS FEUILLE DE ROUTE'])];
-      boxRights ??= accessRightsList[int.parse(user['DROITS BOITE'])];
-      userRights ??= accessRightsList[int.parse(user['DROITS UTILISATEUR'])];
-      executeSqlStatus ??= user['EXECUTION SQL'] == '1' ? 'Oui' : 'Non';
-      settingsAccessStatus ??= user['ACCES PARAMETRES'] == '1' ? 'Oui' : 'Non';
-
-      TextEditingController codeController =
-          TextEditingController(text: user['CODE UTILISATEUR']);
-      TextEditingController lastnameController =
-          TextEditingController(text: user['NOM']);
-      TextEditingController firstnameController =
-          TextEditingController(text: user['PRENOM']);
-      TextEditingController functionController =
-          TextEditingController(text: user['FONCTION']);
-      return [
-        DataCell(
-            TextField(style: defaultTextStyle, controller: codeController)),
-        DataCell(
-            TextField(style: defaultTextStyle, controller: lastnameController)),
-        DataCell(TextField(
-            style: defaultTextStyle, controller: firstnameController)),
-        DataCell(
-            TextField(style: defaultTextStyle, controller: functionController)),
-        DataCell(Center(
-            child: DropdownButton(
-                value: siteRights,
-                style: defaultTextStyle,
-                items: accessRightsList.map((value) {
-                  return DropdownMenuItem(value: value, child: Text(value));
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    siteRights = newValue!;
-                  });
-                }))),
-        DataCell(Center(
-            child: DropdownButton(
-                value: roadMapRights,
-                style: defaultTextStyle,
-                items: accessRightsList.map((value) {
-                  return DropdownMenuItem(value: value, child: Text(value));
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    roadMapRights = newValue!;
-                  });
-                }))),
-        DataCell(Center(
-            child: DropdownButton(
-                value: boxRights,
-                style: defaultTextStyle,
-                items: accessRightsList.map((value) {
-                  return DropdownMenuItem(value: value, child: Text(value));
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    boxRights = newValue!;
-                  });
-                }))),
-        DataCell(Center(
-            child: DropdownButton(
-                value: userRights,
-                style: defaultTextStyle,
-                items: accessRightsList.map((value) {
-                  return DropdownMenuItem(value: value, child: Text(value));
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    userRights = newValue!;
-                  });
-                }))),
-        DataCell(Center(
-            child: DropdownButton(
-                value: executeSqlStatus,
-                style: defaultTextStyle,
-                items: yesNoList.map((value) {
-                  return DropdownMenuItem(value: value, child: Text(value));
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    executeSqlStatus = newValue!;
-                  });
-                }))),
-        DataCell(Center(
-            child: DropdownButton(
-                value: settingsAccessStatus,
-                style: defaultTextStyle,
-                items: yesNoList.map((value) {
-                  return DropdownMenuItem(value: value, child: Text(value));
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    settingsAccessStatus = newValue!;
-                  });
-                }))),
-        DataCell(Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-                onPressed: () {
-                  if (lastnameController.text.isNotEmpty &&
-                      firstnameController.text.isNotEmpty &&
-                      functionController.text.isNotEmpty) {
-                    onUpdateUser(User(
-                        code: codeController.text,
-                        firstname: firstnameController.text,
-                        lastname: lastnameController.text,
-                        function: functionController.text,
-                        password: '',
-                        siteRights: accessRightsList.indexOf(siteRights!),
-                        roadMapRights: accessRightsList.indexOf(roadMapRights!),
-                        boxRights: accessRightsList.indexOf(boxRights!),
-                        userRights: accessRightsList.indexOf(userRights!),
-                        sqlExecute: executeSqlStatus == 'Oui',
-                        settingsRights: settingsAccessStatus == 'Oui'));
-                  }
-                },
-                icon: const Icon(Icons.check)),
-            IconButton(
-                onPressed: () {
-                  setState(() {
-                    editingUser = null;
-                    siteRights = null;
-                    roadMapRights = null;
-                    boxRights = null;
-                    userRights = null;
-                    executeSqlStatus = null;
-                  });
-                },
-                icon: const Icon(Icons.clear_outlined))
-          ],
-        ))
-      ];
-    } else {
-      return [
-        DataCell(
-            SelectableText(user['CODE UTILISATEUR'], style: defaultTextStyle)),
-        DataCell(SelectableText(user['NOM'], style: defaultTextStyle)),
-        DataCell(SelectableText(user['PRENOM'], style: defaultTextStyle)),
-        DataCell(SelectableText(user['FONCTION'], style: defaultTextStyle)),
+    return [
+      DataCell(
+          SelectableText(user['CODE UTILISATEUR'], style: defaultTextStyle)),
+      DataCell(SelectableText(user['NOM'], style: defaultTextStyle)),
+      DataCell(SelectableText(user['PRENOM'], style: defaultTextStyle)),
+      DataCell(SelectableText(user['FONCTION'], style: defaultTextStyle)),
+      if (globals.user.userRights > 1)
         DataCell(Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -1735,10 +1603,16 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
             if (!showDeleteUser)
               IconButton(
                   onPressed: () {
-                    onDelete(user);
+                    user['DROITS UTILISATEUR'] != '3' ||
+                            globals.user.userRights > 2
+                        ? onDelete(user)
+                        : null;
                   },
                   icon: const Icon(Icons.delete_forever),
-                  tooltip: 'Supprimer'),
+                  tooltip: user['DROITS UTILISATEUR'] != '3' ||
+                          globals.user.userRights > 2
+                      ? 'Supprimer'
+                      : 'Vous n\'avez pas les droits pour supprimer cet utilisateur'),
             if (showDeleteUser)
               IconButton(
                   onPressed: () {
@@ -1748,8 +1622,7 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                   tooltip: 'Restaurer')
           ],
         ))
-      ];
-    }
+    ];
   }
 
   @override
@@ -1924,20 +1797,21 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                                             TextAlign.center),
                                                     onSort:
                                                         sorting('FONCTION')),
-                                                DataColumn(
-                                                    label: Row(children: [
-                                                  const Text(
-                                                      'Utilisateurs\nsupprimées :'),
-                                                  Switch(
-                                                      value: showDeleteUser,
-                                                      onChanged: (newValue) {
-                                                        setState(() {
-                                                          showDeleteUser =
-                                                              newValue;
-                                                        });
-                                                        getUserList();
-                                                      })
-                                                ]))
+                                                if (globals.user.userRights > 1)
+                                                  DataColumn(
+                                                      label: Row(children: [
+                                                    const Text(
+                                                        'Utilisateurs\nsupprimées :'),
+                                                    Switch(
+                                                        value: showDeleteUser,
+                                                        onChanged: (newValue) {
+                                                          setState(() {
+                                                            showDeleteUser =
+                                                                newValue;
+                                                          });
+                                                          getUserList();
+                                                        })
+                                                  ]))
                                               ],
                                               rows: [
                                                 for (Map user in snapshot.data)

@@ -29,7 +29,7 @@ $sqlQuery = 'SELECT '.$table.'.*,`entetes feuille de route`.`LIBELLE TOURNEE`, `
             FROM '.$table.' 
             LEFT JOIN `entetes feuille de route` ON COALESCE('.$table.'.`CODE TOURNEE`,0) = `entetes feuille de route`.`CODE TOURNEE` 
             LEFT JOIN `sites` ON '.$table.'.`CODE SITE` = `sites`.`CODE SITE` 
-            WHERE '.$field.$search.$advancedSearch.$secondAdvancedSearch.' ORDER BY `'.$order.'` '.$isAscending.' LIMIT '.$numberLimit;
+            WHERE '.$field.$search.$advancedSearch.$secondAdvancedSearch.' ORDER BY `'.$order.'` '.$isAscending.', `tracabilite`.`DATE HEURE ENREGISTREMENT` DESC LIMIT '.$numberLimit;
 $stmt = $db -> prepare($sqlQuery);
 $stmt -> execute();
 

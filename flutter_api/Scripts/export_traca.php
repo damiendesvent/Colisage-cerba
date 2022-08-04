@@ -1,25 +1,59 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-include "../db_cerba.php";
-
+header("Content-Type: application/json");
 
 date_default_timezone_set('Europe/Paris');
 $date = date('d-m-y_H-i-s');
+$file = str_replace('\\','/',getcwd()).'/'.$date.'.csv';
+
+include "../db_cerba.php";
+
+$table = $_POST['backup'] == 'true' ? '`backup_tracabilite`' : '`tracabilite`';
+$field = '`'.$_POST['field'].'`';
+$advancedField = '`'.$_POST['advancedField'].'`';
+$secondAdvancedField = '`'.$_POST['secondAdvancedField'].'`';
+$searchText = $_POST['searchText'];
+$advancedSearchText = $_POST['advancedSearchText'];
+$secondAdvancedSearchText = $_POST['secondAdvancedSearchText'];
+$numberLimit = $_POST['limit'];
+$order = $_POST['order'];
+$isAscending = $_POST['isAscending'] == 'true' ? 'ASC' : 'DESC';
+
+$search = array('À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'Ù', 'Ú', 'Û', 'Ü', 'Ý');
+$replace = array('A', 'A', 'A', 'A', 'A', 'A', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y');
+
+$field = str_replace($search,$replace,$field);
+$advancedField = str_replace($search,$replace,$advancedField);
+$secondAdvancedField = str_replace($search, $replace, $secondAdvancedField);
+$order = str_replace($search,$replace,$order);
+
+$search = strpos($searchText, '__') === false ? ' LIKE \'%'.$searchText.'%\'' : ' BETWEEN \''.explode('__',$searchText)[0].'\' AND \''.explode('__', $searchText)[1].'\'';
+$advancedSearch = strlen($advancedSearchText) > 0 ? ' AND '.$advancedField.(strpos($advancedSearchText, '__') === false ? ' LIKE \'%'.$advancedSearchText.'%\'' : ' BETWEEN \''.explode('__',$advancedSearchText)[0].'\' AND \''.explode('__', $advancedSearchText)[1].'\'') : '';
+$secondAdvancedSearch = strlen($secondAdvancedSearchText) > 0 ? ' AND '.$secondAdvancedField.(strpos($secondAdvancedSearchText, '__') === false ? ' LIKE \'%'.$secondAdvancedSearchText.'%\'' : ' BETWEEN \''.explode('__',$secondAdvancedSearchText)[0].'\' AND \''.explode('__', $secondAdvancedSearchText)[1].'\'') : '';
+
+$previous_files = scandir(str_replace('\\','/',getcwd()));
+for ($i = 2; $i < count($previous_files); $i++) {
+    if (strpos($previous_files[$i],'.csv') !== false) {
+        unlink(str_replace('\\','/',getcwd()).'/'.$previous_files[$i]);
+    }
+}
+
 try {
     $sqlQuery = "(select 'Code Tracabilite','Utilisateur','Code Tournee','Libelle Tournee','Code Site','Libelle Site','Boite','Tube','Action','Enregistrement','Synchronisation','Origine','Code Voiture','Photo','Signature','Commentaire')
                 union 
-                (select `CODE TRACABILITE`,`UTILISATEUR`,IFNULL(`tracabilite`.`CODE TOURNEE`, ''),IFNULL(`entetes feuille de route`.`LIBELLE TOURNEE`, ''),`tracabilite`.`CODE SITE`,IFNULL(`sites`.`LIBELLE SITE`,''),IFNULL(`BOITE`, ''),IFNULL(`TUBE`, ''),`ACTION`,`DATE HEURE ENREGISTREMENT`,`DATE HEURE SYNCHRONISATION`,`CODE ORIGINE`,IFNULL(`CODE VOITURE`, ''),IFNULL(`PHOTO`, ''),IFNULL(`SIGNATURE`, ''),IFNULL(`tracabilite`.`COMMENTAIRE`, '') 
-                 from `tracabilite` 
-                 LEFT JOIN `entetes feuille de route` ON COALESCE(`tracabilite`.`CODE TOURNEE`,0) = `entetes feuille de route`.`CODE TOURNEE`
-                 LEFT JOIN `sites` ON `tracabilite`.`CODE SITE` = `sites`.`CODE SITE`
-                 into outfile 'C:/Serveur_colisage/htdocs/$date.csv' 
+                (select `CODE TRACABILITE`,`UTILISATEUR`,IFNULL($table.`CODE TOURNEE`, ''),IFNULL(`entetes feuille de route`.`LIBELLE TOURNEE`, ''),$table.`CODE SITE`,IFNULL(`sites`.`LIBELLE SITE`,''),IFNULL(`BOITE`, ''),IFNULL(`TUBE`, ''),`ACTION`,`DATE HEURE ENREGISTREMENT`,`DATE HEURE SYNCHRONISATION`,`CODE ORIGINE`,IFNULL(`CODE VOITURE`, ''),IFNULL(`PHOTO`, ''),IFNULL(`SIGNATURE`, ''),IFNULL($table.`COMMENTAIRE`, '') 
+                 from $table 
+                 LEFT JOIN `entetes feuille de route` ON COALESCE($table.`CODE TOURNEE`,0) = `entetes feuille de route`.`CODE TOURNEE`
+                 LEFT JOIN `sites` ON $table.`CODE SITE` = `sites`.`CODE SITE`
+                 WHERE ".$field.$search.$advancedSearch.$secondAdvancedSearch." ORDER BY `$order` $isAscending LIMIT $numberLimit
+                 into outfile '$file' 
                  fields enclosed by '\"'
                  terminated by ';' 
                  escaped by '\"' 
                  lines terminated by'\r\n')";
     $stmt = $db -> prepare($sqlQuery);
     $stmt -> execute(); 
-    
+
+    echo json_encode("http://$_SERVER[HTTP_HOST]/flutter_api/Scripts/$date.csv");
 }
     
 catch (Exception $e)
