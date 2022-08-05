@@ -24,7 +24,7 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
   Timer? timer;
-  int minTabWidth = 935;
+  int minTabWidth = 1030;
   int _widgetIndex = 1;
   late TabController _tabController;
 
@@ -362,6 +362,15 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                                 if (MediaQuery.of(context).size.width >
                                     minTabWidth)
                                   const Text(" Gestion tubes")
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.youtube_searched_for),
+                                if (MediaQuery.of(context).size.width >
+                                    minTabWidth)
+                                  const Text(" Détails tube")
                               ],
                             ),
                             Row(

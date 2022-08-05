@@ -25,14 +25,6 @@ class CallList extends StatefulWidget {
   _CallListState createState() => _CallListState();
 }
 
-extension TimeOfDayConverter on TimeOfDay {
-  String to24hours() {
-    final hour = this.hour.toString().padLeft(2, "0");
-    final minute = this.minute.toString().padLeft(2, "0");
-    return "$hour:$minute";
-  }
-}
-
 class _CallListState extends State<CallList>
     with AutomaticKeepAliveClientMixin {
   @override
@@ -53,14 +45,8 @@ class _CallListState extends State<CallList>
   String advancedSearchField = searchFieldList[1];
   bool _isAscending = true;
   int _currentSortColumn = 0;
-  int i = 0;
   int isAdvancedResearch = 0;
-  String beginTime = '';
-  String endTime = '';
   List<dynamic> items = [];
-  List<dynamic> backupFiles = [];
-  String backupFile = '';
-  bool backupMode = false;
   List sites = [];
   bool showCalls = false;
   TextEditingController commentController = TextEditingController();
