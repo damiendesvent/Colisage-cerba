@@ -64,8 +64,8 @@ class _TracaListState extends State<TracaList>
   int isAdvancedResearch = 0;
   String beginDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   String endDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  String beginTime = '';
-  String endTime = '';
+  String beginTime = TimeOfDay.now().to24hours();
+  String endTime = TimeOfDay.now().to24hours();
   List<dynamic> tracas = [];
   List<dynamic> backupFiles = [];
   String backupFile = '';
@@ -632,25 +632,37 @@ class _TracaListState extends State<TracaList>
                               ),
                               TableRow(
                                 children: [
-                                  const TableCell(
-                                      child: Text('Boîte/Sachet : ',
+                                  TableCell(
+                                      child: Text(
+                                          traca.action == 'TEL'
+                                              ? 'Contact'
+                                              : 'Boîte/Sachet : ',
                                           style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
                                           height: 30,
-                                          child: Text(traca.box,
+                                          child: Text(
+                                              traca.action == 'TEL'
+                                                  ? traca.contact
+                                                  : traca.box,
                                               style: defaultTextStyle)))
                                 ],
                               ),
                               TableRow(
                                 children: [
-                                  const TableCell(
-                                      child: Text('Tube : ',
+                                  TableCell(
+                                      child: Text(
+                                          traca.action == 'TEL'
+                                              ? 'Type de prélèvement'
+                                              : 'Tube : ',
                                           style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
                                           height: 30,
-                                          child: Text(traca.tube,
+                                          child: Text(
+                                              traca.action == 'TEL'
+                                                  ? traca.prelevement
+                                                  : traca.tube,
                                               style: defaultTextStyle)))
                                 ],
                               ),
@@ -663,18 +675,6 @@ class _TracaListState extends State<TracaList>
                                       child: SizedBox(
                                           height: 30,
                                           child: Text(traca.action,
-                                              style: defaultTextStyle)))
-                                ],
-                              ),
-                              TableRow(
-                                children: [
-                                  const TableCell(
-                                      child: Text('Correspondant : ',
-                                          style: defaultTextStyle)),
-                                  TableCell(
-                                      child: SizedBox(
-                                          height: 30,
-                                          child: Text(traca.correspondant,
                                               style: defaultTextStyle)))
                                 ],
                               ),
@@ -716,16 +716,21 @@ class _TracaListState extends State<TracaList>
                               ),
                               TableRow(
                                 children: [
-                                  const TableCell(
-                                      child: Text('Code voiture : ',
+                                  TableCell(
+                                      child: Text(
+                                          traca.action == 'TEL'
+                                              ? 'Confirmation du livreur'
+                                              : 'Code voiture : ',
                                           style: defaultTextStyle)),
                                   TableCell(
                                       child: SizedBox(
                                           height: 30,
                                           child: Text(
-                                              traca.car == 0
-                                                  ? ''
-                                                  : traca.car.toString(),
+                                              traca.action == 'TEL'
+                                                  ? (traca.ok ? 'Oui' : 'Non')
+                                                  : (traca.car == 0
+                                                      ? ''
+                                                      : traca.car.toString()),
                                               style: defaultTextStyle)))
                                 ],
                               ),
@@ -897,8 +902,6 @@ class _TracaListState extends State<TracaList>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    beginTime = TimeOfDay.now().to24hours();
-    endTime = TimeOfDay.now().to24hours();
     DataTableSource tracaData =
         TracaData((traca) => showDetailTraca(traca), tracas);
     TextStyle titleStyle = TextStyle(

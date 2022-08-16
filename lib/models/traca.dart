@@ -6,7 +6,6 @@ class Traca {
   final String box;
   final String tube;
   final String action;
-  final String correspondant;
   final String registeringTime;
   final String synchronizingTime;
   final String pgm;
@@ -14,6 +13,9 @@ class Traca {
   final int car;
   final String picture;
   final String signing;
+  final String contact;
+  final String prelevement;
+  final bool ok;
   final String comment;
 
   Traca({
@@ -24,7 +26,6 @@ class Traca {
     required this.box,
     required this.tube,
     required this.action,
-    required this.correspondant,
     required this.registeringTime,
     required this.synchronizingTime,
     required this.pgm,
@@ -32,6 +33,9 @@ class Traca {
     required this.car,
     required this.picture,
     required this.signing,
+    required this.contact,
+    required this.prelevement,
+    required this.ok,
     required this.comment,
   });
 
@@ -44,7 +48,6 @@ class Traca {
         box: traca['BOITE'] ?? '',
         tube: traca['TUBE'] ?? '',
         action: traca['ACTION'],
-        correspondant: traca['CORRESPONDANT'] ?? '',
         registeringTime: traca['DATE HEURE ENREGISTREMENT'],
         synchronizingTime: traca['DATE HEURE SYNCHRONISATION'],
         pgm: traca['CODE ORIGINE'],
@@ -52,6 +55,9 @@ class Traca {
         car: int.parse(traca['CODE VOITURE'] ?? '0'),
         picture: traca['PHOTO'] ?? '',
         signing: traca['SIGNATURE'] ?? '',
+        contact: traca['CONTACT'] ?? '',
+        prelevement: traca['PRELEVEMENT'] ?? '',
+        ok: traca['OK'] == '1',
         comment: traca['COMMENTAIRE'] ?? '');
   }
 }

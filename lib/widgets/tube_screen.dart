@@ -127,7 +127,8 @@ class _TubeListState extends State<TubeList> {
   void getListTube(String code,
       {bool setTubes = false,
       bool removeTubes = false,
-      bool resetStates = false}) async {
+      bool resetStates = false,
+      bool addTraca = true}) async {
     String phpUriTubeList = Env.urlPrefix + 'Tubes/list_tube.php';
     http.Response res =
         await http.post(Uri.parse(phpUriTubeList), body: {'code': code});
@@ -140,7 +141,7 @@ class _TubeListState extends State<TubeList> {
         }
         if (removeTubes) {
           for (String tube in alreadyOnBoxTubes) {
-            onRemoveTube(tube);
+            onRemoveTube(tube, addTraca: addTraca);
           }
           setState(() {
             boxController.clear();
@@ -217,9 +218,9 @@ class _TubeListState extends State<TubeList> {
         body: {'box': boxController.text, 'type': 'SAC'});
   }
 
-  void onRemoveTube(String tube) {
+  void onRemoveTube(String tube, {bool addTraca = true}) {
     String phpUriTubeRemoveBox = Env.urlPrefix + 'Tubes/remove_box_tube.php';
-    onAddTraca(action: 'VIT', tube: tube);
+    if (addTraca) onAddTraca(action: 'VIT', tube: tube);
     http.post(Uri.parse(phpUriTubeRemoveBox), body: {'tube': tube});
   }
 
@@ -455,7 +456,12 @@ class _TubeListState extends State<TubeList> {
           case '5':
             boxErrorText = null;
             getListTube(boxController.text,
-                removeTubes: true, resetStates: true);
+                removeTubes: true, resetStates: true, addTraca: false);
+            ScaffoldMessenger.of(context).showSnackBar(mySnackBar(Text(
+                'La boîte ' +
+                    boxController.text +
+                    ' a bien été vidée manuellement du système',
+                style: defaultTextStyle)));
             break;
           case '6':
             if (tubes.contains(boxController.text)) {

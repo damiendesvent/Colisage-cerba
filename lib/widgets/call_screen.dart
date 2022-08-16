@@ -50,6 +50,9 @@ class _CallListState extends State<CallList>
   List sites = [];
   bool showCalls = false;
   TextEditingController commentController = TextEditingController();
+  TextEditingController prelevementController = TextEditingController();
+  TextEditingController contactController = TextEditingController();
+  bool isOk = false;
 
   void getCallList() async {
     String phpUriCallList =
@@ -175,12 +178,17 @@ class _CallListState extends State<CallList>
       'tube': '',
       'action': action,
       'car': '',
+      'prelevement': prelevementController.text,
+      'contact': contactController.text,
+      'ok': isOk.toString(),
       'comment': commentController.text,
       'registering': DateTime.now()
           .toString()
           .substring(0, DateTime.now().toString().length - 4),
       'pgm': globals.ip.length > 15 ? globals.ip.substring(0, 15) : globals.ip,
     });
+    ScaffoldMessenger.of(context).showSnackBar(mySnackBar(
+        const Text('L\'appel a bien été tracé', style: defaultTextStyle)));
   }
 
   void onAddCall(dynamic call) {
@@ -195,8 +203,8 @@ class _CallListState extends State<CallList>
                     const EdgeInsets.symmetric(vertical: 50, horizontal: 100),
                 elevation: 8,
                 child: SizedBox(
-                    height: 200,
-                    width: 400,
+                    height: 350,
+                    width: 500,
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                       Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -213,12 +221,50 @@ class _CallListState extends State<CallList>
                           children: [
                             TableRow(children: [
                               const TableCell(
+                                child: Text('Type de prélèvement : ',
+                                    style: defaultTextStyle),
+                              ),
+                              TableCell(
+                                  child: SizedBox(
+                                      height: 60,
+                                      child: TextField(
+                                        style: defaultTextStyle,
+                                        textAlignVertical:
+                                            TextAlignVertical.bottom,
+                                        textInputAction: TextInputAction.next,
+                                        controller: prelevementController,
+                                        inputFormatters: [
+                                          LengthLimitingTextInputFormatter(30),
+                                        ],
+                                      )))
+                            ]),
+                            TableRow(children: [
+                              const TableCell(
+                                child:
+                                    Text('Contact : ', style: defaultTextStyle),
+                              ),
+                              TableCell(
+                                  child: SizedBox(
+                                      height: 60,
+                                      child: TextField(
+                                        style: defaultTextStyle,
+                                        textAlignVertical:
+                                            TextAlignVertical.bottom,
+                                        textInputAction: TextInputAction.next,
+                                        controller: contactController,
+                                        inputFormatters: [
+                                          LengthLimitingTextInputFormatter(30),
+                                        ],
+                                      )))
+                            ]),
+                            TableRow(children: [
+                              const TableCell(
                                 child: Text('Commentaire : ',
                                     style: defaultTextStyle),
                               ),
                               TableCell(
                                   child: SizedBox(
-                                      height: 40,
+                                      height: 60,
                                       child: TextField(
                                         style: defaultTextStyle,
                                         textAlignVertical:
@@ -226,8 +272,25 @@ class _CallListState extends State<CallList>
                                         textInputAction: TextInputAction.next,
                                         controller: commentController,
                                         inputFormatters: [
-                                          LengthLimitingTextInputFormatter(80),
+                                          LengthLimitingTextInputFormatter(200),
                                         ],
+                                      )))
+                            ]),
+                            TableRow(children: [
+                              const TableCell(
+                                child: Text('Confirmation du livreur : ',
+                                    style: defaultTextStyle),
+                              ),
+                              TableCell(
+                                  child: SizedBox(
+                                      height: 60,
+                                      child: Checkbox(
+                                        value: isOk,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            isOk = value!;
+                                          });
+                                        },
                                       )))
                             ]),
                           ]),

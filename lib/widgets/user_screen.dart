@@ -50,9 +50,9 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   String? executeSqlStatus;
   String? settingsAccessStatus;
   final List<String> yesNoList = ['Oui', 'Non'];
-  final List<String> accessRightsList = ['Acun', 'Affichage', 'Gestion'];
+  final List<String> accessRightsList = ['Aucun', 'Affichage', 'Gestion'];
   final List<String> userRightsList = [
-    'Acun',
+    'Aucun',
     'Affichage',
     'Gestion',
     'Super Gestion'
