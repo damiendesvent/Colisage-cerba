@@ -511,7 +511,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                               controller: commentController,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
-                                                    254)
+                                                    128)
                                               ],
                                             )))
                                   ],
@@ -751,7 +751,7 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
                                 style: defaultTextStyle,
                                 controller: commentController,
                                 inputFormatters: [
-                                  LengthLimitingTextInputFormatter(254)
+                                  LengthLimitingTextInputFormatter(128)
                                 ],
                               ),
                             ))
@@ -844,8 +844,12 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
 
   void getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
-    http.Response res = await http.post(Uri.parse(phpUriSiteList),
-        body: {"limit": '10000', "delete": 'false'});
+    http.Response res = await http.post(Uri.parse(phpUriSiteList), body: {
+      "limit": '10000',
+      "order": '',
+      "isAscending": '',
+      "delete": 'false'
+    });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       setState(() {
@@ -907,10 +911,18 @@ class _DetailsRoadMapState extends State<DetailsRoadMap> {
               )
               .toList(),
         )),
-        DataCell(
-            TextField(style: defaultTextStyle, controller: timeController)),
-        DataCell(
-            TextField(style: defaultTextStyle, controller: commentController)),
+        DataCell(TextField(
+          style: defaultTextStyle,
+          controller: timeController,
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(5),
+            FilteringTextInputFormatter.allow(RegExp('[0-9h]'))
+          ],
+        )),
+        DataCell(TextField(
+            style: defaultTextStyle,
+            controller: commentController,
+            inputFormatters: [LengthLimitingTextInputFormatter(128)])),
         DataCell(DropdownButton(
             value: onCallStatus,
             style: defaultTextStyle,

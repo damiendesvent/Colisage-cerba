@@ -33,23 +33,21 @@ class _SiteListState extends State<SiteList>
   @override
   bool get wantKeepAlive => globals.shouldKeepAlive;
 
-  final StreamController<List> _streamController = StreamController<List>();
   final _searchTextController = TextEditingController();
   final _advancedSearchTextController = TextEditingController();
-  static const numberDisplayedList = [10, 25, 50, 100];
-  int numberDisplayed = 25;
+  static const numberDisplayedList = [15, 25, 50, 100];
+  int numberDisplayed = numberDisplayedList.first;
   static const searchFieldList = [
-    'Correspondant',
     'Libellé site',
-    'Adresse',
-    'Complément adresse',
     'CP',
     'Ville',
     'Site prélèvement',
-    'Site dépôt'
+    'Site dépôt',
+    'Adresse',
+    'Complément adresse',
   ];
-  String searchField = searchFieldList[5];
-  String advancedSearchField = searchFieldList[1];
+  String searchField = searchFieldList[0];
+  String advancedSearchField = searchFieldList[2];
   bool isCollectionSite = false;
   bool isDepositSite = false;
   bool showDeleteSite = false;
@@ -59,8 +57,11 @@ class _SiteListState extends State<SiteList>
   late String depositSiteValue;
   static List<String> noYesList = ['Non', 'Oui'];
   String noYesValue = noYesList.first;
-  List<dynamic> sitesCode = [];
-  List<dynamic> sitesLibelle = [];
+  List sites = [];
+  bool _isAscending = true;
+  int _currentSortColumn = 0;
+  TextStyle titleStyle = TextStyle(
+      fontWeight: FontWeight.bold, fontSize: defaultTextStyle.fontSize);
 
   Future<bool> isExistingSite(String libelle) async {
     String phpUriDetailsSite =
@@ -76,14 +77,16 @@ class _SiteListState extends State<SiteList>
   void getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
     http.Response res = await http.post(Uri.parse(phpUriSiteList), body: {
-      "limit": numberDisplayedList.last.toString(),
+      "limit": '250',
+      "order": searchFieldList[_currentSortColumn].toUpperCase(),
+      "isAscending": _isAscending.toString(),
       "delete": showDeleteSite ? 'true' : 'false'
     });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
-      _streamController.add(items);
-      sitesLibelle = items.map((item) => item['LIBELLE SITE']).toList();
-      sitesCode = items.map((item) => item['CODE SITE']).toList();
+      setState(() {
+        sites = items;
+      });
     }
   }
 
@@ -106,14 +109,16 @@ class _SiteListState extends State<SiteList>
               ? noYesList.indexOf(noYesValue).toString()
               : _advancedSearchTextController.text)
           : '',
-      "limit": numberDisplayedList.last.toString(),
+      "order": searchFieldList[_currentSortColumn].toUpperCase(),
+      "isAscending": _isAscending.toString(),
+      "limit": '250',
       "delete": showDeleteSite ? 'true' : 'false'
     });
     if (res.body.isNotEmpty) {
       List itemsSearch = json.decode(res.body);
-      _streamController.add(itemsSearch);
-      sitesLibelle = itemsSearch.map((item) => item['LIBELLE SITE']).toList();
-      sitesCode = itemsSearch.map((item) => item['CODE SITE']).toList();
+      setState(() {
+        sites = itemsSearch;
+      });
     }
   }
 
@@ -173,42 +178,14 @@ class _SiteListState extends State<SiteList>
     }
   }
 
-  Widget popupMenu(Map<dynamic, dynamic> site) {
-    return PopupMenuButton<Menu>(
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<Menu>>[
-              PopupMenuItem<Menu>(
-                value: Menu.itemEdit,
-                child: Row(children: const [Icon(Icons.edit), Text('Editer')]),
-                onTap: () {
-                  Future.delayed(const Duration(seconds: 0),
-                      () => showEditPageSite(Site.fromSnapshot(site)));
-                },
-              ),
-              if (!showDeleteSite)
-                PopupMenuItem<Menu>(
-                  value: Menu.itemDelete,
-                  child: Row(children: const [
-                    Icon(Icons.delete_forever),
-                    Text('Supprimer')
-                  ]),
-                  onTap: () {
-                    Future.delayed(const Duration(seconds: 0),
-                        () => onDelete(Site.fromSnapshot(site)));
-                  },
-                ),
-              if (showDeleteSite)
-                PopupMenuItem<Menu>(
-                  value: Menu.itemDelete,
-                  child: Row(children: const [
-                    Icon(Icons.settings_backup_restore),
-                    Text('Restaurer')
-                  ]),
-                  onTap: () {
-                    Future.delayed(const Duration(seconds: 0),
-                        () => onRestore(Site.fromSnapshot(site)));
-                  },
-                ),
-            ]);
+  sorting(String field) {
+    return ((columnIndex, _) {
+      setState(() {
+        _currentSortColumn = columnIndex;
+        _isAscending = !_isAscending;
+        searchSite();
+      });
+    });
   }
 
   void onRestore(Site site) {
@@ -565,7 +542,7 @@ class _SiteListState extends State<SiteList>
                                                 controller: adressController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
-                                                      35)
+                                                      50)
                                                 ],
                                                 decoration: InputDecoration(
                                                     errorStyle: TextStyle(
@@ -597,7 +574,7 @@ class _SiteListState extends State<SiteList>
                                                     cpltAdressController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
-                                                      35)
+                                                      50)
                                                 ],
                                               )))
                                     ],
@@ -728,7 +705,7 @@ class _SiteListState extends State<SiteList>
                                                 controller: commentController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
-                                                      254)
+                                                      128)
                                                 ],
                                               )))
                                     ],
@@ -1051,7 +1028,7 @@ class _SiteListState extends State<SiteList>
                                                 controller: adressController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
-                                                      35)
+                                                      50)
                                                 ],
                                                 decoration: InputDecoration(
                                                     errorStyle: TextStyle(
@@ -1084,7 +1061,7 @@ class _SiteListState extends State<SiteList>
                                                 controller: cpltController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
-                                                      35)
+                                                      50)
                                                 ],
                                               )))
                                     ],
@@ -1193,7 +1170,7 @@ class _SiteListState extends State<SiteList>
                                                 controller: commentController,
                                                 inputFormatters: [
                                                   LengthLimitingTextInputFormatter(
-                                                      254)
+                                                      128)
                                                 ],
                                               )))
                                     ],
@@ -1299,8 +1276,8 @@ class _SiteListState extends State<SiteList>
   void onPrintLabel() async {
     String phpUriPrintLabel = Env.urlPrefix + 'Scripts/print_label.php';
     http.Response pdfRes = await http.post(Uri.parse(phpUriPrintLabel), body: {
-      'libelles': sitesLibelle.toString(),
-      'codes': sitesCode.toString()
+      'libelles': sites.map((item) => item['LIBELLE SITE']).toList().toString(),
+      'codes': sites.map((item) => item['CODE SITE']).toList().toString(),
     });
     await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdfRes.bodyBytes);
@@ -1318,9 +1295,9 @@ class _SiteListState extends State<SiteList>
                 textAlign: TextAlign.center,
               ),
               content: Text(
-                sitesLibelle.length > 1
+                sites.length > 1
                     ? 'Êtes-vous sûr de vouloir imprimer \nles étiquettes des ' +
-                        sitesLibelle.length.toString() +
+                        sites.length.toString() +
                         ' sites sélectionnés ?'
                     : 'Êtes-vous sûr de vouloir imprimer l\'étiquette du site sélectionné ?',
                 textAlign: TextAlign.center,
@@ -1344,235 +1321,294 @@ class _SiteListState extends State<SiteList>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return StreamBuilder<List>(
-      stream: _streamController.stream,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (snapshot.hasData) {
-          return Scrollbar(
-              controller: _scrollController,
-              thumbVisibility: true,
-              trackVisibility: true,
-              child: CustomScrollView(controller: _scrollController, slivers: [
-                //barre de recherche dynamique
-                SliverAppBar(
-                  elevation: 8,
-                  forceElevated: true,
-                  expandedHeight: isAdvancedResearch ? 100 : 55,
-                  floating: true,
-                  backgroundColor: Colors.grey[300],
-                  flexibleSpace: FlexibleSpaceBar(
-                      background: Column(children: [
-                    Row(mainAxisSize: MainAxisSize.min, children: [
-                      Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: DropdownButtonHideUnderline(
-                              child: DropdownButton(
-                                  value: searchField,
-                                  style: defaultTextStyle,
-                                  items: searchFieldList.map((searchFieldList) {
-                                    return DropdownMenuItem(
-                                        value: searchFieldList,
-                                        child: Text(searchFieldList));
-                                  }).toList(),
-                                  onChanged: (String? newsearchField) {
-                                    setState(() {
-                                      searchField = newsearchField!;
-                                    });
-                                    searchSite();
-                                  }))),
-                      SizedBox(
-                          width: 300,
-                          child: searchField.startsWith('Site')
-                              ? Center(
-                                  child: SizedBox(
-                                      width: 100,
-                                      child: DropdownButton(
-                                          style: defaultTextStyle,
-                                          isExpanded: true,
-                                          alignment:
-                                              AlignmentDirectional.center,
-                                          value: noYesValue,
-                                          items: noYesList.map((value) {
-                                            return DropdownMenuItem(
-                                                value: value,
-                                                child: Text(value));
-                                          }).toList(),
-                                          onChanged: (String? newValue) {
-                                            setState(() {
-                                              noYesValue = newValue!;
-                                            });
-                                            searchSite();
-                                          })))
-                              : TextFormField(
-                                  style: defaultTextStyle,
-                                  controller: _searchTextController,
-                                  decoration: const InputDecoration(
-                                      hintText: 'Recherche'),
-                                  onFieldSubmitted: (e) {
-                                    searchSite();
-                                  },
-                                )),
-                      IconButton(
-                          onPressed: () {
-                            searchSite();
-                          },
-                          icon: const Icon(Icons.search_outlined),
-                          tooltip: 'Rechercher'),
-                      if (!isAdvancedResearch)
-                        IconButton(
-                            onPressed: () {
+    DataTableSource siteData = SiteData(
+        (site) => showEditPageSite(site),
+        (site) => onDelete(site),
+        (site) => onRestore(site),
+        showDeleteSite,
+        (site) => showDetailSite(site),
+        sites);
+    if (sites.isNotEmpty ||
+        _searchTextController.text.isNotEmpty ||
+        _advancedSearchTextController.text.isNotEmpty) {
+      return Scaffold(
+          appBar: AppBar(
+            elevation: 8,
+            toolbarHeight: isAdvancedResearch ? 100 : 55,
+            backgroundColor: Colors.grey[300],
+            flexibleSpace: FlexibleSpaceBar(
+                background: Column(children: [
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: DropdownButtonHideUnderline(
+                        child: DropdownButton(
+                            value: searchField,
+                            style: defaultTextStyle,
+                            items: searchFieldList.map((searchFieldList) {
+                              return DropdownMenuItem(
+                                  value: searchFieldList,
+                                  child: Text(searchFieldList));
+                            }).toList(),
+                            onChanged: (String? newsearchField) {
                               setState(() {
-                                isAdvancedResearch = true;
-                              });
-                            },
-                            icon: const Icon(Icons.manage_search_outlined),
-                            tooltip: 'Recherche avancée'),
-                      if (isAdvancedResearch)
-                        IconButton(
-                            onPressed: () {
-                              setState(() {
-                                isAdvancedResearch = false;
-                                _advancedSearchTextController.text = '';
+                                searchField = newsearchField!;
                               });
                               searchSite();
+                            }))),
+                SizedBox(
+                    width: 300,
+                    child: searchField.startsWith('Site')
+                        ? Center(
+                            child: SizedBox(
+                                width: 100,
+                                child: DropdownButton(
+                                    style: defaultTextStyle,
+                                    isExpanded: true,
+                                    alignment: AlignmentDirectional.center,
+                                    value: noYesValue,
+                                    items: noYesList.map((value) {
+                                      return DropdownMenuItem(
+                                          value: value, child: Text(value));
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        noYesValue = newValue!;
+                                      });
+                                      searchSite();
+                                    })))
+                        : TextFormField(
+                            style: defaultTextStyle,
+                            controller: _searchTextController,
+                            decoration:
+                                const InputDecoration(hintText: 'Recherche'),
+                            onFieldSubmitted: (e) {
+                              searchSite();
                             },
-                            icon: const Icon(Icons.search_off_outlined),
-                            tooltip: 'Recherche simple'),
-                      const Spacer(),
-                      if (globals.user.siteRights > 1)
-                        ElevatedButton(
-                            style: myButtonStyle,
-                            onPressed: () {
-                              showAddPageSite();
-                            },
-                            child: const Text('Ajouter un site')),
-                      if (globals.user.siteRights > 0)
-                        Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: ElevatedButton(
-                                style: myButtonStyle,
-                                onPressed: () {
-                                  showLabelDialog();
-                                },
-                                child: const Text('Générer\nétiquettes',
-                                    textAlign: TextAlign.center))),
-                      const Spacer(),
-                      if (globals.user.siteRights > 1)
-                        const Text('Sites\nsupprimés :'),
-                      if (globals.user.siteRights > 1)
-                        Switch(
-                            value: showDeleteSite,
-                            onChanged: (newValue) {
-                              setState(() {
-                                showDeleteSite = newValue;
-                              });
-                              getSiteList();
-                            }),
-                      const Spacer(),
-                      if (globals.shouldDisplaySyncButton)
-                        IconButton(
+                          )),
+                IconButton(
+                    onPressed: () {
+                      searchSite();
+                    },
+                    icon: const Icon(Icons.search_outlined),
+                    tooltip: 'Rechercher'),
+                if (!isAdvancedResearch)
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isAdvancedResearch = true;
+                        });
+                      },
+                      icon: const Icon(Icons.manage_search_outlined),
+                      tooltip: 'Recherche avancée'),
+                if (isAdvancedResearch)
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isAdvancedResearch = false;
+                          _advancedSearchTextController.text = '';
+                        });
+                        searchSite();
+                      },
+                      icon: const Icon(Icons.search_off_outlined),
+                      tooltip: 'Recherche simple'),
+                const Spacer(),
+                if (globals.user.siteRights > 1)
+                  ElevatedButton(
+                      style: myButtonStyle,
+                      onPressed: () {
+                        showAddPageSite();
+                      },
+                      child: const Text('Ajouter un site')),
+                if (globals.user.siteRights > 0)
+                  Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: ElevatedButton(
+                          style: myButtonStyle,
                           onPressed: () {
-                            setState(() {
-                              getSiteList();
-                            });
+                            showLabelDialog();
                           },
-                          icon: const Icon(Icons.sync),
-                          tooltip: 'Actualiser l\'onglet',
-                        ),
-                      const Spacer(),
-                      const Text('Nombre de\nlignes affichées : ',
-                          style: defaultTextStyle),
-                      Padding(
-                          padding: const EdgeInsets.only(right: 15),
-                          child: DropdownButton(
-                              style: defaultTextStyle,
-                              value: numberDisplayed,
-                              items: numberDisplayedList
-                                  .map((numberDisplayedList) {
-                                return DropdownMenuItem(
-                                    value: numberDisplayedList,
-                                    child:
-                                        Text(numberDisplayedList.toString()));
-                              }).toList(),
-                              onChanged: (int? newNumberDisplayed) {
-                                setState(() {
-                                  numberDisplayed = newNumberDisplayed!;
-                                });
-                              }))
-                    ]),
-                    Row(
-                      children: advancedResearch(),
-                    )
-                  ])),
-                ),
-                SliverList(
-                    delegate: SliverChildListDelegate([
-                  if (snapshot.data.isEmpty)
-                    SizedBox(
-                        height: MediaQuery.of(context).size.height - 200,
-                        child: const Center(
-                            child: Text(
-                                'Aucun site ne correspond à votre recherche.')))
-                  else
-                    for (Map site in snapshot.data
-                        .take(numberDisplayed)) //affiche la liste des sites
-                      Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.location_on_outlined),
-                          trailing: globals.user.siteRights > 1
-                              ? popupMenu(site)
-                              : null,
-                          isThreeLine: false,
-                          title: Text(site['LIBELLE SITE'],
-                              style: defaultTextStyle),
-                          subtitle: Row(children: [
-                            SizedBox(
-                                width: 400,
-                                child: Text(
-                                    searchField +
-                                        ' : ' +
-                                        (searchField.startsWith('Site')
-                                            ? (site[searchField
-                                                        .replaceAll('é', 'e')
-                                                        .replaceAll('è', 'e')
-                                                        .replaceAll('ô', 'o')
-                                                        .toUpperCase()] ==
-                                                    '1'
-                                                ? 'Oui'
-                                                : 'Non')
-                                            : site[searchField
-                                                .replaceAll('é', 'e')
-                                                .toUpperCase()]),
-                                    style: defaultTextStyle)),
-                            Text(
-                                isAdvancedResearch
-                                    ? advancedSearchField +
-                                        ' : ' +
-                                        (advancedSearchField.startsWith('Site')
-                                            ? (site[advancedSearchField
-                                                        .replaceAll('é', 'e')
-                                                        .replaceAll('è', 'e')
-                                                        .replaceAll('ô', 'o')
-                                                        .toUpperCase()] ==
-                                                    '1'
-                                                ? 'Oui'
-                                                : 'Non')
-                                            : site[advancedSearchField
-                                                .replaceAll('é', 'e')
-                                                .toUpperCase()])
-                                    : '',
-                                style: defaultTextStyle)
-                          ]),
-                          onTap: () {
-                            showDetailSite(Site.fromSnapshot(site));
-                          },
-                        ),
-                      )
-                ]))
-              ]));
-        }
-        return const Center(child: CircularProgressIndicator());
-      },
-    );
+                          child: const Text('Générer\nétiquettes',
+                              textAlign: TextAlign.center))),
+                const Spacer(),
+                if (globals.shouldDisplaySyncButton)
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        getSiteList();
+                      });
+                    },
+                    icon: const Icon(Icons.sync),
+                    tooltip: 'Actualiser l\'onglet',
+                  ),
+                const Spacer(),
+                const Text('Nombre de\nlignes affichées : ',
+                    style: defaultTextStyle),
+                Padding(
+                    padding: const EdgeInsets.only(right: 15),
+                    child: DropdownButton(
+                        style: defaultTextStyle,
+                        value: numberDisplayed,
+                        items: numberDisplayedList.map((numberDisplayedList) {
+                          return DropdownMenuItem(
+                              value: numberDisplayedList,
+                              child: Text(numberDisplayedList.toString()));
+                        }).toList(),
+                        onChanged: (int? newNumberDisplayed) {
+                          setState(() {
+                            numberDisplayed = newNumberDisplayed!;
+                          });
+                        }))
+              ]),
+              Row(
+                children: advancedResearch(),
+              )
+            ])),
+          ),
+          body: sites.isEmpty
+              ? SizedBox(
+                  height: MediaQuery.of(context).size.height - 200,
+                  child: const Center(
+                      child:
+                          Text('Aucun site ne correspond à votre recherche.')))
+              : Row(
+                  children: [
+                    Expanded(
+                        child: Scrollbar(
+                            controller: _scrollController,
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            child: SingleChildScrollView(
+                                controller: _scrollController,
+                                child: PaginatedDataTable(
+                                    rowsPerPage: numberDisplayed < sites.length
+                                        ? numberDisplayed
+                                        : sites.length,
+                                    showFirstLastButtons: true,
+                                    showCheckboxColumn: false,
+                                    columnSpacing: 0,
+                                    sortColumnIndex: _currentSortColumn,
+                                    sortAscending: _isAscending,
+                                    columns: [
+                                      DataColumn(
+                                          label: Text('Libellé site',
+                                              textAlign: TextAlign.center,
+                                              style: titleStyle),
+                                          onSort: sorting('LIBELLE SITE')),
+                                      DataColumn(
+                                          label: Text('Code postal',
+                                              textAlign: TextAlign.center,
+                                              style: titleStyle),
+                                          onSort: sorting('CP')),
+                                      DataColumn(
+                                          label: Text('Ville',
+                                              textAlign: TextAlign.center,
+                                              style: titleStyle),
+                                          onSort: sorting('VILLE')),
+                                      DataColumn(
+                                          label: Text('Site de\nprélèvement',
+                                              textAlign: TextAlign.center,
+                                              style: titleStyle),
+                                          onSort: sorting('SITE PRELEVEMENT')),
+                                      DataColumn(
+                                          label: Text('Site de\ndépôt',
+                                              textAlign: TextAlign.center,
+                                              style: titleStyle),
+                                          onSort: sorting('SITE DEPOT')),
+                                      if (globals.user.siteRights > 1)
+                                        DataColumn(
+                                            label: Row(children: [
+                                          Text('Sites\nsupprimés :',
+                                              style: titleStyle),
+                                          Switch(
+                                              value: showDeleteSite,
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  showDeleteSite = newValue;
+                                                });
+                                                getSiteList();
+                                              })
+                                        ]))
+                                    ],
+                                    source: siteData))))
+                  ],
+                ));
+    }
+    return const Center(child: CircularProgressIndicator());
   }
+}
+
+class SiteData extends DataTableSource {
+  List<dynamic> data;
+  final Function showEditPageSite;
+  final Function onDelete;
+  final Function onRestore;
+  final Function onRowSelected;
+  bool showDeleteSite;
+  SiteData(this.showEditPageSite, this.onDelete, this.onRestore,
+      this.showDeleteSite, this.onRowSelected, this.data);
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => data.length;
+  @override
+  int get selectedRowCount => 0;
+  @override
+  DataRow getRow(int index) {
+    var site = Site.fromSnapshot(data[index]);
+    return DataRow(
+        color: MaterialStateProperty.resolveWith<Color?>(
+            (Set<MaterialState> states) {
+          if (states.contains(MaterialState.selected)) {
+            return Colors.grey.withOpacity(0.1);
+          } else if (index.isEven) {
+            return backgroundColor;
+          }
+          return null; // alterne les couleurs des lignes
+        }),
+        onSelectChanged: (bool? selected) {
+          if (selected!) {
+            onRowSelected(site);
+          }
+        },
+        cells: [
+          DataCell(SelectableText(site.libelle, style: defaultTextStyle)),
+          DataCell(SelectableText(site.cp.toString(), style: defaultTextStyle)),
+          DataCell(SelectableText(site.city, style: defaultTextStyle)),
+          DataCell(Text(site.collectionSite ? 'Oui' : 'Non',
+              style: defaultTextStyle)),
+          DataCell(
+              Text(site.depositSite ? 'Oui' : 'Non', style: defaultTextStyle)),
+          if (globals.user.siteRights > 1)
+            DataCell(Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    showEditPageSite(site);
+                  },
+                  icon: const Icon(Icons.edit),
+                  tooltip: 'Editer',
+                ),
+                if (!showDeleteSite)
+                  IconButton(
+                      onPressed: () {
+                        onDelete(site);
+                      },
+                      icon: const Icon(Icons.delete_forever),
+                      tooltip: 'Supprimer'),
+                if (showDeleteSite)
+                  IconButton(
+                      onPressed: () {
+                        onRestore(site);
+                      },
+                      icon: const Icon(Icons.settings_backup_restore),
+                      tooltip: 'Restaurer')
+              ],
+            ))
+        ]);
+  }
+
+  onRowSelect() {}
 }

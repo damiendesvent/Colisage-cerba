@@ -142,8 +142,8 @@ class _SearchTubeListState extends State<SearchTubeList>
                                               tubeController.clear();
                                             })
                                           : setState(() {
-                                              submited =
-                                                  tubeController.text.isEmpty;
+                                              tube = tubeController.text;
+                                              submited = tube.isEmpty;
                                               submited ? null : getTracaTube();
                                             });
                                     },

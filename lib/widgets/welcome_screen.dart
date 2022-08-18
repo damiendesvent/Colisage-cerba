@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:colisage_cerba/variables/env.sample.dart';
 import 'package:colisage_cerba/variables/styles.dart';
+import 'package:flutter/services.dart';
 import '../variables/globals.dart' as globals;
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -157,6 +158,9 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                                         onChanged: (newValue) => setState(() {
                                           newPassword = newValue;
                                         }),
+                                        inputFormatters: [
+                                          LengthLimitingTextInputFormatter(24)
+                                        ],
                                         decoration: InputDecoration(
                                             errorStyle: TextStyle(
                                                 fontSize:
@@ -187,6 +191,9 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                                         onChanged: (newValue) => setState(() {
                                           repeatedPassword = newValue;
                                         }),
+                                        inputFormatters: [
+                                          LengthLimitingTextInputFormatter(24)
+                                        ],
                                         decoration: InputDecoration(
                                             errorStyle: TextStyle(
                                                 fontSize:

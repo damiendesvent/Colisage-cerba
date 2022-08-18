@@ -7,6 +7,7 @@ import '../variables/styles.dart';
 import 'dart:async';
 import 'dart:convert';
 import '../variables/globals.dart' as globals;
+import '../models/user.dart';
 
 class UserScreen extends StatelessWidget {
   const UserScreen({Key? key}) : super(key: key);
@@ -38,11 +39,10 @@ class UpperCaseTextFormatter extends TextInputFormatter {
 class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => globals.shouldKeepAlive;
-  final StreamController<List> _streamController = StreamController<List>();
   int i = 0;
   bool _isAscending = true;
   int _currentSortColumn = 0;
-  late List users;
+  List users = [];
   String? siteRights;
   String? roadMapRights;
   String? boxRights;
@@ -74,10 +74,12 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   String advancedSearchField = searchFieldList[1];
   final _searchTextController = TextEditingController();
   final _advancedSearchTextController = TextEditingController();
-  static const numberDisplayedList = [10, 25, 50, 100];
-  int numberDisplayed = 25;
+  static const numberDisplayedList = [15, 25, 50, 100];
+  int numberDisplayed = numberDisplayedList.first;
   final ScrollController _scrollController = ScrollController();
   bool showDeleteUser = false;
+  TextStyle titleStyle = TextStyle(
+      fontWeight: FontWeight.bold, fontSize: defaultTextStyle.fontSize);
 
   Future getUserList() async {
     String phpUriUserList = Env.urlPrefix + 'Users/list_user.php';
@@ -92,7 +94,6 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
       setState(() {
         users = items;
       });
-      _streamController.add(items);
     }
   }
 
@@ -111,7 +112,9 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
     });
     if (res.body.isNotEmpty) {
       List itemsSearch = json.decode(res.body);
-      _streamController.add(itemsSearch);
+      setState(() {
+        users = itemsSearch;
+      });
     }
   }
 
@@ -1471,6 +1474,9 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                               TextAlignVertical.bottom,
                                           obscureText: true,
                                           controller: passwordController,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(24)
+                                          ],
                                           decoration: InputDecoration(
                                               errorStyle: TextStyle(
                                                   fontSize: defaultTextStyle
@@ -1500,6 +1506,9 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
                                               TextAlignVertical.bottom,
                                           obscureText: true,
                                           controller: repeatPasswordController,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(24)
+                                          ],
                                           decoration: InputDecoration(
                                               errorStyle: TextStyle(
                                                   fontSize: defaultTextStyle
@@ -1575,56 +1584,6 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
         mySnackBar(const Text('Le mot de passe a bien été réinitialisé')));
   }
 
-  List<DataCell> dataCells(Map<dynamic, dynamic> user) {
-    return [
-      DataCell(
-          SelectableText(user['CODE UTILISATEUR'], style: defaultTextStyle)),
-      DataCell(SelectableText(user['NOM'], style: defaultTextStyle)),
-      DataCell(SelectableText(user['PRENOM'], style: defaultTextStyle)),
-      DataCell(SelectableText(user['FONCTION'], style: defaultTextStyle)),
-      if (globals.user.userRights > 1)
-        DataCell(Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              onPressed: () {
-                showEditPageUser(User.fromSnapshot(user));
-              },
-              icon: const Icon(Icons.edit),
-              tooltip: 'Editer',
-            ),
-            IconButton(
-              onPressed: () {
-                showResetPasswordPage(user);
-              },
-              icon: const Icon(Icons.lock_person),
-              tooltip: 'Réinitialiser le mot de passe',
-            ),
-            if (!showDeleteUser)
-              IconButton(
-                  onPressed: () {
-                    user['DROITS UTILISATEUR'] != '3' ||
-                            globals.user.userRights > 2
-                        ? onDelete(user)
-                        : null;
-                  },
-                  icon: const Icon(Icons.delete_forever),
-                  tooltip: user['DROITS UTILISATEUR'] != '3' ||
-                          globals.user.userRights > 2
-                      ? 'Supprimer'
-                      : 'Vous n\'avez pas les droits pour supprimer cet utilisateur'),
-            if (showDeleteUser)
-              IconButton(
-                  onPressed: () {
-                    onRestore(user);
-                  },
-                  icon: const Icon(Icons.settings_backup_restore),
-                  tooltip: 'Restaurer')
-          ],
-        ))
-    ];
-  }
-
   @override
   void initState() {
     super.initState();
@@ -1634,236 +1593,279 @@ class _UserState extends State<UserApp> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return StreamBuilder<List>(
-        stream: _streamController.stream,
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            return Scaffold(
-                appBar: AppBar(
-                    elevation: 8,
-                    toolbarHeight: isAdvancedResearch ? 100 : 55,
-                    backgroundColor: Colors.grey[300],
-                    flexibleSpace: FlexibleSpaceBar(
-                        background: Column(children: [
-                      Row(mainAxisSize: MainAxisSize.min, children: [
-                        Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: DropdownButtonHideUnderline(
-                                child: DropdownButton(
-                                    value: searchField,
-                                    style: defaultTextStyle,
-                                    items:
-                                        searchFieldList.map((searchFieldList) {
-                                      return DropdownMenuItem(
-                                          value: searchFieldList,
-                                          child:
-                                              Text(searchFieldList.toString()));
-                                    }).toList(),
-                                    onChanged: (String? newsearchField) {
-                                      setState(() {
-                                        searchField = newsearchField!;
-                                      });
-                                    }))),
-                        Expanded(
-                            child: TextFormField(
-                          style: defaultTextStyle,
-                          controller: _searchTextController,
-                          decoration:
-                              const InputDecoration(hintText: 'Recherche'),
-                          onFieldSubmitted: (e) {
-                            searchUser();
-                          },
-                        )),
-                        IconButton(
-                            onPressed: () {
-                              searchUser();
-                            },
-                            icon: const Icon(Icons.search_outlined),
-                            tooltip: 'Rechercher'),
-                        if (!isAdvancedResearch)
-                          IconButton(
-                              onPressed: () {
+    DataTableSource userData = UserData(
+        (user) => showEditPageUser(user),
+        (user) => showResetPasswordPage(user),
+        (user) => onDelete(user),
+        (user) => onRestore(user),
+        showDeleteUser,
+        (user) => showDetailsPageUser(user),
+        users);
+    if (users.isNotEmpty ||
+        _searchTextController.text.isNotEmpty ||
+        _advancedSearchTextController.text.isNotEmpty) {
+      return Scaffold(
+          appBar: AppBar(
+              elevation: 8,
+              toolbarHeight: isAdvancedResearch ? 100 : 55,
+              backgroundColor: Colors.grey[300],
+              flexibleSpace: FlexibleSpaceBar(
+                  background: Column(children: [
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: DropdownButtonHideUnderline(
+                          child: DropdownButton(
+                              value: searchField,
+                              style: defaultTextStyle,
+                              items: searchFieldList.map((searchFieldList) {
+                                return DropdownMenuItem(
+                                    value: searchFieldList,
+                                    child: Text(searchFieldList.toString()));
+                              }).toList(),
+                              onChanged: (String? newsearchField) {
                                 setState(() {
-                                  isAdvancedResearch = true;
+                                  searchField = newsearchField!;
                                 });
-                              },
-                              icon: const Icon(Icons.manage_search_outlined),
-                              tooltip: 'Recherche avancée'),
-                        if (isAdvancedResearch)
-                          IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isAdvancedResearch = false;
-                                });
-                              },
-                              icon: const Icon(Icons.search_off_outlined),
-                              tooltip: 'Recherche simple'),
-                        const Spacer(),
-                        if (globals.user.userRights > 1)
-                          ElevatedButton(
-                              style: myButtonStyle,
-                              onPressed: () {
-                                showAddPageUser();
-                              },
-                              child: const Text('Ajouter un utilisateur')),
-                        if (globals.shouldDisplaySyncButton)
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                getUserList();
-                              });
-                            },
-                            icon: const Icon(Icons.sync),
-                            tooltip: 'Actualiser l\'onglet',
-                          ),
-                        const Spacer(),
-                        const Text('Nombre de lignes affichées : ',
-                            style: defaultTextStyle),
-                        DropdownButton(
-                            style: defaultTextStyle,
-                            value: numberDisplayed,
-                            items:
-                                numberDisplayedList.map((numberDisplayedList) {
-                              return DropdownMenuItem(
-                                  value: numberDisplayedList,
-                                  child: Text(numberDisplayedList.toString()));
-                            }).toList(),
-                            onChanged: (int? newNumberDisplayed) {
-                              setState(() {
-                                numberDisplayed = newNumberDisplayed!;
-                              });
-                            })
-                      ]),
-                      Row(
-                        children: advancedResearch(),
-                      )
-                    ]))),
-                body: snapshot.data.isEmpty
-                    ? Center(
-                        child:
-                            Column(mainAxisSize: MainAxisSize.min, children: [
-                        const Padding(
-                            padding: EdgeInsets.only(bottom: 15),
-                            child: Text(
-                                'Aucun utilisateur ne correspond à votre recherche.',
-                                style: defaultTextStyle)),
-                        ElevatedButton(
-                            style: myButtonStyle,
-                            onPressed: () {
-                              setState(() {
-                                _searchTextController.clear();
-                                _advancedSearchTextController.clear();
-                                showDeleteUser = false;
-                              });
-                              getUserList();
-                            },
-                            child: const Text('Afficher tous les utilisateurs',
-                                style: defaultTextStyle))
-                      ]))
-                    : Row(
-                        children: [
-                          Expanded(
-                              child: Scrollbar(
-                                  controller: _scrollController,
-                                  thumbVisibility: true,
-                                  trackVisibility: true,
-                                  child: SingleChildScrollView(
-                                      controller: _scrollController,
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.stretch,
-                                          children: [
-                                            DataTable(
-                                              showCheckboxColumn: false,
-                                              headingRowColor:
-                                                  MaterialStateProperty
-                                                      .resolveWith<Color?>((Set<
-                                                              MaterialState>
-                                                          states) {
-                                                return Colors.grey
-                                                    .withOpacity(0.2);
-                                              }),
-                                              headingRowHeight: 50,
-                                              sortColumnIndex:
-                                                  _currentSortColumn,
-                                              sortAscending: _isAscending,
-                                              headingTextStyle: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14),
-                                              columns: [
-                                                DataColumn(
-                                                    label: const Text(
-                                                        'Code\nutilisateur',
-                                                        textAlign:
-                                                            TextAlign.center),
-                                                    onSort: sorting(
-                                                        'CODE UTILISATEUR')),
-                                                DataColumn(
-                                                    label: const Text('Nom',
-                                                        textAlign:
-                                                            TextAlign.center),
-                                                    onSort: sorting('NOM')),
-                                                DataColumn(
-                                                    label: const Text('Prénom',
-                                                        textAlign:
-                                                            TextAlign.center),
-                                                    onSort: sorting('PRENOM')),
-                                                DataColumn(
-                                                    label: const Text(
-                                                        'Fonction',
-                                                        textAlign:
-                                                            TextAlign.center),
-                                                    onSort:
-                                                        sorting('FONCTION')),
-                                                if (globals.user.userRights > 1)
-                                                  DataColumn(
-                                                      label: Row(children: [
-                                                    const Text(
-                                                        'Utilisateurs\nsupprimés :'),
-                                                    Switch(
-                                                        value: showDeleteUser,
-                                                        onChanged: (newValue) {
-                                                          setState(() {
-                                                            showDeleteUser =
-                                                                newValue;
-                                                          });
-                                                          getUserList();
-                                                        })
-                                                  ]))
-                                              ],
-                                              rows: [
-                                                for (Map user in snapshot.data)
-                                                  DataRow(
-                                                    onSelectChanged: (_) =>
-                                                        showDetailsPageUser(
-                                                            User.fromSnapshot(
-                                                                user)),
-                                                    color: MaterialStateProperty
-                                                        .resolveWith<Color?>(
-                                                            (Set<MaterialState>
-                                                                states) {
-                                                      if (states.contains(
-                                                          MaterialState
-                                                              .selected)) {
-                                                        return Theme.of(context)
-                                                            .colorScheme
-                                                            .primary
-                                                            .withOpacity(0.08);
-                                                      }
-                                                      if ((i = i + 1).isEven) {
-                                                        return backgroundColor;
-                                                      }
-                                                      return null; // Use the default value.
-                                                    }),
-                                                    cells: dataCells(user),
-                                                  )
-                                              ],
-                                            )
-                                          ]))))
-                        ],
-                      ));
-          }
-          return const Center(child: CircularProgressIndicator());
-        });
+                              }))),
+                  Expanded(
+                      child: TextFormField(
+                    style: defaultTextStyle,
+                    controller: _searchTextController,
+                    decoration: const InputDecoration(hintText: 'Recherche'),
+                    onFieldSubmitted: (e) {
+                      searchUser();
+                    },
+                  )),
+                  IconButton(
+                      onPressed: () {
+                        searchUser();
+                      },
+                      icon: const Icon(Icons.search_outlined),
+                      tooltip: 'Rechercher'),
+                  if (!isAdvancedResearch)
+                    IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isAdvancedResearch = true;
+                          });
+                        },
+                        icon: const Icon(Icons.manage_search_outlined),
+                        tooltip: 'Recherche avancée'),
+                  if (isAdvancedResearch)
+                    IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isAdvancedResearch = false;
+                          });
+                        },
+                        icon: const Icon(Icons.search_off_outlined),
+                        tooltip: 'Recherche simple'),
+                  const Spacer(),
+                  if (globals.user.userRights > 1)
+                    ElevatedButton(
+                        style: myButtonStyle,
+                        onPressed: () {
+                          showAddPageUser();
+                        },
+                        child: const Text('Ajouter un utilisateur')),
+                  if (globals.shouldDisplaySyncButton)
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          getUserList();
+                        });
+                      },
+                      icon: const Icon(Icons.sync),
+                      tooltip: 'Actualiser l\'onglet',
+                    ),
+                  const Spacer(),
+                  const Text('Nombre de lignes affichées : ',
+                      style: defaultTextStyle),
+                  DropdownButton(
+                      style: defaultTextStyle,
+                      value: numberDisplayed,
+                      items: numberDisplayedList.map((numberDisplayedList) {
+                        return DropdownMenuItem(
+                            value: numberDisplayedList,
+                            child: Text(numberDisplayedList.toString()));
+                      }).toList(),
+                      onChanged: (int? newNumberDisplayed) {
+                        setState(() {
+                          numberDisplayed = newNumberDisplayed!;
+                        });
+                      })
+                ]),
+                Row(
+                  children: advancedResearch(),
+                )
+              ]))),
+          body: users.isEmpty
+              ? Center(
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Padding(
+                      padding: EdgeInsets.only(bottom: 15),
+                      child: Text(
+                          'Aucun utilisateur ne correspond à votre recherche.',
+                          style: defaultTextStyle)),
+                  ElevatedButton(
+                      style: myButtonStyle,
+                      onPressed: () {
+                        setState(() {
+                          _searchTextController.clear();
+                          _advancedSearchTextController.clear();
+                          showDeleteUser = false;
+                        });
+                        getUserList();
+                      },
+                      child: const Text('Afficher tous les utilisateurs',
+                          style: defaultTextStyle))
+                ]))
+              : Row(
+                  children: [
+                    Expanded(
+                        child: Scrollbar(
+                            controller: _scrollController,
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            child: SingleChildScrollView(
+                                controller: _scrollController,
+                                child: PaginatedDataTable(
+                                    rowsPerPage: numberDisplayed < users.length
+                                        ? numberDisplayed
+                                        : users.length,
+                                    showFirstLastButtons: true,
+                                    showCheckboxColumn: false,
+                                    columnSpacing: 0,
+                                    sortColumnIndex: _currentSortColumn,
+                                    sortAscending: _isAscending,
+                                    columns: [
+                                      DataColumn(
+                                          label: Text('Code\nutilisateur',
+                                              textAlign: TextAlign.center,
+                                              style: titleStyle),
+                                          onSort: sorting('CODE UTILISATEUR')),
+                                      DataColumn(
+                                          label: Text('Nom',
+                                              textAlign: TextAlign.center,
+                                              style: titleStyle),
+                                          onSort: sorting('NOM')),
+                                      DataColumn(
+                                          label: Text('Prénom',
+                                              textAlign: TextAlign.center,
+                                              style: titleStyle),
+                                          onSort: sorting('PRENOM')),
+                                      DataColumn(
+                                          label: Text('Fonction',
+                                              textAlign: TextAlign.center,
+                                              style: titleStyle),
+                                          onSort: sorting('FONCTION')),
+                                      if (globals.user.userRights > 1)
+                                        DataColumn(
+                                            label: Row(children: [
+                                          Text('Utilisateurs\nsupprimés :',
+                                              style: titleStyle),
+                                          Switch(
+                                              value: showDeleteUser,
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  showDeleteUser = newValue;
+                                                });
+                                                getUserList();
+                                              })
+                                        ]))
+                                    ],
+                                    source: userData))))
+                  ],
+                ));
+    }
+    return const Center(child: CircularProgressIndicator());
   }
+}
+
+class UserData extends DataTableSource {
+  List<dynamic> data;
+  final Function showEditPageUser;
+  final Function showResetPasswordPage;
+  final Function onDelete;
+  final Function onRestore;
+  final Function onRowSelected;
+  bool showDeleteUser;
+  UserData(this.showEditPageUser, this.showResetPasswordPage, this.onDelete,
+      this.onRestore, this.showDeleteUser, this.onRowSelected, this.data);
+
+  @override
+  bool get isRowCountApproximate => false;
+  @override
+  int get rowCount => data.length;
+  @override
+  int get selectedRowCount => 0;
+  @override
+  DataRow getRow(int index) {
+    var user = data[index];
+    return DataRow(
+        color: MaterialStateProperty.resolveWith<Color?>(
+            (Set<MaterialState> states) {
+          if (states.contains(MaterialState.selected)) {
+            return Colors.grey.withOpacity(0.1);
+          } else if (index.isEven) {
+            return backgroundColor;
+          }
+          return null; // alterne les couleurs des lignes
+        }),
+        onSelectChanged: (bool? selected) {
+          if (selected!) {
+            onRowSelected(User.fromSnapshot(user));
+          }
+        },
+        cells: [
+          DataCell(SelectableText(user['CODE UTILISATEUR'],
+              style: defaultTextStyle)),
+          DataCell(SelectableText(user['NOM'], style: defaultTextStyle)),
+          DataCell(SelectableText(user['PRENOM'], style: defaultTextStyle)),
+          DataCell(SelectableText(user['FONCTION'], style: defaultTextStyle)),
+          if (globals.user.userRights > 1)
+            DataCell(Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    showEditPageUser(User.fromSnapshot(user));
+                  },
+                  icon: const Icon(Icons.edit),
+                  tooltip: 'Editer',
+                ),
+                IconButton(
+                  onPressed: () {
+                    showResetPasswordPage(user);
+                  },
+                  icon: const Icon(Icons.lock_person),
+                  tooltip: 'Réinitialiser le mot de passe',
+                ),
+                if (!showDeleteUser)
+                  IconButton(
+                      onPressed: () {
+                        user['DROITS UTILISATEUR'] != '3' ||
+                                globals.user.userRights > 2
+                            ? onDelete(user)
+                            : null;
+                      },
+                      icon: const Icon(Icons.delete_forever),
+                      tooltip: user['DROITS UTILISATEUR'] != '3' ||
+                              globals.user.userRights > 2
+                          ? 'Supprimer'
+                          : 'Vous n\'avez pas les droits pour supprimer cet utilisateur'),
+                if (showDeleteUser)
+                  IconButton(
+                      onPressed: () {
+                        onRestore(user);
+                      },
+                      icon: const Icon(Icons.settings_backup_restore),
+                      tooltip: 'Restaurer')
+              ],
+            ))
+        ]);
+  }
+
+  onRowSelect() {}
 }

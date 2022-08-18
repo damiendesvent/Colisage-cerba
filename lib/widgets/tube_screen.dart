@@ -73,8 +73,12 @@ class _TubeListState extends State<TubeList> {
 
   void getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
-    http.Response res = await http.post(Uri.parse(phpUriSiteList),
-        body: {"limit": '100000', "delete": 'false'});
+    http.Response res = await http.post(Uri.parse(phpUriSiteList), body: {
+      "limit": '100000',
+      "order": '',
+      "isAscending": '',
+      "delete": 'false'
+    });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       setState(() {
@@ -85,8 +89,12 @@ class _TubeListState extends State<TubeList> {
 
   void getRoadMapList() async {
     String phpUriRoadMapList = Env.urlPrefix + 'Road_maps/list_road_map.php';
-    http.Response res = await http.post(Uri.parse(phpUriRoadMapList),
-        body: {"limit": '100000', "delete": 'false'});
+    http.Response res = await http.post(Uri.parse(phpUriRoadMapList), body: {
+      "limit": '100000',
+      "order": '',
+      "isAscending": '',
+      "delete": 'false'
+    });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       setState(() {
@@ -804,7 +812,9 @@ class _TubeListState extends State<TubeList> {
                                                             : null),
                                                     inputFormatters: [
                                                       FilteringTextInputFormatter
-                                                          .deny('"')
+                                                          .deny('"'),
+                                                      LengthLimitingTextInputFormatter(
+                                                          20)
                                                     ],
                                                     onSubmitted: (_) {
                                                       setState(() {
@@ -900,6 +910,9 @@ class _TubeListState extends State<TubeList> {
                                       });
                                     }
                                   },
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(15)
+                                  ],
                                 )),
                             IconButton(
                                 tooltip: 'Valider',
@@ -1119,24 +1132,26 @@ class _TubeListState extends State<TubeList> {
                                                     width: 220,
                                                     height: 50,
                                                     child: TextField(
-                                                        style: defaultTextStyle,
-                                                        autofocus: true,
-                                                        controller:
-                                                            carController,
-                                                        decoration:
-                                                            const InputDecoration(
-                                                                hintText:
-                                                                    'Aucun si vide'),
-                                                        inputFormatters: [
-                                                          FilteringTextInputFormatter
-                                                              .digitsOnly
-                                                        ],
-                                                        onSubmitted: (_) {
-                                                          setState(() {
-                                                            showCommentDialog =
-                                                                true;
-                                                          });
-                                                        })),
+                                                      style: defaultTextStyle,
+                                                      autofocus: true,
+                                                      controller: carController,
+                                                      decoration:
+                                                          const InputDecoration(
+                                                              hintText:
+                                                                  'Aucun si vide'),
+                                                      inputFormatters: [
+                                                        FilteringTextInputFormatter
+                                                            .digitsOnly,
+                                                        LengthLimitingTextInputFormatter(
+                                                            2)
+                                                      ],
+                                                      onSubmitted: (_) {
+                                                        setState(() {
+                                                          showCommentDialog =
+                                                              true;
+                                                        });
+                                                      },
+                                                    )),
                                                 IconButton(
                                                     tooltip: 'Valider',
                                                     onPressed: () {
@@ -1182,6 +1197,10 @@ class _TubeListState extends State<TubeList> {
                                                             const InputDecoration(
                                                                 hintText:
                                                                     'Aucun si vide'),
+                                                                    inputFormatters: [
+                                                  LengthLimitingTextInputFormatter(
+                                                      128)
+                                                ],
                                                         onSubmitted: (_) {
                                                           setState(() {
                                                             showValidation =

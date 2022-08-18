@@ -53,6 +53,8 @@ class _CallListState extends State<CallList>
   TextEditingController prelevementController = TextEditingController();
   TextEditingController contactController = TextEditingController();
   bool isOk = false;
+  TextStyle titleStyle = TextStyle(
+      fontWeight: FontWeight.bold, fontSize: defaultTextStyle.fontSize);
 
   void getCallList() async {
     String phpUriCallList =
@@ -77,8 +79,12 @@ class _CallListState extends State<CallList>
 
   void getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
-    http.Response res = await http.post(Uri.parse(phpUriSiteList),
-        body: {"limit": '100000', "delete": 'false'});
+    http.Response res = await http.post(Uri.parse(phpUriSiteList), body: {
+      "limit": '100000',
+      "order": '',
+      "isAscending": '',
+      "delete": 'false'
+    });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       setState(() {
@@ -330,9 +336,7 @@ class _CallListState extends State<CallList>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    DataTableSource tracaData = CallData((call) => onAddCall(call), items);
-    TextStyle titleStyle = TextStyle(
-        fontWeight: FontWeight.bold, fontSize: defaultTextStyle.fontSize);
+    DataTableSource callData = CallData((call) => onAddCall(call), items);
     return !showCalls
         ? Scaffold(
             backgroundColor: backgroundColor,
@@ -541,7 +545,7 @@ class _CallListState extends State<CallList>
                     children: advancedResearch(),
                   )
                 ]))),
-            body: tracaData.rowCount != 0
+            body: callData.rowCount != 0
                 ? Row(children: <Widget>[
                     Expanded(
                         child: Scrollbar(
@@ -582,7 +586,7 @@ class _CallListState extends State<CallList>
                                           onSort: sorting('PASSAGE SUR APPEL')),
                                       const DataColumn(label: Text(''))
                                     ],
-                                    source: tracaData))))
+                                    source: callData))))
                   ])
                 : (_searchTextController.text.isEmpty &&
                         _advancedSearchTextController.text.isEmpty

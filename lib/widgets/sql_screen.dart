@@ -40,13 +40,10 @@ class _SqlAppState extends State<SqlApp> {
         await http.post(Uri.parse(phpUriQuery), body: {"query": query});
     if (res.body.isNotEmpty) {
       if (res.body.contains('Fatal error')) {
-        final startIndex = res.body.indexOf('Uncaught');
-        final endindex = res.body.indexOf(':\\MAMP');
-        final str = res.body.substring(startIndex, endindex);
-        final lastIndex = str.lastIndexOf(' in');
+        final str = res.body.split('\n')[1];
         setState(() {
           validQuery = false;
-          errorText = str.substring(0, lastIndex);
+          errorText = str.substring(21, str.indexOf(' in '));
           errorHintText = 'Commande incorrecte.';
           output = null;
         });

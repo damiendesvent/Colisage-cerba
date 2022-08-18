@@ -107,7 +107,7 @@ def import_traca_pda() :
                     signing = 'NULL' if len(signing) == 0 else '"' + signing + '"'
                     comment = 'NULL' if len(comment) == 0 else '"' + comment + '"'
 
-                    query = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `CORRESPONDANT`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `CODE ORIGINE`, `NUMERO LETTRAGE`, `CODE VOITURE`, `PHOTO`, `SIGNATURE`,`COMMENTAIRE`) VALUES ("' + user + '", (select `code tournee` from `entetes feuille de route` where `ordre affichage pda` = ' + tour + ' LIMIT 1), ' + site + ', ' + box + ', NULL, "' + action + '", NULL, "' + time + '", "' + actual_time + '", "' + pda_number + '", NULL, ' + car + ', ' + image + ', ' + signing + ', ' + comment + ')'
+                    query = 'INSERT INTO `tracabilite` (`UTILISATEUR`, `CODE TOURNEE`, `CODE SITE`, `BOITE`, `TUBE`, `ACTION`, `DATE HEURE ENREGISTREMENT`, `DATE HEURE SYNCHRONISATION`, `CODE ORIGINE`, `NUMERO LETTRAGE`, `CODE VOITURE`, `PHOTO`, `SIGNATURE`,`COMMENTAIRE`) VALUES ("' + user + '", (select `code tournee` from `entetes feuille de route` where `ordre affichage pda` = ' + tour + ' LIMIT 1), ' + site + ', ' + box + ', NULL, "' + action + '", "' + time + '", "' + actual_time + '", "' + pda_number + '", NULL, ' + car + ', ' + image + ', ' + signing + ', ' + comment + ')'
                     mycursor.execute(query)
                     mydb.commit()
                     
@@ -336,7 +336,7 @@ def quit() :
 def disable_event() :
     pass
 
-def start_stop_web_server() :
+def start_stop_web_server(showErrors = True) :
     global web_server_status
     if os.path.isfile(extract_folder + '/MAMP.exe') or web_server_status :
         web_server_status = not web_server_status
@@ -348,7 +348,7 @@ def start_stop_web_server() :
             cleaning_box_scheduler.pause()
             stop_all()
     else :
-        messagebox.showerror('Impossible de lancer le serveur', 'Serveur introuvable.\nVeuillez réessayer ou appuyer sur Réparer')
+        if showErrors : messagebox.showerror('Impossible de lancer le serveur', 'Serveur introuvable.\nVeuillez réessayer ou appuyer sur Réparer')
 
 def launch_server() :
     
@@ -385,15 +385,16 @@ def open_phpMyAdmin() :
         messagebox.showerror('Serveur non démarré', 'Le serveur n\'est pas démarré,\nappuyez d\'abord sur Démarrer le serveur')
 
 
-def launch_all() :
+def launch_all(showErrors = True) :
     global web_server_status
-    if not web_server_status : start_stop_web_server()
-    global pda_status
-    if not pda_status : start_stop_pda()
-    global backup_status
-    if not backup_status : start_stop_backup()
-    global reception_status
-    if not reception_status : start_stop_reception()
+    if not web_server_status : start_stop_web_server(showErrors=showErrors)
+    if web_server_status :
+        global pda_status
+        if not pda_status : start_stop_pda()
+        global backup_status
+        if not backup_status : start_stop_backup()
+        global reception_status
+        if not reception_status : start_stop_reception()
 
 
 def stop_all() :
@@ -635,7 +636,7 @@ uninstall_button = tk.Button(text='Désinstaller le serveur', command=uninstall,
 canvas1.create_window(800, 460, window=uninstall_button)
 
 
-
+launch_all(showErrors=False)
 
 
 

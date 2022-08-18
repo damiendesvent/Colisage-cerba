@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:colisage_cerba/variables/env.sample.dart';
 import 'package:colisage_cerba/variables/globals.dart' as globals;
 import 'package:colisage_cerba/variables/styles.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:searchfield/searchfield.dart';
@@ -221,6 +222,10 @@ class _SettingState extends State<Setting> {
                                               style: defaultTextStyle,
                                               autofocus: true,
                                               initialValue: ip['PREFIXE IP'],
+                                              inputFormatters: [
+                                                LengthLimitingTextInputFormatter(
+                                                    15)
+                                              ],
                                               onChanged: (newValue) {
                                                 setState(() {
                                                   prefixIp = newValue;
@@ -331,8 +336,12 @@ class _SettingState extends State<Setting> {
 
   void getSiteList() async {
     String phpUriSiteList = Env.urlPrefix + 'Sites/list_site.php';
-    http.Response res = await http.post(Uri.parse(phpUriSiteList),
-        body: {"limit": '100000', "delete": 'false'});
+    http.Response res = await http.post(Uri.parse(phpUriSiteList), body: {
+      "limit": '100000',
+      "order": '',
+      "isAscending": '',
+      "delete": 'false'
+    });
     if (res.body.isNotEmpty) {
       List items = json.decode(res.body);
       setState(() {
@@ -403,6 +412,10 @@ class _SettingState extends State<Setting> {
                                                   style: defaultTextStyle,
                                                   initialValue:
                                                       constant['Valeur'],
+                                                  inputFormatters: [
+                                                    LengthLimitingTextInputFormatter(
+                                                        64)
+                                                  ],
                                                   onChanged: (newValue) {
                                                     setState(() {
                                                       value = newValue;
@@ -438,6 +451,7 @@ class _SettingState extends State<Setting> {
                                         )
                                       : IconButton(
                                           icon: const Icon(Icons.edit),
+                                          tooltip: 'Editer',
                                           onPressed: () {
                                             setState(() {
                                               editedConstant = constant['CODE'];
