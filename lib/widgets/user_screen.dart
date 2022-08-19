@@ -7,7 +7,6 @@ import '../variables/styles.dart';
 import 'dart:async';
 import 'dart:convert';
 import '../variables/globals.dart' as globals;
-import '../models/user.dart';
 
 class UserScreen extends StatelessWidget {
   const UserScreen({Key? key}) : super(key: key);

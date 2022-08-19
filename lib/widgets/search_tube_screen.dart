@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:searchfield/searchfield.dart';
 import '../variables/globals.dart' as globals;
 import '../variables/env.sample.dart';
 import '../variables/styles.dart';
 import 'package:http/http.dart' as http;
-import 'dart:async';
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 
 class SearchTubeScreen extends StatelessWidget {
   const SearchTubeScreen({Key? key}) : super(key: key);
